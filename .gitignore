@@ -1,4 +1,36 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+
+# Environment — never commit secrets
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# OS
 .DS_Store
 Thumbs.db
-*.log
-node_modules/
+
+# Test output
+coverage/
+playwright-report/
+test-results/
+
+# TypeScript cache
+node_modules/.tmp/
+
+# Design documents (keep out of code repo)
+*.docx
+*.pdf
+*.pptx

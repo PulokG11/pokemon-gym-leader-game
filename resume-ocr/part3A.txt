@@ -1,0 +1,135 @@
+=== PAGE 1 ===
+PROFESSIONAL EXPERIENCE
+Publicis Sapient
+Senior Product Manager — Retail & eCommerce
+Bangalore, India
+Partnered with Fortune 500 retailers to define product vision, roadmap, and execution for
+enterprise Retail Media Networks (RMN), Digital Commerce, Customer Personalization,
+Search & Discovery, Mobile Commerce, Omnichannel Checkout, Loyalty, and Customer
+Experience platforms. Collaborated with Engineering, UX, Data Science, Marketing, and
+Business stakeholders to build scalable customer-centric products that improved digital
+engagement, operational efficiency, and revenue growth.
+Client: Leading Regional Grocery Retailer
+Product: Retail Media Network (RMN)
+Led product strategy for an enterprise Retail Media Network that unified first-party
+customer, loyalty, and transaction data into privacy-compliant audience segments, enabling
+brands to execute hyper-targeted advertising campaigns that increased media revenue by
+35%.
+• Designed reusable audience segmentation capabilities leveraging purchase history,
+=== PAGE 2 ===
+behavioral, demographic, and loyalty signals, improving campaign targeting precision by
+40% while reducing audience overlap.
+• Built self-service campaign workflows that reduced campaign launch timelines by 70%,
+enabling marketing teams to independently create, activate, and optimize omnichannel
+campaigns.
+• Defined roadmap priorities for advertiser onboarding, campaign orchestration, attribution
+reporting, and audience activation, improving advertiser adoption and campaign ROI by
+30%.
+• Partnered with Data Science teams to integrate predictive audience models into campaign
+targeting, increasing conversion rates by 25%.
+• Established experimentation and A/B testing capabilities that continuously optimized
+campaign performance using customer behavior and engagement analytics.
+• Collaborated with Marketing, Sales, Engineering, Analytics, and Customer Success teams to
+deliver scalable Retail Media capabilities supporting millions of customer interactions.
+Client: Large North American Grocery Retailer
+Product: Customer Personalization & Audience Intelligence
+Modernized enterprise personalization capabilities by building Al-driven customer
+segmentation and recommendation experiences that increased digital engagement and
+marketing effectiveness.
+• Architected customer segmentation capabilities processing millions of customer attributes
+across transactional, behavioral, geographic, and loyalty datasets, enabling near real-time
+customer activation.
+• Developed configurable rule-based audience builders that reduced campaign preparation
+effort by 80% while empowering business users to create sophisticated customer cohorts
+independently.
+• Built Al-powered recommendation experiences using purchase history, browsing behavior,
+and contextual insights, increasing digital conversion rates by 35%.
+• Improved customer profile quality by introducing profile enrichment, preference
+management, and behavioral scoring capabilities that strengthened downstream
+personalization accuracy.
+• Collaborated with business stakeholders to prioritize roadmap investments across customer
+intelligence, audience activation, and loyalty engagement capabilities.
+Client: Leading Building Materials Distributor
+=== PAGE 3 ===
+Product: B2B Digital Commerce Platform
+Led digital commerce transformation initiatives focused on improving product discovery,
+contractor purchasing experiences, and omnichannel fulfillment.
+• Redesigned digital ordering workflows that simplified product discovery, quote generation,
+and order placement, increasing digital adoption by 32%.
+• Prioritized customer pain points through stakeholder workshops and user research,
+delivering roadmap enhancements that reduced order completion time by 28%.
+• Built intelligent product recommendation capabilities using customer purchasing history and
+account preferences, increasing average basket value by 18%.
+• Defined omnichannel fulfillment workflows connecting online ordering, inventory visibility,
+and in-store pickup experiences, improving customer satisfaction by 22%.
+• Introduced analytics dashboards measuring customer journeys, funnel performance, and
+digital conversion metrics that guided continuous product optimization.
+Client: Global Grocery Retailer
+Product: Intelligent Item Substitution
+Owned product enhancements for intelligent substitution capabilities that minimized
+fulfillment disruptions while improving customer satisfaction during online grocery
+shopping.
+• Developed configurable substitution logic leveraging customer preferences, product affinity,
+and inventory availability, improving successful substitutions by 27%.
+• Reduced order cancellations by 20% through intelligent replacement recommendations that
+maintained customer intent during inventory shortages.
+• Partnered with operations, merchandising, and engineering teams to balance customer
+satisfaction with fulfillment efficiency across omnichannel grocery operations.
+• Introduced substitution analytics that provided real-time insights into acceptance rates,
+inventory constraints, and customer preferences, enabling continuous product
+improvements.
+Client: Global Membership Warehouse Retailer
+Product: Mobile Commerce Platform
+=== PAGE 4 ===
+Led product strategy for mobile commerce capabilities that enhanced digital shopping
+experiences across browsing, purchasing, and fulfillment.
+• Redesigned mobile customer journeys to simplify navigation, product discovery, and
+checkout, increasing mobile conversion by 24%.
+• Introduced personalized product recommendations and contextual promotions that
+improved customer engagement and repeat purchases.
+• Prioritized roadmap investments using customer analytics, usability research, and behavioral
+insights, significantly improving mobile application adoption.
+• Partnered with UX teams to modernize the mobile shopping experience, reducing purchase
+friction and improving customer satisfaction across key digital touchpoints.
+Client: Global Luxury Lifestyle Brand
+Product: Enterprise Search & Product Discovery
+Directed product improvements for enterprise search experiences that enhanced product
+discoverability across digital commerce platforms.
+• Improved search relevance by 45% through enhancements to ranking strategies,
+autocomplete, faceted navigation, and merchandising capabilities.
+• Introduced Al-assisted search recommendations that leveraged customer behavior and
+product affinity to improve engagement and digital conversion.
+• Defined search analytics capabilities enabling merchandising teams to optimize relevance
+using customer behavior, search trends, and inventory insights.
+• Collaborated with UX and Data Science teams to continuously improve search experiences
+using experimentation and customer feedback.
+Client: National Omnichannel Retailer
+Product: Frictionless Checkout & Omnichannel Commerce
+Led product initiatives focused on reducing purchase friction and improving omnichannel
+commerce experiences.
+• Redesigned checkout workflows that streamlined payment, order confirmation, and
+fulfillment selection, increasing checkout completion rates by 21%.
+=== PAGE 5 ===
+• Dennea TriCtlomeSS commerce capabilities supporting online, In-store, ana pickup
+experiences, improving customer convenience and operational efficiency.
+• Introduced customer journey analytics that identified conversion bottlenecks and informed
+roadmap prioritization across digital commerce experiences.
+• Partnered with Engineering, UX, Payments, and Operations teams to deliver scalable
+checkout capabilities supporting high-volume retail transactions.
+Retail Product Leadership
+• Owned end-to-end product lifecycle management spanning customer discovery, product
+strategy, roadmap planning, PRDs, backlog prioritization, sprint execution, release
+management, customer adoption, and continuous product improvement across multiple
+enterprise retail products.
+• Conducted executive customer workshops with Fortune 500 retailers to identify emerging
+commerce, Retail Media, personalization, search, and customer engagement opportunities,
+translating business challenges into commercially successful product roadmaps.
+• Defined product success metrics, adoption KPIs, experimentation strategies, and customer
+outcome measurements that enabled continuous optimization through data-driven product
+management.
+• Led cross-functional teams comprising Product Managers, Engineers, UX Designers,
+Architects, Data Scientists, QA Engineers, and Customer Success organizations to deliver
+enterprise SaaS capabilities supporting millions of customer interactions.
+• Mentored junior Product Managers on customer discovery, roadmap prioritization,
+stakeholder management, Agile delivery, and hypothesis-driven product development,
+qtrpnathenintl nrnHl manaaement matl Irit\/ delivery teamq

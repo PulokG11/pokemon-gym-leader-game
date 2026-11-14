@@ -1,0 +1,220 @@
+=== PAGE 1 ===
+PROFESSIONAL EXPERIENCE
+09 Solutions
+Senior Product Manager — Research & Development
+Bangalore, India | 2022 — Present
+Lead product strategy, roadmap, and execution for multiple enterprise SaaS products
+powering Al-driven Supply Chain Planning, Optimization, Platform Engineering, Developer
+Experience, and Enterprise Al. Partner with Engineering, Customer Success, Product
+Marketing, UX, Sales, and Fortune 500 customers to define next-generation product
+capabilities that improve enterprise planning, platform reliability, customer adoption, and
+operational efficiency.
+Responsible for end-to-end product lifecycle management spanning product discovery,
+Voice of Customer, roadmap prioritization, PRDs, user stories, release planning, GTM
+enablement, customer adoption, and continuous product innovation.
+PRODUCT STRATEGY & PORTFOLIO
+LEADERSHIP
+• Directed product strategy across five enterprise product portfolios including Linear
+Programming Solver, Supply Chain Solver, Supplier Relationship Management, Platform Ulf
+and Al Products, enabling adoption across 200+ enterprise customers.
+=== PAGE 2 ===
+• Owned roadmap planning and strategic investment decisions for a $5M+ ARR enterprise
+optimization product, balancing customer priorities, platform modernization initiatives, and
+long-term technology investments.
+• Influenced product investments contributing to more than $20M ARR through innovative
+planning capabilities including transportation optimization, incremental planning, scenario
+planning, and intelligent solver enhancements.
+• Conducted Voice of Customer programs with Fortune 500 organizations across Retail,
+Manufacturing, Consumer Goods, Automotive, Healthcare, and Transportation, converting
+customer pain points into prioritized roadmap initiatives that increased customer
+satisfaction by 40%.
+• Defined quarterly and annual product roadmaps aligned with customer needs, market
+opportunities, engineering capacity, and commercial objectives, consistently delivering
+strategic product enhancements on schedule.
+• Collaborated closely with Customer Success and Product Marketing organizations to
+identify adoption barriers, prioritize customer requests, and accelerate feature utilization
+across enterprise implementations.
+LINEAR PROGRAMMING SOLVER (LPS)
+Product Owner
+Enterprise optimization engine supporting production planning, deployment planning,
+inventory optimization, network optimization, and constrained supply planning.
+• Scaled the Linear Programming Solver into a $5M+ ARR enterprise product, defining
+strategic roadmap investments that improved optimization performance, enterprise
+adoption, and commercial value.
+• Spearheaded solver modernization initiatives that reduced optimization runtime by 65%,
+enabling planners to evaluate significantly larger optimization models while improving
+planning responsiveness.
+• Improved optimization scalability by 20—30% through enhancements to solver architecture,
+enabling enterprise customers to execute increasingly complex planning scenarios.
+• Enhanced sourcing optimization accuracy by 40% by introducing advanced proportional
+sourcing constraints and configurable optimization logic aligned with real-world business
+policies.
+• Reduced infrastructure costs by 35% through tenant-level optimization resource
+=== PAGE 3 ===
+Illallayclll<llt anu 511 atcylc>.
+• Improved solver explainability by developing Al-assisted optimization insights that
+translated mathematical outputs into intuitive business recommendations, reducing
+interpretation effort by approximately 50% during pilot evaluations.
+• Designed advanced infeasibility diagnosis capabilities that reduced solver debugging effort
+by 60%, allowing planners to quickly identify conflicting constraints and optimization
+bottlenecks.
+• Introduced telemetry-driven solver monitoring that provided real-time visibility into
+optimization performance, convergence behavior, and execution anomalies across enterprise
+environments.
+• Partnered with Data Science teams to evaluate Al-assisted parameter tuning techniques
+that improved optimization convergence and reduced manual configuration effort.
+SUPPLY CHAIN SOLVER (SCS)
+Product Owner
+Enterprise planning engine supporting master planning, deployment planning, inventory
+optimization, replenishment planning, and supply balancing.
+• Redesigned planning workflows to eliminate implementation complexity, reducing
+customer onboarding timelines by 75% while improving consultant productivity and
+customer experience.
+• Optimized planning engine execution logic, reducing batch execution time by 70% and
+inventory rebalancing runtime by 85%, enabling planners to make faster operational
+decisions.
+• Built the organization's first industry-specific Apparel & Footwear Supply Planning
+template, transforming a product initiative that standardized implementations and
+accelerated customer time-to-value.
+• Improved planning accuracy by 22% through enhanced movement constraints and
+configurable optimization parameters that better reflected operational realities.
+• Increased customer satisfaction by 40% through simplified planning configuration,
+improved planner workflows, and enhanced solver usability.
+• Led customer discovery workshops across multiple industries to understand evolving
+planning challenges, influencing future roadmap priorities and enterprise product direction.
+• Configured advanced planning capabilities including transportation optimization,
+=== PAGE 4 ===
+deployment planning, and inventory balancing that supported complex global supply chain
+operations.
+TRANSPORTATION LOAD BUILDER
+Product Manager
+• Defined product vision for Transportation Load Builder within the Supply Planning
+Reference Model, enabling customers to optimize transportation planning, maximize vehicle
+utilization, and improve logistics efficiency across enterprise supply chains.
+• Collaborated with enterprise customers to translate transportation planning challenges
+into configurable optimization capabilities that strengthened product differentiation and
+commercial competitiveness.
+• Introduced configurable transportation planning workflows that simplified implementation
+while improving planner productivity across multiple industry verticals.
+SUPPLIER RELATIONSHIP MANAGEMENT
+(SRM)
+Product Manager
+• Led product strategy for supplier collaboration capabilities that improved supplier visibility,
+strengthened sourcing workflows, and enhanced enterprise planning collaboration.
+• Designed configurable supplier engagement workflows that enabled organizations to
+streamline procurement coordination and improve supply continuity.
+• Prioritized roadmap investments using customer feedback and market analysis to improve
+supplier collaboration capabilities across enterprise planning environments.
+GENERATIVE Al & Al PRODUCT SUITE
+Product Manager
+Owned ideation, product strategy, and roadmap for enterprise Al products improving
+engineering productivity, customer support, product management, software delivery, and
+operational decision-making.
+=== PAGE 5 ===
+BugSense
+• Built an Al-powered bug reporting assistant that automated diagnostics collection,
+screenshot capture, log aggregation, and root-cause evidence generation, reducing manual
+defect documentation effort by 90%.
+ADO Assist
+• Delivered an Al engineering copilot that automated bug validation, duplicate detection,
+work-item enrichment, and historical issue recommendations, targeting reduction of Mean
+Time to Activate from 5.5 days to 1.5 days.
+Bug Analyzer
+• Developed an Al-driven root-cause analysis platform that correlated telemetry, historical
+incidents, logs, and application traces, reducing investigation effort from days to minutes.
+Functional Design Document Generator
+• Created an Al-powered documentation assistant that generated complete Functional
+Design Documents, Azure DevOps Features, Wiki pages, and stakeholder approval
+workflows, reducing documentation effort from several days to 1—2 hours.
+Demand Sensing AI Agent
+• Designed an Al-powered demand sensing assistant capable of synthesizing demand
+signals, weather, promotions, POS data, and external events into explainable forecasts and
+replenishment recommendations.
+Solver Explainability Agent
+• Conceptualized an enterprise Al assistant that automatically translated optimization
+outputs into business-friendly recommendations, improving planner confidence while
+reducing interpretation effort by approximately 50%.
+Al Product Management Assistant
+• Designed an internal Al productivity assistant supporting PRD creation, user story
+generation, roadmap drafting, release notes, customer communication, and product
+documentation, significantly improving product management efficiency.
+PLATFORM Ul & USER EXPERIENCE
+DrnA1 N/lannr1At-
+=== PAGE 6 ===
+• Led enterprise UX modernization across dashboards, workspaces, charts, pivots, navigation,
+and planning experiences, increasing planner productivity by 30% while improving overall
+usability.
+• Conducted more than 50 customer discovery sessions with planners, consultants, and
+enterprise users to identify adoption barriers and prioritize future UX investments.
+• Developed user stories, workflow diagrams, wireframes, and acceptance criteria that
+reduced engineering rework while improving release quality.
+• Introduced modern visualization capabilities including responsive dashboards, advanced
+filtering, and contextual insights that significantly enhanced enterprise decision-making.
+• Improved platform accessibility through enhanced visualization standards, simplified
+navigation patterns, and intuitive planner workflows.
+PLATFORM ENGINEERING & OBSERVABILITY
+Product Manager
+• Led Al-native observability strategy across 091s enterprise SaaS platform, enabling
+intelligent telemetry, anomaly detection, proactive monitoring, and operational automation
+for 200+ enterprise customers.
+• Reduced issue diagnosis and debugging effort by 40% through centralized monitoring,
+intelligent telemetry pipelines, and enhanced platform transparency.
+• Directed modernization of enterprise APIs and developer infrastructure from monolithic
+architecture to cloud-native services, reducing production downtime by 30% while
+generating approximately $900K in annual infrastructure savings.
+• Improved platform scalability from 40 concurrent users to more than 1,000 users,
+enabling enterprise-grade deployments for global manufacturing organizations.
+• Spearheaded Voice of Customer initiatives that influenced platform investments while
+reducing API-related production issues by 90% through improved platform resilience.
+• Established Continuous Centralized Monitoring capabilities that proactively identified
+execution failures, enabling rapid incident response and increasing platform reliability across
+global deployments.
+• Improved developer productivity through platform automation, observability dashboards,
+and intelligent monitoring tools that accelerated troubleshooting and reduced operational
+overhead.
+=== PAGE 7 ===
+PLATFORM MODERNIZATION & INTEGRATION
+Product Manager
+• Led modernization of enterprise integration products by transitioning legacy data
+processing frameworks to scalable cloud-native architectures, improving platform
+maintainability and long-term scalability.
+• Migrated 13 enterprise integration workflows to next-generation integration frameworks,
+improving operational efficiency and simplifying enterprise deployments.
+• Automated release validation, regression testing, and deployment workflows through
+CI/CD improvements, reducing release preparation effort from multiple days to a few hours.
+• Developed reusable integration accelerators that significantly reduced implementation
+effort while improving consistency across enterprise customer deployments.
+PRODUCT DELIVERY & CUSTOMER SUCCESS
+• Partnered directly with enterprise customers throughout product discovery,
+implementation, User Acceptance Testing (UAT), and post-release adoption, ensuring
+delivered capabilities addressed measurable business outcomes.
+• Authored comprehensive PRDs, product specifications, acceptance criteria, release
+documentation, enablement materials, and customer-facing product guides that accelerated
+adoption and reduced implementation ambiguity.
+• Collaborated closely with QA organizations to design comprehensive functional validation
+strategies, improving platform stability and release quality.
+• Conducted product demonstrations, roadmap presentations, executive briefings, and
+customer enablement sessions that strengthened stakeholder alignment and accelerated
+enterprise product adoption.
+• Designed learning programs and technical training content supporting more than 3,000
+global users, improving onboarding efficiency and customer self-sufficiency.
+LEADERSHIP & ORGANIZATIONAL IMPACT
+• Directed cross-functional organizations comprising Product Managers, Engineers, UX
+=== PAGE 8 ===
+Designers, QA Engineers, Architects, Data Scientists, and Customer Success teams, improving
+delivery efficiency by 25%.
+• Mentored product managers, engineers, and new team members on Agile product
+management, customer-centric product development, roadmap prioritization, and en
+terprise software delivery best practices.
+• Improved defect resolution time by 25% while increasing overall engineering productivity
+by 40% through Agile coaching, improved backlog management, and standardized delivery
+practices.
+• Led sprint planning, backlog prioritization, release planning, retrospectives, stakeholder
+reviews, and roadmap governance across multiple concurrent enterprise product initiatives.
+• Supported hiring and organizational growth through campus recruitment, technical
+interviews, onboarding, and structured mentoring programs.
+• Fostered strong collaboration between Engineering, Product, Sales, Customer Success,
+and Executive Leadership to align product investments with strategic business priorities.
+• Represented Product Management in executive reviews, customer workshops, roadmap
+discussions, and strategic planning sessions, influencing long-term platform direction and
+enternriqe innovation

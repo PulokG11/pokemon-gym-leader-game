@@ -1,0 +1,644 @@
+{
+  "PokeGymMaster/.oxlintrc.json": {
+    "mtime": 1794213149.8348713,
+    "seen": 1794662397.2161753,
+    "ast_hash": "029f4905006c1fffd96bc863e2d98d3e",
+    "semantic_hash": ""
+  },
+  "PokeGymMaster/package.json": {
+    "mtime": 1794213150.803038,
+    "seen": 1794662397.2162046,
+    "ast_hash": "83cdab1417fb1050e5212e1471bf4199",
+    "semantic_hash": ""
+  },
+  "PokeGymMaster/src/App.tsx": {
+    "mtime": 1794213150.2150114,
+    "seen": 1794662397.2162144,
+    "ast_hash": "e4931f6d58500c8315d8198f9aa64ff0",
+    "semantic_hash": ""
+  },
+  "PokeGymMaster/src/main.tsx": {
+    "mtime": 1794213150.2190118,
+    "seen": 1794662397.2162218,
+    "ast_hash": "787e5a07efeb2bf6209d5937195f2f68",
+    "semantic_hash": ""
+  },
+  "PokeGymMaster/tsconfig.app.json": {
+    "mtime": 1794213149.9541752,
+    "seen": 1794662397.2162287,
+    "ast_hash": "5f2dafd737dea8a4ddcbb10f5113ac5a",
+    "semantic_hash": ""
+  },
+  "PokeGymMaster/tsconfig.json": {
+    "mtime": 1794213149.9660637,
+    "seen": 1794662397.216234,
+    "ast_hash": "a3d39fa780ebff65444de257f291ce6c",
+    "semantic_hash": ""
+  },
+  "PokeGymMaster/tsconfig.node.json": {
+    "mtime": 1794213149.9753892,
+    "seen": 1794662397.216241,
+    "ast_hash": "f9cb81ddcea69ffdab672fc8c48dca66",
+    "semantic_hash": ""
+  },
+  "PokeGymMaster/vite.config.ts": {
+    "mtime": 1794213150.2090116,
+    "seen": 1794662397.2162461,
+    "ast_hash": "5d54447744c19ccd28638a5c668d15ea",
+    "semantic_hash": ""
+  },
+  "meridian/.github/workflows/pages.yml": {
+    "mtime": 1793545353.2787373,
+    "seen": 1794662397.2162507,
+    "ast_hash": "06132a2d69802558765aef41577c4615",
+    "semantic_hash": ""
+  },
+  "meridian/backend/seed/cases.json": {
+    "mtime": 1793628597.9431248,
+    "seen": 1794662397.2162554,
+    "ast_hash": "2b6b06b9ca6eda286801671ff2d8fa51",
+    "semantic_hash": ""
+  },
+  "meridian/backend/supabase/functions/api/index.ts": {
+    "mtime": 1794045856.6517823,
+    "seen": 1794662397.216261,
+    "ast_hash": "4b2211acb6b5c2f21649939058cc4b34",
+    "semantic_hash": ""
+  },
+  "meridian/backend/tools/make-users.ps1": {
+    "mtime": 1793628114.9192977,
+    "seen": 1794662397.2162669,
+    "ast_hash": "027a7641e1a692c5473300eb0f4b78ef",
+    "semantic_hash": ""
+  },
+  "meridian/backend/tools/serve.ps1": {
+    "mtime": 1793628499.8591084,
+    "seen": 1794662397.2162707,
+    "ast_hash": "7230b80af8fed94d665be573a1c5f6ca",
+    "semantic_hash": ""
+  },
+  "prep-notes/build_answers.ps1": {
+    "mtime": 1792490492.0553455,
+    "seen": 1794662397.2162747,
+    "ast_hash": "ab48c291c6dcf633109a5c4125e9bae8",
+    "semantic_hash": ""
+  },
+  "prep-notes/build_book.ps1": {
+    "mtime": 1792495180.250765,
+    "seen": 1794662397.216279,
+    "ast_hash": "0209ee76aeb454ddfd5a35e17e17c65e",
+    "semantic_hash": ""
+  },
+  "prep-notes/build_gap.ps1": {
+    "mtime": 1792486945.549059,
+    "seen": 1794662397.2162828,
+    "ast_hash": "afb2785c53516138b16113f50d90f178",
+    "semantic_hash": ""
+  },
+  "prep-notes/build_notes.ps1": {
+    "mtime": 1792483517.603403,
+    "seen": 1794662397.216287,
+    "ast_hash": "02cda20b43ee608fac918205e31d85a8",
+    "semantic_hash": ""
+  },
+  "prep-notes/build_questions.ps1": {
+    "mtime": 1792485040.1673348,
+    "seen": 1794662397.2162907,
+    "ast_hash": "dba811a592c1f20ff62df2447e83c379",
+    "semantic_hash": ""
+  },
+  "prep-notes/build_star.ps1": {
+    "mtime": 1792489018.8608527,
+    "seen": 1794662397.216295,
+    "ast_hash": "850e53bae506bdbb7bfd1f3218484956",
+    "semantic_hash": ""
+  },
+  "working-files/build.js": {
+    "mtime": 1792481586.5601842,
+    "seen": 1794662397.2444797,
+    "ast_hash": "8f9c7acdaeb063f79971ffc229280db5",
+    "semantic_hash": ""
+  },
+  "working-files/build.ps1": {
+    "mtime": 1792481645.543095,
+    "seen": 1794662397.2444835,
+    "ast_hash": "29d54c7e09259b838938d1fc66aa4559",
+    "semantic_hash": ""
+  },
+  "working-files/data.js": {
+    "mtime": 1792481569.8996909,
+    "seen": 1794662397.2444882,
+    "ast_hash": "89c74f6a2cec8c7fd46d02480ae66993",
+    "semantic_hash": ""
+  },
+  "PokeGymMaster/CHANGELOG.md": {
+    "mtime": 1794213437.0790603,
+    "seen": 1794662397.2444923,
+    "ast_hash": "a403769cefb71852ed7940d0dc035aa5",
+    "semantic_hash": ""
+  },
+  "PokeGymMaster/Plan - pokegymleader.txt": {
+    "mtime": 1794292414.4036753,
+    "seen": 1794662397.2444963,
+    "ast_hash": "d5d9d9c5f09850fb5f52d4cca204aaf6",
+    "semantic_hash": ""
+  },
+  "PokeGymMaster/README.md": {
+    "mtime": 1794213429.5183918,
+    "seen": 1794662397.2445004,
+    "ast_hash": "77f1e4ee342c3905b51f2ad3cb3e822c",
+    "semantic_hash": ""
+  },
+  "PokeGymMaster/backend/PROJECT.md": {
+    "mtime": 1794213395.6507044,
+    "seen": 1794662397.244505,
+    "ast_hash": "33eb8f77d9f5e6fc7c5eebf7462d80a1",
+    "semantic_hash": ""
+  },
+  "PokeGymMaster/backend/README.md": {
+    "mtime": 1794213224.5054736,
+    "seen": 1794662397.2445087,
+    "ast_hash": "dfeb0cbd7b23c17d723d36f04fd75b7f",
+    "semantic_hash": ""
+  },
+  "PokeGymMaster/docs/README.md": {
+    "mtime": 1794213211.3892956,
+    "seen": 1794662397.2445133,
+    "ast_hash": "cc9fac2ce664ba0cf52eea7e3f099566",
+    "semantic_hash": ""
+  },
+  "PokeGymMaster/docs/concept-brief-v1.md": {
+    "mtime": 1794213934.8016376,
+    "seen": 1794662397.2445173,
+    "ast_hash": "1c7d5c35b85e7e0b95d86dab67e497fd",
+    "semantic_hash": ""
+  },
+  "PokeGymMaster/index.html": {
+    "mtime": 1794213150.7814116,
+    "seen": 1794662397.244522,
+    "ast_hash": "3a46dc900d854dff167998d5d242ba16",
+    "semantic_hash": ""
+  },
+  "Pulokesh_Ghosh_Master_Resume_CHANGELOG.md": {
+    "mtime": 1794039741.6108027,
+    "seen": 1794662397.2445266,
+    "ast_hash": "b9d90e3ccb3be62bc56844a33e23db85",
+    "semantic_hash": ""
+  },
+  "meridian/CHANGELOG.md": {
+    "mtime": 1794161714.7482305,
+    "seen": 1794662397.2445312,
+    "ast_hash": "91a0c11fb2d6c87eda2417cc3c6b2e07",
+    "semantic_hash": ""
+  },
+  "meridian/README.md": {
+    "mtime": 1793546578.9323778,
+    "seen": 1794662397.2445354,
+    "ast_hash": "a32c3b5fe85dc71997bcd35519d19082",
+    "semantic_hash": ""
+  },
+  "meridian/backend/PROJECT.md": {
+    "mtime": 1793548282.8766396,
+    "seen": 1794662397.2445402,
+    "ast_hash": "ff96327410a063953a606b1a144beab0",
+    "semantic_hash": ""
+  },
+  "meridian/backend/README.md": {
+    "mtime": 1793548282.901158,
+    "seen": 1794662397.2445443,
+    "ast_hash": "e92653d1e798447a893e1f11ad7ecdfe",
+    "semantic_hash": ""
+  },
+  "meridian/docs/superpowers/plans/2026-11-01-meridian-backend.md": {
+    "mtime": 1793548063.4105108,
+    "seen": 1794662397.2445483,
+    "ast_hash": "8d839583524bc3bd8c416f338c41f888",
+    "semantic_hash": ""
+  },
+  "meridian/docs/superpowers/specs/2026-11-01-meridian-backend-design.md": {
+    "mtime": 1793548076.0562212,
+    "seen": 1794662397.2445526,
+    "ast_hash": "14b58bb0d5966307c09e509e404ca77f",
+    "semantic_hash": ""
+  },
+  "meridian/index.html": {
+    "mtime": 1794161656.9080482,
+    "seen": 1794662397.2445571,
+    "ast_hash": "8004e2b5c1772720fe0b7c4ca06b778b",
+    "semantic_hash": ""
+  },
+  "meridian/process-maps.html": {
+    "mtime": 1793546578.9979076,
+    "seen": 1794662397.2445607,
+    "ast_hash": "eac3ff090d12c2a0d4a1f2d8e66c4887",
+    "semantic_hash": ""
+  },
+  "prep-notes/answers-src-v2/00_intro.md": {
+    "mtime": 1792494926.5389555,
+    "seen": 1794662397.2445652,
+    "ast_hash": "af47f98af3ee437b6db1c6fc4b8ab272",
+    "semantic_hash": ""
+  },
+  "prep-notes/answers-src-v2/05_basic.md": {
+    "mtime": 1792494760.2475889,
+    "seen": 1794662397.2445693,
+    "ast_hash": "088ba6e3a9ad16f55d9feec52f344da6",
+    "semantic_hash": ""
+  },
+  "prep-notes/answers-src-v2/10_health_a.md": {
+    "mtime": 1792494892.6535246,
+    "seen": 1794662397.244573,
+    "ast_hash": "370d8867bcc055c27380eaef1ee990ab",
+    "semantic_hash": ""
+  },
+  "prep-notes/answers-src-v2/11_health_b.md": {
+    "mtime": 1792494892.6595912,
+    "seen": 1794662397.244578,
+    "ast_hash": "1d3ae7ccee5c1126c939adb1bf7448b9",
+    "semantic_hash": ""
+  },
+  "prep-notes/answers-src-v2/12_health_c.md": {
+    "mtime": 1792494714.7427514,
+    "seen": 1794662397.244582,
+    "ast_hash": "0c6f90b88bcefddb4e809e99b7dcfe0d",
+    "semantic_hash": ""
+  },
+  "prep-notes/answers-src-v2/20_ai_a.md": {
+    "mtime": 1792494892.6595912,
+    "seen": 1794662397.244586,
+    "ast_hash": "1aaddf7c3235e20bbe09049398810c22",
+    "semantic_hash": ""
+  },
+  "prep-notes/answers-src-v2/21_ai_b.md": {
+    "mtime": 1792490014.985585,
+    "seen": 1794662397.2445896,
+    "ast_hash": "3868be8745f5b699d40c4935a28830f7",
+    "semantic_hash": ""
+  },
+  "prep-notes/answers-src-v2/22_ai_c.md": {
+    "mtime": 1792494714.7531524,
+    "seen": 1794662397.2445934,
+    "ast_hash": "cb98332e575ac53c454448d0cf771ca2",
+    "semantic_hash": ""
+  },
+  "prep-notes/answers-src-v2/30_pm_a.md": {
+    "mtime": 1792494892.6595912,
+    "seen": 1794662397.2445977,
+    "ast_hash": "ecc1731b7f94d863a14efce116da0323",
+    "semantic_hash": ""
+  },
+  "prep-notes/answers-src-v2/31_pm_b.md": {
+    "mtime": 1792494892.670688,
+    "seen": 1794662397.2446022,
+    "ast_hash": "5812ec69da68640781ce796f9c67f038",
+    "semantic_hash": ""
+  },
+  "prep-notes/answers-src-v2/32_pm_c.md": {
+    "mtime": 1792494714.770316,
+    "seen": 1794662397.244606,
+    "ast_hash": "2581b2bb1a06e05456c80bd2d5114144",
+    "semantic_hash": ""
+  },
+  "prep-notes/answers-src-v2/40_tech_a.md": {
+    "mtime": 1792494892.6780162,
+    "seen": 1794662397.2446103,
+    "ast_hash": "8f93dc30bba1d484628c3728e7cd19d1",
+    "semantic_hash": ""
+  },
+  "prep-notes/answers-src-v2/41_tech_b.md": {
+    "mtime": 1792494892.6780162,
+    "seen": 1794662397.2446148,
+    "ast_hash": "4475b894a4ddb0844d1be517de5c085e",
+    "semantic_hash": ""
+  },
+  "prep-notes/answers-src-v2/42_tech_c.md": {
+    "mtime": 1792494714.7830505,
+    "seen": 1794662397.2446198,
+    "ast_hash": "e8d73cb4f93b8c0e86004c27865b3161",
+    "semantic_hash": ""
+  },
+  "prep-notes/answers-src-v2/50_leadership.md": {
+    "mtime": 1792494714.8031416,
+    "seen": 1794662397.244624,
+    "ast_hash": "d9cd042a247c2637f8b6eef914d9a0d4",
+    "semantic_hash": ""
+  },
+  "prep-notes/answers-src-v2/60_appendix_ford.md": {
+    "mtime": 1792494714.8051481,
+    "seen": 1794662397.2446291,
+    "ast_hash": "93d8d4487ca0620ed22f692be9816f9d",
+    "semantic_hash": ""
+  },
+  "prep-notes/answers-src-v2/70_appendix_notes.md": {
+    "mtime": 1792495061.0299044,
+    "seen": 1794662397.244634,
+    "ast_hash": "dd581f2df90237782a97e69255c9d2b4",
+    "semantic_hash": ""
+  },
+  "prep-notes/answers-src/00_intro.md": {
+    "mtime": 1792489614.3745577,
+    "seen": 1794662397.2446377,
+    "ast_hash": "1b8528d5a98e5a465e6485417015ba11",
+    "semantic_hash": ""
+  },
+  "prep-notes/answers-src/10_health_a.md": {
+    "mtime": 1792490403.7937799,
+    "seen": 1794662397.2446413,
+    "ast_hash": "ab3eb5f0ff8ac1c0e81171e8fe8b1a3f",
+    "semantic_hash": ""
+  },
+  "prep-notes/answers-src/11_health_b.md": {
+    "mtime": 1792489826.3701215,
+    "seen": 1794662397.244645,
+    "ast_hash": "56ee42ca9a0eb4be7f496fbe6f691fbe",
+    "semantic_hash": ""
+  },
+  "prep-notes/answers-src/20_ai_a.md": {
+    "mtime": 1792489924.5761478,
+    "seen": 1794662397.244649,
+    "ast_hash": "6caad462c4253922427cb80a136b3d09",
+    "semantic_hash": ""
+  },
+  "prep-notes/answers-src/21_ai_b.md": {
+    "mtime": 1792490014.985585,
+    "seen": 1794662397.2446527,
+    "ast_hash": "3868be8745f5b699d40c4935a28830f7",
+    "semantic_hash": ""
+  },
+  "prep-notes/answers-src/30_pm_a.md": {
+    "mtime": 1792490122.3968446,
+    "seen": 1794662397.244657,
+    "ast_hash": "8431d75b2484e6786510d7a06eca7507",
+    "semantic_hash": ""
+  },
+  "prep-notes/answers-src/31_pm_b.md": {
+    "mtime": 1792490403.749843,
+    "seen": 1794662397.2446616,
+    "ast_hash": "5586a2ea01b07609b0044280b2fb983f",
+    "semantic_hash": ""
+  },
+  "prep-notes/answers-src/40_tech_a.md": {
+    "mtime": 1792490324.5552652,
+    "seen": 1794662397.2446656,
+    "ast_hash": "6393e5cb3ec21ccfd558e3f47956b803",
+    "semantic_hash": ""
+  },
+  "prep-notes/answers-src/41_tech_b.md": {
+    "mtime": 1792490385.5866883,
+    "seen": 1794662397.2446697,
+    "ast_hash": "33a4389695e50aec9a09cbcd32f33395",
+    "semantic_hash": ""
+  },
+  "prep-notes/gap-src/10_gap.md": {
+    "mtime": 1792486945.409317,
+    "seen": 1794662397.244674,
+    "ast_hash": "4d1fbba86db85875db77a12caa6de7f8",
+    "semantic_hash": ""
+  },
+  "prep-notes/questions-src/10_health_ai.md": {
+    "mtime": 1792484949.9815495,
+    "seen": 1794662397.2446778,
+    "ast_hash": "0851b59dd3acc9f20d0b892aa9fce329",
+    "semantic_hash": ""
+  },
+  "prep-notes/questions-src/20_pm_tech.md": {
+    "mtime": 1792485009.501639,
+    "seen": 1794662397.244682,
+    "ast_hash": "7f8e82aaf5c6b145d8d0513c10075f0d",
+    "semantic_hash": ""
+  },
+  "prep-notes/src/00_research.md": {
+    "mtime": 1792483261.1531115,
+    "seen": 1794662397.2446866,
+    "ast_hash": "dcb64e34c5e1e5d640da6ad814b8b1e4",
+    "semantic_hash": ""
+  },
+  "prep-notes/src/10_healthcare.md": {
+    "mtime": 1792483321.818067,
+    "seen": 1794662397.2446904,
+    "ast_hash": "5cf20ab4e49a62d8dc023882031247b5",
+    "semantic_hash": ""
+  },
+  "prep-notes/src/20_ai.md": {
+    "mtime": 1792483371.6314564,
+    "seen": 1794662397.244695,
+    "ast_hash": "6d485cfe348bf6d2ad6d4a1e80fd3843",
+    "semantic_hash": ""
+  },
+  "prep-notes/src/30_pm.md": {
+    "mtime": 1792483421.0741024,
+    "seen": 1794662397.2447,
+    "ast_hash": "368198be2455f9e56a0c71b7af06223d",
+    "semantic_hash": ""
+  },
+  "prep-notes/src/40_tech.md": {
+    "mtime": 1792483454.490989,
+    "seen": 1794662397.2447047,
+    "ast_hash": "23794997040525da08d174390af4f716",
+    "semantic_hash": ""
+  },
+  "prep-notes/src/50_close.md": {
+    "mtime": 1792483474.0858867,
+    "seen": 1794662397.244709,
+    "ast_hash": "8413420bc71eb64af0a90f9af2e6b52f",
+    "semantic_hash": ""
+  },
+  "prep-notes/star-src/00_answers.md": {
+    "mtime": 1792487945.6893928,
+    "seen": 1794662397.2447145,
+    "ast_hash": "944abd32f5d4c1e5c59edbac5516ede2",
+    "semantic_hash": ""
+  },
+  "prep-notes/star-src/00_intro_stories_a.md": {
+    "mtime": 1792487937.707006,
+    "seen": 1794662397.244719,
+    "ast_hash": "167f14d3a835dd49fbd4b01b2dc92479",
+    "semantic_hash": ""
+  },
+  "prep-notes/star-src/10_stories_b.md": {
+    "mtime": 1792488601.1513302,
+    "seen": 1794662397.244724,
+    "ast_hash": "81808435a1ee6088d940507dcd40da9c",
+    "semantic_hash": ""
+  },
+  "prep-notes/star-src/90_spoken_180.md": {
+    "mtime": 1792489018.624592,
+    "seen": 1794662397.2447283,
+    "ast_hash": "17c44fb6240f38b680edb102c42c3c99",
+    "semantic_hash": ""
+  },
+  "resume-ocr/part1.txt": {
+    "mtime": 1792485588.0877838,
+    "seen": 1794662397.2469385,
+    "ast_hash": "96b38d7968677383b9578d9f19175cc1",
+    "semantic_hash": ""
+  },
+  "resume-ocr/part2.txt": {
+    "mtime": 1792485588.1128516,
+    "seen": 1794662397.2469428,
+    "ast_hash": "357a5f5c0fcf7a1d6ee97a06b3b142b4",
+    "semantic_hash": ""
+  },
+  "resume-ocr/part3A.txt": {
+    "mtime": 1792485588.138538,
+    "seen": 1794662397.246947,
+    "ast_hash": "63890cdce75dba270568bfb6e2c1ce70",
+    "semantic_hash": ""
+  },
+  "resume-ocr/part3B.txt": {
+    "mtime": 1792485588.150543,
+    "seen": 1794662397.2469518,
+    "ast_hash": "03f5f7aff371f3ecd13f629274d5a717",
+    "semantic_hash": ""
+  },
+  "resume-ocr/part3C.txt": {
+    "mtime": 1792485588.1821556,
+    "seen": 1794662397.2469559,
+    "ast_hash": "9a8463c0b4bcedd6db31575e3fbf56f9",
+    "semantic_hash": ""
+  },
+  "resume-ocr/part3D.txt": {
+    "mtime": 1792485588.1980925,
+    "seen": 1794662397.2469606,
+    "ast_hash": "9100cf297ba6b76d1660d54a98aea880",
+    "semantic_hash": ""
+  },
+  "resume-ocr/part3E.txt": {
+    "mtime": 1792485588.214206,
+    "seen": 1794662397.2469654,
+    "ast_hash": "7eedcbb21ec337d0448e4f0491f265f4",
+    "semantic_hash": ""
+  },
+  "resume-ocr/part3F.txt": {
+    "mtime": 1792485588.229964,
+    "seen": 1794662397.2469697,
+    "ast_hash": "c434e5602a7817afb24c307b5ead8746",
+    "semantic_hash": ""
+  },
+  "resume-ocr/part3G.txt": {
+    "mtime": 1792485588.229964,
+    "seen": 1794662397.2469735,
+    "ast_hash": "439c3aac5e36fb8d5bf6747578005dfe",
+    "semantic_hash": ""
+  },
+  "resume-ocr/part4.txt": {
+    "mtime": 1792485588.229964,
+    "seen": 1794662397.2469776,
+    "ast_hash": "e07eb5bc2b1cb72b5122dc0c4d2e9399",
+    "semantic_hash": ""
+  },
+  "working-files/jd.txt": {
+    "mtime": 1792481389.6634624,
+    "seen": 1794662397.246982,
+    "ast_hash": "43291962524ea7ae4d6d8654d170d676",
+    "semantic_hash": ""
+  },
+  "Appeals Business Case 1026.pdf": {
+    "mtime": 1793606679.375183,
+    "seen": 1794662397.246987,
+    "ast_hash": "55bee8936a4eee6148a826238723f54b",
+    "semantic_hash": ""
+  },
+  "Back_Office_RCM_Workflows_Guide.pdf": {
+    "mtime": 1793606582.4327302,
+    "seen": 1794662397.2469916,
+    "ast_hash": "d5261e6678ea64467a02fe94d32dafe2",
+    "semantic_hash": ""
+  },
+  "COB_Denials_20_Deep_Interview_Questions_and_60_Followups.pdf": {
+    "mtime": 1793606628.690246,
+    "seen": 1794662397.2469969,
+    "ast_hash": "917ddd468aa695441b416d73a1f4edbb",
+    "semantic_hash": ""
+  },
+  "COB_Denials_Agentic_RCM_Product_Case_3_Pulokesh CustomGPT.pdf": {
+    "mtime": 1793606656.6882708,
+    "seen": 1794662397.2470016,
+    "ast_hash": "ba0e72d44d552bd6f3770b42b90788f2",
+    "semantic_hash": ""
+  },
+  "COB_Denials_Appeals_Product_Case_Best_Version dupe.pdf": {
+    "mtime": 1793614366.6976683,
+    "seen": 1794662397.2470057,
+    "ast_hash": "8e0e8a3a460a42c7408b5125a9578ee7",
+    "semantic_hash": ""
+  },
+  "COB_Denials_Appeals_Product_Case_Presentation.pdf": {
+    "mtime": 1793605510.1306396,
+    "seen": 1794662397.2470136,
+    "ast_hash": "cc7309f5282ba5f07989e696718a9e50",
+    "semantic_hash": ""
+  },
+  "COB_Denials_Appeals_Product_Case_Presentation_Speech.pdf": {
+    "mtime": 1793606295.8873894,
+    "seen": 1794662397.2470186,
+    "ast_hash": "4be7afd3f8ac4649a3506f86bccd447e",
+    "semantic_hash": ""
+  },
+  "COB_Product_Case_Interview_Guide_20_Questions.pdf": {
+    "mtime": 1793606268.1099062,
+    "seen": 1794662397.2470257,
+    "ast_hash": "bcfcf89b93edcfcfe9ab57a2d8faa348",
+    "semantic_hash": ""
+  },
+  "RCM_Back_Office_Training_SOP_Illustrative.pdf": {
+    "mtime": 1793606245.7438357,
+    "seen": 1794662397.24703,
+    "ast_hash": "e87b761c9678c0cb45cb8fc15e4034c0",
+    "semantic_hash": ""
+  },
+  "prep-notes/Optum_Lead_TPM_Interview_Answer_Bank_v2.pdf": {
+    "mtime": 1792495209.4866178,
+    "seen": 1794662397.2470338,
+    "ast_hash": "6e4eda47237f0958ecb9e50e06ad5c6a",
+    "semantic_hash": ""
+  },
+  "working-files/check.pdf": {
+    "mtime": 1792481660.3554938,
+    "seen": 1794662397.2470381,
+    "ast_hash": "fe00d3fd69d0d3fcf96b716786df73dd",
+    "semantic_hash": ""
+  },
+  "Back_Office_RCM_Process_Map.png": {
+    "mtime": 1793373538.341151,
+    "seen": 1794662397.2470424,
+    "ast_hash": "66118dc4a2d795a573506c10e1d93df8",
+    "semantic_hash": ""
+  },
+  "PokeGymMaster/public/favicon.svg": {
+    "mtime": 1794213150.1043117,
+    "seen": 1794662397.2470472,
+    "ast_hash": "7e840862161341271697daa99a40d76b",
+    "semantic_hash": ""
+  },
+  "PokeGymMaster/public/icons.svg": {
+    "mtime": 1794213150.139776,
+    "seen": 1794662397.2470517,
+    "ast_hash": "3b4fcfcf393eca4d264dca4a4663bc37",
+    "semantic_hash": ""
+  },
+  "PokeGymMaster/src/assets/hero.png": {
+    "mtime": 1794213150.036277,
+    "seen": 1794662397.2470555,
+    "ast_hash": "aead493361b27e7510691c5d7072dfc1",
+    "semantic_hash": ""
+  },
+  "PokeGymMaster/src/assets/react.svg": {
+    "mtime": 1794213150.1652305,
+    "seen": 1794662397.2470603,
+    "ast_hash": "f0402b67b6ce880f65666bb49e841696",
+    "semantic_hash": ""
+  },
+  "PokeGymMaster/src/assets/vite.svg": {
+    "mtime": 1794213150.1839323,
+    "seen": 1794662397.2470639,
+    "ast_hash": "9960a24288958394ac50e57ff638b036",
+    "semantic_hash": ""
+  },
+  "PokeGymMaster/package-lock.json": {
+    "mtime": 1794213170.9912443,
+    "seen": 1794662397.247125,
+    "ast_hash": "5801d697cf796a3fd988b4c091be204a",
+    "semantic_hash": ""
+  }
+}

@@ -1,0 +1,221 @@
+=== PAGE 1 ===
+Living Master Resume (LMR)
+Version: 1.0
+Author: Pulokesh Ghosh
+Part 1 - Executive Profile
+PULOKESH GHOSH
+Principal Product Manager I Enterprise SaaS I AI Products I Supply Chain Al I Platform
+Products I B2B SaaS I Digital Transformation
+Bangalore, India
+Email: XXXXX
+Phone: XXXXX
+LinkedIn: XXXXX
+EXECUTIVE SUMMARY
+Product leader with 9+ vears of exoerience buildina and scalina enterorise SaaS Droducts,
+=== PAGE 2 ===
+Al-powered platforms, supply chain planning solutions, digital commerce products, and
+cloud-native platform capabilities for Fortune 500 organizations across Retail, Supply Chain,
+Consumer Products, Transportation, Financial Services, Healthcare, and Travel.
+Currently leading Product Management within 09 Solutions R&D, owning strategy and
+execution across multiple enterprise products including the Linear Programming Solver
+(LPS), Supply Chain Solver (SCS), Supplier Relationship Management (SRM), Platform Ul,
+Enterprise Al Agents, and Platform Engineering initiatives. Experienced in defining long-term
+product vision, managing multi-product roadmaps, leading cross-functional organizations,
+and delivering measurable business outcomes through customer-centric innovation.
+Proven track record of building products from 0—1, scaling enterprise platforms globally,
+driving Al-first product strategy, modernizing platform architecture, and translating complex
+customer problems into scalable software solutions that improve operational efficiency,
+increase product adoption, and generate multimillion-dollar recurring revenue.
+Recognized for combining strategic thinking, technical depth, data-driven decision-making,
+and collaborative leadership to deliver high-impact enterprise products that create
+sustainable business value.
+EXECUTIVE HIGHLIGHTS
+• Product leader with ownership across 15+ enterprise SaaS products spanning Supply
+Chain Planning, Optimization, Platform Engineering, Al, Retail Commerce, and Digital
+Transformation.
+• Directed strategy and roadmap for a $5M+ ARR Linear Programming Solver product
+supporting optimization and planning across global enterprise customers.
+• Contributed to $20M+ ARR by delivering product innovations across supply planning,
+transportation optimization, scenario planning, and enterprise platform capabilities.
+• Built a portfolio of 10+ Al-powered enterprise products and intelligent agents
+automating product management, engineering, customer support, observability,
+documentation, and planning workflows.
+• Reduced enterprise planning execution time by 70% and inventory rebalancing runtime by
+85%, significantly improving planner productivity and customer satisfaction.
+• Improved enterprise platform scalability to support 1,000+ concurrent users, reducing
+production downtime by 30% while delivering approximately $900K in annual infrastructure
+savings.
+• Reduced implementation timelines by 75%, increased customer satisfaction by 40%, and
+=== PAGE 3 ===
+• Led multidisciplinary product organizations comprising Product Managers, Engineers, UX
+Designers, QA Engineers, Data Scientists, Architects, and Customer Success teams, improving
+delivery efficiency by 25% while reducing development costs by 20%.
+• Delivered Al-driven engineering productivity solutions that reduced manual
+documentation effort by 90%, accelerated root-cause analysis from days to minutes, and
+automated large portions of software delivery workflows.
+• Partnered directly with Fortune 500 customers across Retail, Manufacturing, Consumer
+Goods, Automotive, Healthcare, Financial Services, Transportation, and Travel to define
+product strategy through Voice of Customer programs and executive stakeholder
+engagement.
+PRODUCT IMPACT METRICS
+Years of Product Management Experience : 9+
+Enterprise SaaS Products Owned : 15+
+Al Products & Intelligent Agents Built : 10+
+Annual Recurring Revenue (Largest Product) : $5M+
+Revenue Influenced Through Product Innovation : $20M+
+Enterprise Customers Supported : 200+
+Global Product Users Enabled : 3,000+
+Concurrent Platform Users Supported : 1,000+
+Largest Cross-functional Organization Led : 20+ members
+Industries Served : Retail I Supply Chain I Consumer Products I Manufacturing I
+Transportation I Automotive I Healthcare I Financial Services I Travel & Hospitality I
+eCommerce
+Largest Performance Improvement : 70%
+Largest Operational Efficiency Improvement : 85%
+Largest Customer Satisfaction Improvement : 40%
+Implementation Time Reduction : 75%
+Infrastructure Savings : 4900K annually
+=== PAGE 4 ===
+SELECTED PRODUCT PORTFOLIO
+Linear Programming Solver (LPS)
+Role: Product Owner I Strategy Lead
+Enterprise optimization engine powering supply planning, production planning, deployment
+planning, and network optimization. Scaled the product into a $5M+ ARR business by
+improving optimization performance, solver explainability, and enterprise adoption while
+reducing optimization runtime by 65%.
+Supply Chain Solver (SCS)
+Role: Senior Product Manager
+Owned roadmap and product innovation for 091s flagship Supply Chain Solver, delivering
+configurable planning capabilities that reduced planning execution time by 70%, improved
+inventory rebalancing by 85%, and shortened customer implementation timelines by 75%.
+Transportation Load Builder
+Role: Product Manager
+Directed product strategy for transportation load optimization within the Supply Planning
+Reference Model, enabling customers to optimize shipment planning, improve vehicle
+utilization, and accelerate enterprise logistics execution across multiple industries.
+Supplier Relationship Management (SRM)
+Role: Product Manager
+Led product enhancements for supplier collaboration and sourcing workflows, enabling
+enterprise customers to improve supplier visibility, automate collaboration, and strengthen
+end-to-end planning execution.
+Platform UI & User Exoerience
+=== PAGE 5 ===
+1
+Role: Product Manager
+Modernized enterprise planning experiences through redesigned dashboards, visualization
+frameworks, navigation workflows, and planner workspaces, improving user productivity by
+30%, increasing adoption, and reducing learning curves.
+Platform APIs & Developer Platform
+Role: Product Manager
+Directed modernization of enterprise platform APIs and developer infrastructure from
+monolithic architecture to cloud-native services, reducing production downtime by 30%,
+generating approximately $900K in annual infrastructure savings, and enabling faster
+product innovation.
+AI Product Suite
+Role: Al Product Manager
+Designed and launched a portfolio of enterprise Al products automating engineering,
+customer support, product management, observability, documentation, testing, and
+planning workflows, reducing manual effort by up to 90% while improving engineering
+productivity.
+Demand Sensing AI Agent
+Role: Product Manager
+Designed an Al-powered demand sensing assistant that synthesized demand signals,
+promotions, weather, and external events into explainable forecasts and replenishment
+recommendations, enabling faster planning decisions and improved forecast responsiveness.
+Solver Explainability Agent
+Role: Product Manager
+Conceptualized an Al-powered explainability engine that translated optimization outputs
+into natural-language business explanations, improving planner confidence and accelerating
+=== PAGE 6 ===
+BugSense
+Role: Product Manager
+Built an Al-powered defect reporting assistant that automatically captured diagnostics, logs,
+screenshots, and root-cause evidence, reducing manual bug documentation effort by 90%
+and improving engineering triage quality.
+ADO Assist
+Role: Product Manager
+Developed an Al-powered engineering copilot that automated bug validation, duplicate
+detection, historical issue discovery, and work-item enrichment, targeting a reduction in
+mean issue activation time from 5.5 days to 1.5 days.
+Bug Analyzer
+Role: Product Manager
+Created an Al-driven root-cause analysis platform that correlated application logs, historical
+incidents, and telemetry to reduce investigation cycles from days to minutes, improving
+engineering responsiveness and platform reliability.
+Functional Design Document (FDD) Generator
+Role: Product Manager
+Built an Al-powered documentation assistant that transformed product ideas into complete
+Functional Design Documents, Azure DevOps features, Wiki pages, and stakeholder approval
+workflows, reducing documentation effort from several days to 1—2 hours.
+CORE PRODUCT MANAGEMENT
+COMPETENCIES
+=== PAGE 7 ===
+Product Vision
+Product Strategy
+Product Roadmaps
+Product Discovery
+Customer Discovery
+Voice of Customer (VOC)
+Product Analytics
+Business Case Development
+Go-to-Market Strategy
+Product Lifecycle Management
+Portfolio Management
+Product Innovation
+Al Product Management
+Generative Al
+Agentic Al
+Enterprise SaaS
+Platform Products
+Cloud Platforms
+Supply Chain Planning
+Optimization Products
+Digital Commerce
+B2B Saas
+Product Requirements Documents (PRDs)
+User Stories
+Backlog Prioritization
+Feature Prioritization
+C+aL'AhnlAar
+=== PAGE 8 ===
+Executive Communication
+Cross-functional Leadership
+Agile Product Management
+Scrum
+OKRs
+A/B Experimentation
+UX Strategy
+Data-driven Decision Making
+TECHNICAL & DOMAIN EXPERTISE
+Enterprise Al
+Supply Chain Planning
+Integrated Business Planning (IBP)
+Inventory Optimization
+Production Planning
+Network Optimization
+Demand Planning
+Transportation Planning
+Scenario Planning
+Solver Products
+Linear Programming
+Observability
+Platform Engineering
+Cloud-native Architecture
+Microservices
+=== PAGE 9 ===
+Platform APIs
+Developer Experience
+Enterprise Integrations
+Platform Modernization
+Telemetry
+Operational Analytics
+Retail
+Consumer Goods
+Manufacturing
+Automotive
+Healthcare
+Transportation
+Financial Services
+Travel & Hospitality
+Digital Transformation
+Fnternriqe Prodi 10t Strateav

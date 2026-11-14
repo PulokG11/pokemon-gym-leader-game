@@ -23,11 +23,16 @@ export default defineConfig({
         ]
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}']
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        // battle worker bundles the full @pkmn/sim dex (~6.6 MB) and must be available offline
+        maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
       }
     })
   ],
   worker: {
     format: 'es'
+  },
+  optimizeDeps: {
+    include: ['@pkmn/sim']
   }
 })

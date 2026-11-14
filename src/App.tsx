@@ -1,10 +1,20 @@
+import { useRunStore } from './store/runStore'
+import { SetupScreen } from './screens/SetupScreen'
+import { BattleScreen } from './screens/BattleScreen'
+import { RewardScreen } from './screens/RewardScreen'
+import { RunEndedScreen } from './screens/RunEndedScreen'
+
 function App() {
-  return (
-    <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center gap-4">
-      <h1 className="text-5xl font-bold tracking-tight">Pokémon Gym Leader</h1>
-      <p className="text-slate-400 text-lg">Defend your monotype Gym. Survive the challengers.</p>
-    </div>
-  )
+  const run = useRunStore(s => s.run)
+
+  if (!run) return <SetupScreen />
+
+  switch (run.phase) {
+    case 'battle':         return <BattleScreen />
+    case 'reward_pending': return <RewardScreen />
+    case 'run_ended':      return <RunEndedScreen />
+    default:               return <SetupScreen />
+  }
 }
 
 export default App

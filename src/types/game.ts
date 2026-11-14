@@ -58,3 +58,45 @@ export interface RewardChoice {
   kind: 'recruit' | 'item' | 'training' | 'move_tutor'
   label: string
 }
+
+// --- Battle engine types (shared between worker and main thread) ---
+
+export interface BattleMonState {
+  name: string
+  hp: number
+  maxHp: number
+  fainted: boolean
+  status: string
+}
+
+export interface MoveChoice {
+  slot: number      // 1-4
+  id: string
+  name: string
+  pp: number
+  maxPp: number
+  disabled: boolean
+}
+
+export interface BattleState {
+  turn: number
+  p1Active: BattleMonState
+  p2Active: BattleMonState
+  p1Team: BattleMonState[]
+  p2Team: BattleMonState[]
+  log: string[]
+  winner: 'p1' | 'p2' | null
+  phase: 'processing' | 'waiting' | 'ended'
+  availableMoves: MoveChoice[]
+  forcedSwitch: boolean
+  availableSwitches: number[]  // 1-based slot indices
+}
+
+export type WorkerInbound =
+  | { type: 'INIT'; payload: { format: string; p1Team: string; p2Team: string; seed?: number[] } }
+  | { type: 'MOVE'; payload: { choice: string } }
+  | { type: 'SWITCH'; payload: { slot: number } }
+
+export type WorkerOutbound =
+  | { type: 'STATE'; state: BattleState }
+  | { type: 'ERROR'; message: string }

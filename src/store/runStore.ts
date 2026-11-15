@@ -7,8 +7,9 @@ import {
 } from '../lib/progression'
 import {
   BAG_INFO, MAX_TEAM, POST_WIN_RECOVERY, POTION_HEAL, REVIVE_HP, START_FUNDS, START_REROLLS,
-  fundsForWin, merchantStock, rewardOffer, skipBonus, type BagItem, type Reward,
+  GENERIC_ITEMS, fundsForWin, merchantStock, rewardOffer, skipBonus, typeItemFor, type BagItem, type Reward,
 } from '../lib/economy'
+import { upgradesFor, type UpgradeId } from '../lib/upgrades'
 import { species } from '../lib/dex'
 import { dailyRng, dailyType, utcDate } from '../lib/daily'
 import { useRecordsStore } from './recordsStore'
@@ -35,6 +36,7 @@ interface RunStore {
   buy: (stockId: string) => ActionResult
   finishEvent: () => void
   // Team and bag
+  buyUpgrade: (id: UpgradeId) => ActionResult
   useBagItem: (item: BagItem, uid: string) => ActionResult
   giveHeldItem: (item: string, uid: string) => void
   takeHeldItem: (uid: string) => void
@@ -62,6 +64,7 @@ function baseRun(gymType: GymType): RunState {
     funds: START_FUNDS,
     bag: { ...EMPTY_BAG },
     heldItems: [],
+    upgrades: [],
     rerolls: START_REROLLS,
     log: [],
     phase: 'team_select',
@@ -157,21 +160,28 @@ export const useRunStore = create<RunStore>()(
           const run = get().run
           if (!run) return
           // HP after the battle, then the post-win recovery for everyone still standing.
+          const has = (u: UpgradeId) => (run.upgrades ?? []).includes(u)
+          const recovery = has('center') ? 0.2 : POST_WIN_RECOVERY
           const healed = run.roster.map(m => {
             const fought = finalHp[nameOf(m)]
             const hp = fought === undefined ? hpOf(m) : fought
-            return { ...m, hp: hp > 0 ? Math.min(1, hp + POST_WIN_RECOVERY) : 0 }
+            return { ...m, hp: hp > 0 ? Math.min(1, hp + recovery) : 0 }
           })
           const xp = xpReward(run.challenger)
           const lastProgress = healed.map(m => gainXp(m, xp))
           const roster = lastProgress.map((r, i) => ({ ...r.after, hp: healed[i].hp, item: healed[i].item }))
           const wins = run.challengerIndex + 1
-          const funds = fundsForWin(run.challengerIndex)
+          const funds = Math.round(fundsForWin(run.challengerIndex) * (has('reputation') ? 1.25 : 1))
           const cleared = run.totalChallengers !== null && wins >= run.totalChallengers
           recordResult(run, wins, cleared, cleared)
           const lines = [`Victory! +₽${funds} Gym Funds.`, ...lastProgress.flatMap(r => (r.events.length ? describe(r) : []))]
+          const everySecond = wins % 2 === 0
+          const bag = { ...(run.bag ?? EMPTY_BAG) }
+          let rerolls = run.rerolls ?? 0
+          if (everySecond && has('analysis')) { rerolls += 1; lines.push('Analysis Desk: +1 reward reroll.') }
+          if (everySecond && has('infirmary')) { bag.potion += 1; lines.push('Infirmary: a Hyper Potion was added to your bag.') }
           const next: RunState = {
-            ...run, roster, lastProgress, challengerIndex: wins, battleKey: null,
+            ...run, roster, lastProgress, challengerIndex: wins, battleKey: null, bag, rerolls,
             funds: (run.funds ?? 0) + funds, lastFunds: funds,
           }
           if (cleared) {
@@ -186,7 +196,7 @@ export const useRunStore = create<RunStore>()(
               rewardTaken: false,
               event: null,
               campUsed: false,
-              rewardOffer: rewardOffer(run.gymType, roster.length, runRng(withNext, 'reward')),
+              rewardOffer: rewardOffer(run.gymType, roster.length, runRng(withNext, 'reward'), { training: (run.upgrades ?? []).includes('training'), workshop: (run.upgrades ?? []).includes('workshop') }),
             }, lines),
           })
         },
@@ -205,7 +215,7 @@ export const useRunStore = create<RunStore>()(
             if (!run || !run.rerolls) return {}
             const rerolls = run.rerolls - 1
             const rng = runRng(run, `reroll:${rerolls}`)
-            return { run: { ...run, rerolls, rewardOffer: rewardOffer(run.gymType, run.roster.length, rng) } }
+            return { run: { ...run, rerolls, rewardOffer: rewardOffer(run.gymType, run.roster.length, rng, { training: (run.upgrades ?? []).includes('training'), workshop: (run.upgrades ?? []).includes('workshop') }) } }
           }),
 
         skipReward: () =>
@@ -237,7 +247,7 @@ export const useRunStore = create<RunStore>()(
               }
               case 'training': {
                 if (!target) return 'Choose a Pokémon to train.'
-                const r = levelUp(target, 3)
+                const r = levelUp(target, (run.upgrades ?? []).includes('training') ? 4 : 3)
                 return { run: replaceMember(run, r.after), message: describe(r).join(' ') }
               }
               case 'team_training': {
@@ -252,6 +262,10 @@ export const useRunStore = create<RunStore>()(
               case 'league_favour': return { run: { ...run, rerolls: (run.rerolls ?? 0) + 2 }, message: 'Gained 2 reward rerolls.' }
               case 'held_item': {
                 if (!reward.item) return 'Unknown item.'
+                if ((run.upgrades ?? []).includes('workshop')) {
+                  const spare = GENERIC_ITEMS.filter(i => i !== reward.item)[Math.floor(Math.random() * (GENERIC_ITEMS.length - 1))]
+                  run = { ...run, heldItems: [...(run.heldItems ?? []), spare] }
+                }
                 if (target) {
                   const heldItems = target.item ? [...(run.heldItems ?? []), target.item] : run.heldItems
                   return {
@@ -306,6 +320,21 @@ export const useRunStore = create<RunStore>()(
         finishEvent: () => set(({ run }) => (run ? { run: { ...run, phase: 'gym', event: null } } : {})),
 
         startBattle: () => set(({ run }) => (run ? { run: { ...run, phase: 'battle' } } : {})),
+
+        buyUpgrade: (id) =>
+          apply(run => {
+            if (run.mode === 'daily') return 'The Daily Challenge has no upgrades.'
+            const owned = run.upgrades ?? []
+            if (owned.includes(id)) return 'Already built.'
+            const u = upgradesFor(run.gymType).find(x => x.id === id)
+            if (!u) return 'Unknown upgrade.'
+            if ((run.funds ?? 0) < u.price) return 'Not enough Gym Funds.'
+            const heldItems = id === 'forge' ? [...(run.heldItems ?? []), typeItemFor(run.gymType)] : run.heldItems
+            return {
+              run: { ...run, funds: (run.funds ?? 0) - u.price, upgrades: [...owned, id], heldItems },
+              message: `Built the ${u.name}${id === 'forge' ? ` and got a ${typeItemFor(run.gymType)}` : ''}.`,
+            }
+          }),
 
         useBagItem: (item, uid) =>
           apply(run => {

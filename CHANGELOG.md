@@ -14,6 +14,24 @@ git push origin main
 
 ---
 
+## v0.8.0 — Gym upgrades and smarter challengers (2026-11-15)
+
+Built from the mockup and Product Guide; detailed v0.8 instructions can refine it.
+
+- **Gym upgrades** tab in the Gym hub, bought with Gym Funds (not available in the Daily Challenge):
+  - Pokémon Center ₽300: +20% HP after each win instead of 10%
+  - Training Room ₽300: training rewards more common and +1 extra level
+  - Item Workshop ₽250: held item rewards more common, with a spare item
+  - Recruitment Office ₽300: recruits offer 4 Pokémon instead of 3
+  - Gym Reputation ₽250: +25% Gym Funds
+  - Home Crowd ₽300: your lead starts each battle with +1 Speed
+  - Analysis Desk ₽250 / Infirmary ₽250: every second win gives a reroll / a Hyper Potion
+  - Type Arena ₽350: 2 turns of the type's weather or terrain (sun, rain, sand, snow, Electric/Grassy/Psychic/Misty terrain); types without one give the lead +1 to its stronger attack
+  - Type Forge ₽400: the type's boosting item now, plus a burn (Fire), paralysis (Electric) or poison (Poison) on the challenger's lead, or −1 Speed for other types
+- **Challenger AI by class:** Promising Trainers pick moves at random; Trainers favour strong attacks; Ace Trainers, Rivals, Gym Leaders, Elite and Champion use type matchups, open with status moves and sometimes switch out of bad matchups
+
+Rollback: `git checkout v0.9.0 -- .`
+
 ## v0.9.0 — Battle presentation (2026-11-15)
 
 Order so far: v0.7 → v0.6 → v0.9; v0.8 (upgrades and challenger AI) comes next.

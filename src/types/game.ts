@@ -53,6 +53,7 @@ export interface RunState {
   lastProgress: ProgressReport[]
   won: boolean
   bag?: Bag
+  upgrades?: import('../lib/upgrades').UpgradeId[]
   heldItems?: string[]       // spare held items not given to anyone
   rerolls?: number
   rewardOffer?: import('../lib/economy').Reward[]
@@ -136,7 +137,7 @@ export interface BattleState {
 }
 
 export type WorkerInbound =
-  | { type: 'INIT'; payload: { format: string; p1Team: string; p2Team: string; p1Hp?: number[]; seed?: number[] } }
+  | { type: 'INIT'; payload: { format: string; p1Team: string; p2Team: string; p1Hp?: number[]; extras?: import('../lib/upgrades').BattleExtras; seed?: number[] } }
   | { type: 'MOVE'; payload: { choice: string } }
   | { type: 'SWITCH'; payload: { name: string } }
 

@@ -5,6 +5,7 @@ import { artworkUrl, battleSpriteUrl, species } from '../lib/dex'
 import { BAG_INFO, heldItemDesc, type BagItem } from '../lib/economy'
 import { BOSS_NODES, LEADER_SPRITE, challengerTrainer, gymName, trainerSprite } from '../lib/trainers'
 import { WEAK_TO, threatsTo } from '../lib/typechart'
+import { upgradesFor } from '../lib/upgrades'
 import { TypeBadge } from '../components/TypeBadge'
 import { TeamModal } from '../components/TeamModal'
 import { Modal } from '../components/Modal'
@@ -81,7 +82,45 @@ function ScoutModal({ run, onClose, onBattle }: { run: RunState; onClose: () => 
   )
 }
 
-type Tab = 'team' | 'bag' | 'log'
+function UpgradesTab() {
+  const run = useRunStore(s => s.run)!
+  const buyUpgrade = useRunStore(s => s.buyUpgrade)
+  const [message, setMessage] = useState<string | null>(null)
+  if (run.mode === 'daily') return <p className="text-sm text-white/60 p-2">The Daily Challenge has no Gym upgrades: everyone plays on equal terms.</p>
+  const owned = run.upgrades ?? []
+  return (
+    <div className="flex flex-col gap-2 max-h-[28rem] overflow-y-auto pr-1">
+      {message && <p role="status" className="rounded-lg bg-gold-400/15 border border-gold-400/40 px-3 py-1.5 text-sm">{message}</p>}
+      {upgradesFor(run.gymType).map(u => {
+        const built = owned.includes(u.id)
+        const afford = (run.funds ?? 0) >= u.price
+        return (
+          <div key={u.id} className={`flex items-center gap-3 rounded-lg border-2 p-2.5 ${u.typed ? 'border-ember-600/70 bg-ember-700/15' : 'border-black bg-black/25'}`}>
+            <span className="w-9 h-9 shrink-0 rounded-md bg-black/50 grid place-items-center text-lg" aria-hidden="true">{u.icon}</span>
+            <div className="flex-1 min-w-0">
+              <p className="font-black text-sm">{u.name}</p>
+              <p className="text-[10px] uppercase tracking-wider text-white/45">{u.category}</p>
+              <p className="text-xs text-white/70">{u.desc}</p>
+            </div>
+            {built ? (
+              <span className="shrink-0 text-xs font-black text-emerald-300">Built ✓</span>
+            ) : (
+              <button
+                disabled={!afford}
+                onClick={() => setMessage(buyUpgrade(u.id).message)}
+                className="shrink-0 rounded-lg bg-gold-400 text-ink-900 border-2 border-black px-2.5 py-1 text-xs font-black disabled:opacity-40 leading-tight"
+              >
+                Build<br />₽{u.price}
+              </button>
+            )}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+type Tab = 'team' | 'upgrades' | 'bag' | 'log'
 
 export function GymScreen() {
   const run = useRunStore(s => s.run)!
@@ -152,10 +191,10 @@ export function GymScreen() {
           {/* Team / Bag / Log */}
           <section className={`${panel} p-3`}>
             <div role="tablist" className="flex gap-1.5 mb-3">
-              {(['team', 'bag', 'log'] as Tab[]).map(t => (
+              {(['team', 'upgrades', 'bag', 'log'] as Tab[]).map(t => (
                 <button key={t} role="tab" aria-selected={tab === t} onClick={() => setTab(t)}
                   className={`flex-1 rounded-lg border-2 py-1.5 text-sm font-bold capitalize ${tab === t ? 'border-gold-400 bg-gold-400/10 text-gold-300' : 'border-white/10 hover:bg-white/5'}`}>
-                  {t === 'team' ? '🔴 Team' : t === 'bag' ? '🎒 Bag' : '📜 Log'}
+                  {t === 'team' ? '🔴 Team' : t === 'upgrades' ? '🏗 Upgrades' : t === 'bag' ? '🎒 Bag' : '📜 Log'}
                 </button>
               ))}
             </div>
@@ -179,6 +218,8 @@ export function GymScreen() {
                 })}
               </div>
             )}
+
+            {tab === 'upgrades' && <UpgradesTab />}
 
             {tab === 'bag' && (
               <div className="flex flex-col gap-2">

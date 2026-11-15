@@ -40,7 +40,7 @@ export const HELD_ITEM_DESC: Record<string, string> = {
   'Muscle Band': 'Physical moves deal 10% more damage.',
   'Wise Glasses': 'Special moves deal 10% more damage.',
 }
-const GENERIC_ITEMS = Object.keys(HELD_ITEM_DESC)
+export const GENERIC_ITEMS = Object.keys(HELD_ITEM_DESC)
 
 export const typeItemFor = (gymType: GymType) => TYPE_ITEMS[gymType]
 export function heldItemDesc(item: string): string {
@@ -86,11 +86,15 @@ function makeReward(kind: RewardKind, gymType: GymType, rng: Rng, n: number): Re
 }
 
 /** Three distinct rewards. A Recruit is always offered while the team has room, so it can grow to six. */
-export function rewardOffer(gymType: GymType, rosterSize: number, rng: Rng): Reward[] {
+export function rewardOffer(
+  gymType: GymType, rosterSize: number, rng: Rng, boost: { training?: boolean; workshop?: boolean } = {},
+): Reward[] {
   const kinds: RewardKind[] = rosterSize < MAX_TEAM ? ['recruit'] : []
   const pool = (Object.keys(CATALOG) as RewardKind[]).filter(k => k !== 'recruit' || rosterSize < MAX_TEAM)
+  const weight = (k: RewardKind) =>
+    CATALOG[k].weight * ((boost.training && (k === 'training' || k === 'team_training')) || (boost.workshop && k === 'held_item') ? 3 : 1)
   while (kinds.length < 3) {
-    const k = weightedPick(pool.filter(p => !kinds.includes(p)), p => CATALOG[p].weight, rng)
+    const k = weightedPick(pool.filter(p => !kinds.includes(p)), weight, rng)
     kinds.push(k)
   }
   // Shuffle so the recruit isn't always first.
@@ -119,12 +123,12 @@ export const averageLevel = (roster: RosterMember[]) =>
   roster.length ? roster.reduce((s, m) => s + m.level, 0) / roster.length : 10
 
 /** Three Pokémon of the Gym's type the team doesn't have, joining near the team's level. */
-export function recruitOptions(gymType: GymType, roster: RosterMember[], rng: Rng): RosterMember[] {
+export function recruitOptions(gymType: GymType, roster: RosterMember[], rng: Rng, count = 3): RosterMember[] {
   const owned = new Set(roster.map(m => baseOf(m.species)))
   const pool = [...DEX.starters[gymType].filter(id => !owned.has(id))]
   const level = Math.max(5, Math.round(averageLevel(roster)) - 1)
   const picks: RosterMember[] = []
-  while (picks.length < 3 && pool.length) {
+  while (picks.length < count && pool.length) {
     const base = pool.splice(Math.floor(rng() * pool.length), 1)[0]
     const id = stageForLevel(base, level, rng)
     if (!species(id).types.some(t => t.toLowerCase() === gymType)) continue // evolution left the type

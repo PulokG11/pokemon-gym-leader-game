@@ -3,6 +3,7 @@ import type {
   BattleEvent, BattleMonState, BattleState, MoveChoice, WorkerInbound, WorkerOutbound,
 } from '../types/game'
 import { nameOf, parseRequest, slotOf, switchTargets } from '../lib/battleRequest'
+import type { BattleExtras } from '../lib/upgrades'
 
 const { BattleStream, getPlayerStreams } = BattleStreams
 
@@ -89,6 +90,7 @@ function processLine(line: string) {
       firstMoveThisTurn = true
       addLog(`— Turn ${state.turn} —`)
       emit({ kind: 'info', side: 'p1' })
+      if (state.turn === 1) applyStartEffects()
       break
 
     case 'switch':
@@ -215,15 +217,115 @@ function extractMoves(req: any): MoveChoice[] {
 
 const teamOrder = (req: any) => (req.side.pokemon as any[]).map((_, i) => i + 1).join('')
 
+// ─── Challenger AI ───────────────────────────────────────────────────────────
+// 0 Rookie: random moves. 1 Trainer: favours its strongest attacks.
+// 2 Tactician: type matchups, opening status moves, switches out of bad matchups.
+
+let aiLevel: 0 | 1 | 2 = 0
+
+const typeMult = (atk: string, def: string[]) => (Dex.getImmunity(atk, def) ? 2 ** Dex.getEffectiveness(atk, def) : 0)
+const speciesTypes = (name: string) => Dex.species.get(name).types
+
+function bestStab(attackerTypes: string[], foeTypes: string[]) {
+  return Math.max(...attackerTypes.map(t => typeMult(t, foeTypes)))
+}
+
 function pickAiMove(req: any): string {
+  const foeTypes = state.p1Active.species ? speciesTypes(state.p1Active.species) : []
+  const team = (req.side?.pokemon ?? []) as any[]
+
   if (req.forceSwitch?.[0]) {
-    const target = switchTargets(req)[0]
-    return `switch ${target ? slotOf(req, target) : 1}`
+    const targets = switchTargets(req)
+    if (aiLevel === 2 && foeTypes.length && targets.length) {
+      const best = [...targets].sort((a, b) =>
+        bestStab(speciesTypes(speciesOf(team.find(p => nameOf(p.ident) === b).details)), foeTypes) -
+        bestStab(speciesTypes(speciesOf(team.find(p => nameOf(p.ident) === a).details)), foeTypes))[0]
+      return `switch ${slotOf(req, best)}`
+    }
+    return `switch ${targets[0] ? slotOf(req, targets[0]) : 1}`
   }
+
   const moves = (req?.active?.[0]?.moves ?? []) as any[]
   const avail = moves.map((m, i) => ({ m, slot: i + 1 })).filter(({ m }) => !m.disabled && m.pp > 0)
   if (!avail.length) return 'move 1'
-  return `move ${avail[Math.floor(Math.random() * avail.length)].slot}`
+  if (aiLevel === 0 || !foeTypes.length) return `move ${avail[Math.floor(Math.random() * avail.length)].slot}`
+
+  const me = team.find(p => p.active)
+  const myTypes = me ? speciesTypes(speciesOf(me.details)) : []
+  const scored = avail.map(({ m, slot }) => {
+    const d = Dex.moves.get(m.id)
+    if (d.category === 'Status') {
+      const statusUseful = !state.p1Active.status && (d.status || d.volatileStatus === 'confusion')
+      const score = aiLevel === 2 && state.turn <= 3 && statusUseful ? 70 : d.boosts && state.turn <= 2 ? 40 : 5
+      return { slot, score, eff: 1, damaging: false }
+    }
+    const eff = typeMult(d.type, foeTypes)
+    const stab = myTypes.includes(d.type) ? 1.5 : 1
+    const acc = d.accuracy === true ? 1 : d.accuracy / 100
+    const power = d.basePower || 40
+    const score = power * stab * acc * (aiLevel === 2 ? eff : 1)
+    return { slot, score, eff, damaging: true }
+  })
+
+  if (aiLevel === 2) {
+    const bestEff = Math.max(0, ...scored.filter(s => s.damaging).map(s => s.eff))
+    const targets = switchTargets(req)
+    if (bestEff <= 0.5 && targets.length && Math.random() < 0.35) {
+      const better = targets
+        .map(n => ({ n, e: bestStab(speciesTypes(speciesOf(team.find(p => nameOf(p.ident) === n).details)), foeTypes) }))
+        .sort((a, b) => b.e - a.e)[0]
+      if (better && better.e >= 2) return `switch ${slotOf(req, better.n)}`
+    }
+  }
+
+  const noisy = scored.map(s => ({ ...s, score: s.score * (0.85 + Math.random() * 0.3) }))
+  noisy.sort((a, b) => b.score - a.score)
+  if (aiLevel === 1 && Math.random() < 0.3) return `move ${avail[Math.floor(Math.random() * avail.length)].slot}`
+  return `move ${noisy[0].slot}`
+}
+
+// ─── Gym upgrade effects at the start of turn 1 ──────────────────────────────
+
+const FIELDS = new Set(['sunnyday', 'raindance', 'sandstorm', 'snowscape', 'electricterrain', 'grassyterrain', 'psychicterrain', 'mistyterrain'])
+const STATUSES = new Set(['brn', 'par', 'psn'])
+const FIELD_TEXT: Record<string, string> = {
+  sunnyday: 'The sunlight turned harsh!', raindance: 'It started to rain!', sandstorm: 'A sandstorm kicked up!',
+  snowscape: 'It started to snow!', electricterrain: 'An electric current ran across the arena!',
+  grassyterrain: 'Grass grew to cover the arena!', psychicterrain: 'The arena got weird!', mistyterrain: 'Mist swirled around the arena!',
+}
+
+let extras: BattleExtras = { aiLevel: 0 }
+let startEffectsDone = false
+
+function applyStartEffects() {
+  if (!stream || startEffectsDone) return
+  startEffectsDone = true
+  const cmds: string[] = []
+  if (extras.crowd) {
+    cmds.push(`p1.active[0].boostBy({spe: 1}); battle.add('-boost', p1.active[0], 'spe', 1)`)
+    addLog(`The home crowd cheers for ${state.p1Active.name}!`)
+  }
+  const arena = extras.arena
+  if (arena?.kind === 'weather' && FIELDS.has(arena.field)) {
+    cmds.push(`battle.field.setWeather('${arena.field}', p1.active[0]); battle.field.weatherState.duration = 2`)
+    addLog(FIELD_TEXT[arena.field])
+  } else if (arena?.kind === 'terrain' && FIELDS.has(arena.field)) {
+    cmds.push(`battle.field.setTerrain('${arena.field}', p1.active[0]); battle.field.terrainState.duration = 2`)
+    addLog(FIELD_TEXT[arena.field])
+  } else if (arena?.kind === 'boost') {
+    cmds.push(`{ const p = p1.active[0]; const s = p.storedStats.atk >= p.storedStats.spa ? 'atk' : 'spa'; p.boostBy({[s]: 1}); battle.add('-boost', p, s, 1) }`)
+    addLog(`The arena powers up ${state.p1Active.name}!`)
+  }
+  const forge = extras.forge
+  if (forge?.kind === 'status' && STATUSES.has(forge.status)) {
+    cmds.push(`p2.active[0].trySetStatus('${forge.status}', p1.active[0])`)
+  } else if (forge?.kind === 'slow') {
+    cmds.push(`p2.active[0].boostBy({spe: -1}); battle.add('-unboost', p2.active[0], 'spe', 1)`)
+  }
+  if (cmds.length) {
+    stream.write(`>eval ${cmds.join('; ')}`)
+    emit({ kind: 'info', side: 'p1' })
+  }
 }
 
 // ─── Message handler ──────────────────────────────────────────────────────────
@@ -243,8 +345,11 @@ self.onmessage = (e: MessageEvent<WorkerInbound>) => {
   }
 }
 
-function initBattle(payload: { format: string; p1Team: string; p2Team: string; p1Hp?: number[]; seed?: number[] }) {
+function initBattle(payload: { format: string; p1Team: string; p2Team: string; p1Hp?: number[]; extras?: BattleExtras; seed?: number[] }) {
   state = makeInitialState()
+  extras = payload.extras ?? { aiLevel: 0 }
+  aiLevel = extras.aiLevel === 1 || extras.aiLevel === 2 ? extras.aiLevel : 0
+  startEffectsDone = false
   firstMoveThisTurn = true
   lastP1Request = null
   stream = new BattleStream()

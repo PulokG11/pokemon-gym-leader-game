@@ -33,7 +33,7 @@ function PickMember({ roster, onPick, extra }: { roster: RosterMember[]; onPick:
 
 function RecruitPicker({ onDone }: { onDone: (recruit: RosterMember, replaceUid?: string) => void }) {
   const run = useRunStore(s => s.run)!
-  const options = useMemo(() => recruitOptions(run.gymType, run.roster, runRng(run, 'recruit')), [run.id, run.challengerIndex])
+  const options = useMemo(() => recruitOptions(run.gymType, run.roster, runRng(run, 'recruit'), (run.upgrades ?? []).includes('office') ? 4 : 3), [run.id, run.challengerIndex])
   const [chosen, setChosen] = useState<RosterMember | null>(null)
   const full = run.roster.length >= MAX_TEAM
 

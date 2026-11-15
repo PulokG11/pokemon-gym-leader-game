@@ -9,6 +9,7 @@ import { battleSpriteUrl, effectiveness, move as moveData, species as speciesDat
 import { ARENA } from '../lib/arena'
 import { LEADER_SPRITE, challengerTrainer, gymName, trainerSprite } from '../lib/trainers'
 import { openBattle } from '../lib/battleGuard'
+import { battleExtras } from '../lib/upgrades'
 import { TYPE_COLORS } from '../lib/typeColors'
 import { Sprite } from '../components/Sprite'
 import { Modal } from '../components/Modal'
@@ -84,7 +85,11 @@ export function BattleScreen() {
   const fighters = useMemo(() => run.roster.filter(m => (m.hp ?? 1) > 0), [run.roster])
   const p1Team = useMemo(() => packTeam(fighters), [fighters])
   const p2Team = useMemo(() => packTeam(run.challenger), [run.challenger])
-  const { sendMove, sendSwitch } = useBattle(p1Team, p2Team, fighters.map(m => m.hp ?? 1))
+  const extras = useMemo(() => {
+    const aiLevel = trainer.title === 'Promising Trainer' ? 0 : trainer.title === 'Trainer' ? 1 : 2
+    return battleExtras(run.gymType, run.mode === 'daily' ? [] : run.upgrades ?? [], aiLevel)
+  }, [trainer, run.gymType, run.mode, run.upgrades])
+  const { sendMove, sendSwitch } = useBattle(p1Team, p2Team, fighters.map(m => m.hp ?? 1), extras)
 
   useEffect(() => {
     if (openBattle(run, useRunStore.getState().markBattleOpen)) loseBattle(true)

@@ -2,13 +2,14 @@ import { useEffect, useRef, useCallback } from 'react'
 import { useBattleStore } from '../store/battleStore'
 import { useSettingsStore } from '../store/settingsStore'
 import type { BattleState, WorkerOutbound } from '../types/game'
+import type { BattleExtras } from '../lib/upgrades'
 
 // How long each kind of event stays on screen before the next one plays.
 const EVENT_MS: Record<string, number> = {
   move: 750, damage: 850, heal: 700, faint: 1000, switch: 800, status: 650, miss: 650, info: 600,
 }
 
-export function useBattle(p1Team: string, p2Team: string, p1Hp: number[] = [], seed?: number[]) {
+export function useBattle(p1Team: string, p2Team: string, p1Hp: number[] = [], extras?: BattleExtras, seed?: number[]) {
   const workerRef = useRef<Worker | null>(null)
   const setBattleState = useBattleStore(s => s.setBattleState)
   const setAnimating = useBattleStore(s => s.setAnimating)
@@ -49,7 +50,7 @@ export function useBattle(p1Team: string, p2Team: string, p1Hp: number[] = [], s
     worker.onerror = e => console.error('[battle worker]', e.message)
     worker.postMessage({
       type: 'INIT',
-      payload: { format: 'gen9customgame', p1Team, p2Team, p1Hp, seed },
+      payload: { format: 'gen9customgame', p1Team, p2Team, p1Hp, extras, seed },
     })
     workerRef.current = worker
     return () => {

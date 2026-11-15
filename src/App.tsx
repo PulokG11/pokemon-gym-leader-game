@@ -9,6 +9,7 @@ import { BattleScreen } from './screens/BattleScreen'
 import { RewardScreen } from './screens/RewardScreen'
 import { RunEndedScreen } from './screens/RunEndedScreen'
 import { EventScreen } from './screens/EventScreen'
+import { GymScreen } from './screens/GymScreen'
 
 function App() {
   const run = useRunStore(s => s.run)
@@ -25,6 +26,7 @@ function App() {
         case 'battle':         return <BattleScreen />
         case 'reward_pending': return <RewardScreen />
         case 'event':          return <EventScreen />
+        case 'gym':            return <GymScreen />
         case 'run_ended':      return <RunEndedScreen />
       }
       return <HomeScreen />

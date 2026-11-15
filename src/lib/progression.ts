@@ -83,12 +83,13 @@ export const GYM_QUEST_LENGTH = 15
 
 /** Who the challenger is in a 15-battle Gym Quest, rookies up to the Champion. */
 export function questChallengerTitle(index: number): string {
+  // Boss fights sit on the diamond nodes of the Gym track: 5, 10, 14 and 15.
   if (index >= 14) return 'Champion'
   if (index === 13) return 'Elite Four Member'
-  if (index >= 11) return 'Elite Trainer'
-  if (index === 10) return 'Rival Gym Leader'
-  if (index === 9) return 'Rival'
-  if (index >= 6) return 'Ace Trainer'
+  if (index >= 10) return 'Elite Trainer'
+  if (index === 9) return 'Rival Gym Leader'
+  if (index >= 7) return 'Ace Trainer'
+  if (index === 4) return 'Rival'
   if (index >= 3) return 'Trainer'
   return 'Rookie'
 }

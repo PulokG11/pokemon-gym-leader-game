@@ -64,6 +64,7 @@ for (const s of candidates) {
     num: s.num,
     types: s.types,
     ability: s.abilities['0'],
+    abilities: [...new Set(Object.values(s.abilities))],
     baseStats: s.baseStats,
     evos,
     learnset,

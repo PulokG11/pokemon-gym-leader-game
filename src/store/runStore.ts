@@ -40,6 +40,7 @@ interface RunStore {
   takeHeldItem: (uid: string) => void
   moveMember: (uid: string, dir: -1 | 1) => void
   continueRun: () => void
+  startBattle: () => void
   clearRun: () => void
 }
 
@@ -149,7 +150,7 @@ export const useRunStore = create<RunStore>()(
           set(({ run }) => {
             if (!run) return {}
             const roster = uids.map(u => run.candidates.find(c => c.uid === u)!).filter(Boolean).map(m => ({ ...m, hp: 1, item: null }))
-            return { run: { ...run, roster, challenger: nextChallenger(run, roster, 0), phase: 'battle' } }
+            return { run: { ...run, roster, challenger: nextChallenger(run, roster, 0), phase: 'gym' } }
           }),
 
         winBattle: (finalHp = {}) => {
@@ -302,7 +303,9 @@ export const useRunStore = create<RunStore>()(
             }
           }),
 
-        finishEvent: () => set(({ run }) => (run ? { run: { ...run, phase: 'battle', event: null } } : {})),
+        finishEvent: () => set(({ run }) => (run ? { run: { ...run, phase: 'gym', event: null } } : {})),
+
+        startBattle: () => set(({ run }) => (run ? { run: { ...run, phase: 'battle' } } : {})),
 
         useBagItem: (item, uid) =>
           apply(run => {

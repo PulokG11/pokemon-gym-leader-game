@@ -14,6 +14,19 @@ git push origin main
 
 ---
 
+## v0.6.0 — Gym hub (2026-11-15)
+
+Released after v0.7.0 by design (order: v0.7 → v0.6 → v0.9 → v0.8).
+
+- **Gym hub** between battles: your Gym's name (e.g. Cinder Crater Gym), challenger number, Gym Funds, and a 15-node progress track with boss diamonds at 5 (Rival), 10 (Rival Gym Leader), 14 (Elite Four) and 15 (Champion). Daily shows wins so far
+- **Challenger card:** trainer class, name and quote, team preview, team types and a "⚠ N strong vs you" warning; Battle! starts the fight
+- **Scout team:** trainer, battle style, each Pokémon's level, types and possible abilities, and the types your Gym is weak to
+- **Team / Bag / Log tabs:** six team slots with LEAD, HP and FNT; bag items and spare held items; the run log
+- Trainer sprites from Pokémon Showdown: a famous Leader of your type for you, a class sprite for each challenger
+- Gym Quest titles now line up with the boss nodes (Rival is challenger 5)
+
+Rollback: `git checkout v0.7.0 -- .`
+
 ## v0.7.0 — Economy and rewards (2026-11-15)
 
 Released before v0.6 by design: the release order is v0.7 → v0.6 → v0.9 → v0.8.

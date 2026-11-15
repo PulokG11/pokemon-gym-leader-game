@@ -10,6 +10,7 @@ export type RunPhase =
   | 'battle'
   | 'reward_pending'
   | 'event'
+  | 'gym'
   | 'run_ended'
 
 export interface RosterMember {

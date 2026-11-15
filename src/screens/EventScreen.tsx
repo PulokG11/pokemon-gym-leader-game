@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useRunStore } from '../store/runStore'
 import { artworkUrl, species } from '../lib/dex'
 import { BAG_INFO, heldItemDesc, type BagItem } from '../lib/economy'
-import { challengerLabel } from '../lib/runLabels'
 import { TeamStrip } from '../components/TeamStrip'
 import { TeamModal } from '../components/TeamModal'
 
@@ -108,7 +107,7 @@ export function EventScreen() {
 
         <div className="flex justify-center">
           <button onClick={finishEvent} className="rounded-xl bg-gold-400 text-ink-900 font-black px-8 py-3 shadow-[0_5px_0_#b8431a] hover:bg-gold-300">
-            Next battle: {challengerLabel(run)} ▶
+            Back to the Gym ▶
           </button>
         </div>
       </div>

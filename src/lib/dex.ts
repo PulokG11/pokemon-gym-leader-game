@@ -5,6 +5,7 @@ export interface SpeciesData {
   num: number
   types: string[]
   ability: string
+  abilities: string[]
   baseStats: { hp: number; atk: number; def: number; spa: number; spd: number; spe: number }
   evos: { to: string; level: number }[]
   learnset: [number, string][]   // [level, moveId]; level 0 = learned on evolution

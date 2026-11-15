@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useRunStore } from '../store/runStore'
+import { useUiStore } from '../store/uiStore'
 import { artworkUrl, species } from '../lib/dex'
 import { TYPE_COLORS, TYPE_EMOJI } from '../lib/typeColors'
 import { TypeBadge } from '../components/TypeBadge'
@@ -12,6 +13,7 @@ export function TeamSelectScreen() {
   const run = useRunStore(s => s.run)!
   const confirmTeam = useRunStore(s => s.confirmTeam)
   const clearRun = useRunStore(s => s.clearRun)
+  const go = useUiStore(s => s.go)
   const [picked, setPicked] = useState<string[]>([])
   const color = TYPE_COLORS[run.gymType]
 
@@ -24,14 +26,22 @@ export function TeamSelectScreen() {
   return (
     <div className="min-h-screen bg-slate-950 text-white px-4 py-8 pb-28">
       <div className="max-w-6xl mx-auto">
-        <button onClick={clearRun} className="text-sm text-slate-400 hover:text-white mb-4">
-          ← Change gym type
-        </button>
+        {run.mode === 'daily' ? (
+          <button onClick={() => go('home')} className="text-sm text-slate-400 hover:text-white mb-4">
+            ← Home (your Daily is saved)
+          </button>
+        ) : (
+          <button onClick={() => { clearRun(); go('type_select') }} className="text-sm text-slate-400 hover:text-white mb-4">
+            ← Change gym type
+          </button>
+        )}
         <h1 className="text-3xl font-bold">
+          {run.mode === 'daily' && <span className="block text-sm font-black uppercase tracking-[0.2em] text-gold-300 mb-1">Daily Challenge</span>}
           <span className={color.text}>{TYPE_EMOJI[run.gymType]} {run.gymType}</span> Gym: pick your team
         </h1>
         <p className="text-slate-400 mt-1 mb-6">
           Choose {TEAM_SIZE} of these 5 Pokémon. They gain XP after every win, learn new moves and evolve.
+          {run.mode === 'daily' && ' Every player gets the same five today.'}
         </p>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">

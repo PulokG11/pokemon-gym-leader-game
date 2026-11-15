@@ -2,9 +2,12 @@ import { useRunStore } from '../store/runStore'
 import { TYPE_COLORS, TYPE_EMOJI } from '../lib/typeColors'
 import { artworkUrl, species } from '../lib/dex'
 import { ProgressCard } from '../components/ProgressCard'
+import { challengerLabel, progressLabel } from '../lib/runLabels'
+import { useUiStore } from '../store/uiStore'
 
 export function RewardScreen() {
   const run = useRunStore(s => s.run)!
+  const go = useUiStore(s => s.go)
   const continueRun = useRunStore(s => s.continueRun)
   const color = TYPE_COLORS[run.gymType]
   const nextLevel = run.challenger[0]?.level
@@ -16,7 +19,7 @@ export function RewardScreen() {
           <div className="text-5xl mb-2">🏅</div>
           <h2 className="text-2xl font-bold">Challenger defeated!</h2>
           <p className="text-slate-400 mt-1">
-            {run.challengerIndex} / {run.totalChallengers} challengers down ·{' '}
+            {progressLabel(run)} ·{' '}
             <span className={`uppercase font-semibold ${color.text}`}>{TYPE_EMOJI[run.gymType]} {run.gymType} Gym</span>
           </p>
         </div>
@@ -26,7 +29,7 @@ export function RewardScreen() {
 
         <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4 flex items-center justify-between gap-4 mt-2">
           <div>
-            <p className="text-sm text-slate-400">Next challenger · Lv {nextLevel}</p>
+            <p className="text-sm text-slate-400">Next: {challengerLabel(run)} · Lv {nextLevel}</p>
             <div className="flex -space-x-2 mt-1">
               {run.challenger.map(m => (
                 <img key={m.uid} src={artworkUrl(m.species)} alt="?" title="???" className="w-12 h-12 object-contain brightness-0 opacity-60" />
@@ -43,6 +46,9 @@ export function RewardScreen() {
         <p className="text-center text-xs text-slate-600">
           Team: {run.roster.map(m => `${species(m.species).name} Lv${m.level}`).join(' · ')}
         </p>
+        <button onClick={() => go('home')} className="self-center text-sm text-slate-400 hover:text-white">
+          Save and return home
+        </button>
       </div>
     </div>
   )

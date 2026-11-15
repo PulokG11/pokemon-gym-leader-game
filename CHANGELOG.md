@@ -14,6 +14,18 @@ git push origin main
 
 ---
 
+## v0.4.0 — Home screen and game modes (2026-11-15)
+
+- **Home screen:** pixel-art "Gym Leader" title, hero showing today's Daily starters, mode cards, Continue card for a saved run, Ranking and How to play tiles, settings, credits
+- **Daily Challenge:** the UTC date picks the same Gym type, five starters and challenger sequence for every player. Challengers never stop and climb 3 levels per round (Lv 10, 13, 16 … up to 100). One try per UTC day; score = battles won
+- **Gym Quest:** pick any type and defend against 15 challengers, titled Rookie → Trainer → Ace Trainer → Rival → Rival Gym Leader → Elite Trainer → Elite Four Member → Champion
+- **Regional Quest:** shown as coming soon
+- **Ranking:** Today and All time tabs for Daily results (wins and Gym type). Results are stored on this device only; global leaderboards need an online backend with sign-in
+- **Settings:** battle speed 1×/2×/3×, Full/Simple effects (Simple turns off sprite and evolution animations), Install as an app when the browser offers it
+- Saved v0.3 runs carry over as Gym Quests and keep their original 5-challenger length
+
+Rollback: `git checkout v0.3.1 -- .`
+
 ## v0.3.1 — Fix stuck switch after a faint (2026-11-15)
 
 - **Fix:** after a few switches, the party buttons could stay disabled when a Pokémon fainted, so the next Pokémon couldn't be sent out. The engine reorders the party on every switch; the UI was matching against the original order. Switches now go by Pokémon name, and the slot is looked up from the engine's latest state

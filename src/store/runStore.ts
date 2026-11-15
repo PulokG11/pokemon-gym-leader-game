@@ -1,11 +1,17 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { GymType, RunState } from '../types/game'
-import { buildChallenger, gainXp, starterCandidates, xpReward } from '../lib/progression'
+import type { GymType, RosterMember, RunState } from '../types/game'
+import {
+  GYM_QUEST_LENGTH, buildChallenger, buildDailyChallenger, gainXp, starterCandidates, xpReward,
+} from '../lib/progression'
+import { dailyRng, dailyType, utcDate } from '../lib/daily'
+import { useRecordsStore } from './recordsStore'
 
 interface RunStore {
   run: RunState | null
-  startRun: (gymType: GymType) => void
+  startQuest: (gymType: GymType) => void
+  /** Starts today's Daily Challenge; returns false if today's try is already used. */
+  startDaily: () => boolean
   confirmTeam: (uids: string[]) => void
   winBattle: () => void
   loseBattle: () => void
@@ -13,14 +19,15 @@ interface RunStore {
   clearRun: () => void
 }
 
-function newRun(gymType: GymType): RunState {
+function baseRun(gymType: GymType): RunState {
   return {
     id: crypto.randomUUID(),
-    mode: 'standard',
+    mode: 'quest',
     gymType,
+    dailyDate: null,
     challengerIndex: 0,
-    totalChallengers: 5,
-    candidates: starterCandidates(gymType),
+    totalChallengers: GYM_QUEST_LENGTH,
+    candidates: [],
     roster: [],
     challenger: [],
     lastProgress: [],
@@ -28,49 +35,98 @@ function newRun(gymType: GymType): RunState {
     funds: 0,
     phase: 'team_select',
     rank: 1,
-    rulesVersion: '1.1',
-    schemaVersion: 2,
+    rulesVersion: '1.2',
+    schemaVersion: 3,
+  }
+}
+
+function nextChallenger(run: RunState, roster: RosterMember[], index: number): RosterMember[] {
+  return run.mode === 'daily' && run.dailyDate
+    ? buildDailyChallenger(index, dailyRng(run.dailyDate, `challenger:${index}`))
+    : buildChallenger(roster, index)
+}
+
+function recordResult(run: RunState, wins: number, finished: boolean, cleared: boolean) {
+  const records = useRecordsStore.getState()
+  if (run.mode === 'daily' && run.dailyDate) {
+    records.recordDaily({ date: run.dailyDate, gymType: run.gymType, wins, finished })
+  } else if (finished) {
+    records.recordQuest({ gymType: run.gymType, wins, cleared, finishedAt: new Date().toISOString() })
   }
 }
 
 export const useRunStore = create<RunStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       run: null,
 
-      startRun: (gymType) => set({ run: newRun(gymType) }),
+      startQuest: (gymType) =>
+        set({ run: { ...baseRun(gymType), candidates: starterCandidates(gymType) } }),
+
+      startDaily: () => {
+        const date = utcDate()
+        if (useRecordsStore.getState().daily[date]) return false
+        const gymType = dailyType(date)
+        const run: RunState = {
+          ...baseRun(gymType),
+          mode: 'daily',
+          dailyDate: date,
+          totalChallengers: null,
+          candidates: starterCandidates(gymType, dailyRng(date, 'starters')),
+        }
+        recordResult(run, 0, false, false) // entering uses today's one try
+        set({ run })
+        return true
+      },
 
       confirmTeam: (uids) =>
         set(({ run }) => {
           if (!run) return {}
           const roster = uids.map(u => run.candidates.find(c => c.uid === u)!).filter(Boolean)
-          return { run: { ...run, roster, challenger: buildChallenger(roster, 0), phase: 'battle' } }
+          return { run: { ...run, roster, challenger: nextChallenger(run, roster, 0), phase: 'battle' } }
         }),
 
-      winBattle: () =>
-        set(({ run }) => {
-          if (!run) return {}
-          const xp = xpReward(run.challenger)
-          const lastProgress = run.roster.map(m => gainXp(m, xp))
-          const roster = lastProgress.map(r => r.after)
-          const next = run.challengerIndex + 1
-          if (next >= run.totalChallengers) {
-            return { run: { ...run, roster, lastProgress, challengerIndex: next, won: true, phase: 'run_ended' } }
-          }
-          return {
-            run: {
-              ...run, roster, lastProgress, challengerIndex: next,
-              challenger: buildChallenger(roster, next), phase: 'reward_pending',
-            },
-          }
-        }),
+      winBattle: () => {
+        const run = get().run
+        if (!run) return
+        const xp = xpReward(run.challenger)
+        const lastProgress = run.roster.map(m => gainXp(m, xp))
+        const roster = lastProgress.map(r => r.after)
+        const wins = run.challengerIndex + 1
+        const cleared = run.totalChallengers !== null && wins >= run.totalChallengers
+        recordResult(run, wins, cleared, cleared)
+        set({
+          run: cleared
+            ? { ...run, roster, lastProgress, challengerIndex: wins, won: true, phase: 'run_ended' }
+            : {
+                ...run, roster, lastProgress, challengerIndex: wins,
+                challenger: nextChallenger(run, roster, wins), phase: 'reward_pending',
+              },
+        })
+      },
 
-      loseBattle: () => set(({ run }) => (run ? { run: { ...run, won: false, phase: 'run_ended' } } : {})),
+      loseBattle: () => {
+        const run = get().run
+        if (!run) return
+        recordResult(run, run.challengerIndex, true, false)
+        set({ run: { ...run, won: false, phase: 'run_ended' } })
+      },
 
       continueRun: () => set(({ run }) => (run ? { run: { ...run, phase: 'battle' } } : {})),
 
       clearRun: () => set({ run: null }),
     }),
-    { name: 'gym-run-v2' }
+    {
+      name: 'gym-run-v2',
+      version: 1,
+      migrate: (persisted: any) => {
+        const run = persisted?.run
+        if (run && run.mode !== 'daily') {
+          run.mode = 'quest'
+          run.dailyDate = null
+        }
+        return persisted
+      },
+    }
   )
 )

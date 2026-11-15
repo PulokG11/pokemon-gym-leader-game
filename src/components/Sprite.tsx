@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { battleSpriteUrl } from '../lib/dex'
+import { useSettingsStore } from '../store/settingsStore'
 import type { BattleEvent } from '../types/game'
 
 interface SpriteProps {
@@ -11,7 +12,9 @@ interface SpriteProps {
   className?: string
 }
 
-const reduceMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+const reduceMotion = () =>
+  useSettingsStore.getState().effects === 'simple' ||
+  window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 
 export function Sprite({ species, back, fainted, event, seq, className = '' }: SpriteProps) {
   const ref = useRef<HTMLImageElement>(null)

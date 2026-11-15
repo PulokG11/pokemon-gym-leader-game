@@ -9,6 +9,7 @@ import { BattleLog } from '../components/BattleLog'
 import { Sprite } from '../components/Sprite'
 import { TypeBadge } from '../components/TypeBadge'
 import { TYPE_COLORS, TYPE_EMOJI } from '../lib/typeColors'
+import { challengerLabel } from '../lib/runLabels'
 import type { BattleMonState, GymType } from '../types/game'
 
 const STATUS_STYLE: Record<string, string> = {
@@ -89,9 +90,10 @@ export function BattleScreen() {
         <div className="flex items-center justify-between">
           <span className={`text-sm font-bold uppercase tracking-widest ${color.text}`}>
             {TYPE_EMOJI[run.gymType]} {run.gymType} Gym
+            {run.mode === 'daily' && <span className="ml-2 text-[10px] text-gold-300 tracking-wider">Daily</span>}
           </span>
           <span className="text-slate-400 text-xs">
-            Challenger {run.challengerIndex + 1} / {run.totalChallengers} · Turn {battle.turn}
+            {challengerLabel(run)} · Turn {battle.turn}
           </span>
         </div>
 

@@ -1,11 +1,14 @@
 import { artworkUrl, move, species } from '../lib/dex'
 import { xpForLevel } from '../lib/progression'
 import { TypeBadge } from './TypeBadge'
+import { useSettingsStore } from '../store/settingsStore'
 import type { ProgressReport } from '../types/game'
 
 export function ProgressCard({ report, delay = 0 }: { report: ProgressReport; delay?: number }) {
   const { before, after, xpGained, events } = report
+  const simple = useSettingsStore(s => s.effects === 'simple')
   const evolved = events.find(e => e.kind === 'evolve')
+  const animateEvo = evolved && !simple
   const s = species(after.species)
   const floor = xpForLevel(after.level)
   const ceil = xpForLevel(after.level + 1)
@@ -19,14 +22,14 @@ export function ProgressCard({ report, delay = 0 }: { report: ProgressReport; de
       style={{ animationDelay: `${delay}ms` }}
     >
       <div className="relative w-24 h-24 shrink-0">
-        {evolved && (
+        {animateEvo && (
           <img src={artworkUrl(before.species)} alt="" className="absolute inset-0 w-full h-full object-contain animate-[evo-out_1.6s_ease-in_both]" style={{ animationDelay: `${delay + 300}ms` }} />
         )}
         <img
           src={artworkUrl(after.species)}
           alt={s.name}
-          className={`absolute inset-0 w-full h-full object-contain ${evolved ? 'animate-[evo-in_1.6s_ease-out_both]' : ''}`}
-          style={evolved ? { animationDelay: `${delay + 300}ms` } : undefined}
+          className={`absolute inset-0 w-full h-full object-contain ${animateEvo ? 'animate-[evo-in_1.6s_ease-out_both]' : ''}`}
+          style={animateEvo ? { animationDelay: `${delay + 300}ms` } : undefined}
         />
       </div>
 

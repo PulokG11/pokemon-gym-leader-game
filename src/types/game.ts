@@ -3,7 +3,7 @@ export type GymType =
   | 'normal' | 'ice' | 'fighting' | 'poison' | 'ground' | 'flying'
   | 'psychic' | 'bug' | 'rock' | 'dark' | 'steel' | 'fairy'
 
-export type RunMode = 'standard' | 'daily'
+export type RunMode = 'quest' | 'daily'
 
 export type RunPhase =
   | 'team_select'
@@ -36,8 +36,9 @@ export interface RunState {
   id: string
   mode: RunMode
   gymType: GymType
-  challengerIndex: number
-  totalChallengers: number
+  dailyDate: string | null        // UTC date for Daily Challenge runs
+  challengerIndex: number         // challengers beaten so far
+  totalChallengers: number | null // null = endless (Daily Challenge)
   candidates: RosterMember[]
   roster: RosterMember[]
   challenger: RosterMember[]

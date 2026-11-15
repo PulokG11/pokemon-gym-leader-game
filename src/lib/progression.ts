@@ -71,6 +71,28 @@ export function buildChallenger(roster: RosterMember[], index: number, rng: Rng 
   return pickDistinct(pool, 3, rng).map(base => createMon(stageForLevel(base, level, rng), level))
 }
 
+/** Daily challengers ignore the player's team so every player faces the same sequence. */
+export const dailyChallengerLevel = (index: number) => Math.min(MAX_LEVEL, 10 + 3 * index)
+
+export function buildDailyChallenger(index: number, rng: Rng): RosterMember[] {
+  const level = dailyChallengerLevel(index)
+  return pickDistinct(DEX.challengers, 3, rng).map(base => createMon(stageForLevel(base, level, rng), level))
+}
+
+export const GYM_QUEST_LENGTH = 15
+
+/** Who the challenger is in a 15-battle Gym Quest, rookies up to the Champion. */
+export function questChallengerTitle(index: number): string {
+  if (index >= 14) return 'Champion'
+  if (index === 13) return 'Elite Four Member'
+  if (index >= 11) return 'Elite Trainer'
+  if (index === 10) return 'Rival Gym Leader'
+  if (index === 9) return 'Rival'
+  if (index >= 6) return 'Ace Trainer'
+  if (index >= 3) return 'Trainer'
+  return 'Rookie'
+}
+
 /** XP each team member earns for beating these opponents. */
 export const xpReward = (opponents: RosterMember[]) =>
   opponents.reduce((sum, m) => sum + 3 * m.level ** 2, 0)

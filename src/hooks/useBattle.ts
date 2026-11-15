@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react'
 import { useBattleStore } from '../store/battleStore'
+import { useSettingsStore } from '../store/settingsStore'
 import type { BattleState, WorkerOutbound } from '../types/game'
 
 // How long each kind of event stays on screen before the next one plays.
@@ -26,7 +27,8 @@ export function useBattle(p1Team: string, p2Team: string, seed?: number[]) {
         return
       }
       setBattleState(next)
-      timer = window.setTimeout(drain, next.event ? EVENT_MS[next.event.kind] : 0)
+      const speed = useSettingsStore.getState().speed
+      timer = window.setTimeout(drain, next.event ? EVENT_MS[next.event.kind] / speed : 0)
     }
 
     const worker = new Worker(

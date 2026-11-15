@@ -109,7 +109,7 @@ export interface BattleState {
   phase: 'processing' | 'waiting' | 'ended'
   availableMoves: MoveChoice[]
   forcedSwitch: boolean
-  availableSwitches: number[]  // 1-based slot indices
+  availableSwitches: string[]  // names of Pokémon that can be switched in
   seq: number                  // increments on every snapshot
   event: BattleEvent | null    // what changed in this snapshot, for animation
 }
@@ -117,7 +117,7 @@ export interface BattleState {
 export type WorkerInbound =
   | { type: 'INIT'; payload: { format: string; p1Team: string; p2Team: string; seed?: number[] } }
   | { type: 'MOVE'; payload: { choice: string } }
-  | { type: 'SWITCH'; payload: { slot: number } }
+  | { type: 'SWITCH'; payload: { name: string } }
 
 export type WorkerOutbound =
   | { type: 'STATE'; state: BattleState }

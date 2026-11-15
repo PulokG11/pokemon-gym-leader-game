@@ -173,14 +173,13 @@ export function BattleScreen() {
 
         {/* Party: switch in a teammate */}
         <div className="grid grid-cols-3 gap-2">
-          {battle.p1Team.map((mon, i) => {
-            const slot = i + 1
+          {battle.p1Team.map(mon => {
             const active = mon.name === p1Active.name
-            const canSwitch = canAct && availableSwitches.includes(slot)
+            const canSwitch = canAct && availableSwitches.includes(mon.name)
             return (
               <button
                 key={mon.name}
-                onClick={() => sendSwitch(slot)}
+                onClick={() => sendSwitch(mon.name)}
                 disabled={!canSwitch}
                 className={`flex items-center gap-2 rounded-xl p-1.5 text-left border transition-colors ${
                   active ? 'border-slate-500 bg-slate-800' : 'border-slate-800 bg-slate-900'

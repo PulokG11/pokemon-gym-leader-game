@@ -2,6 +2,7 @@ import { BattleStreams, Dex } from '@pkmn/sim'
 import type {
   BattleEvent, BattleMonState, BattleState, MoveChoice, WorkerInbound, WorkerOutbound,
 } from '../types/game'
+import { nameOf, parseRequest, slotOf, switchTargets } from '../lib/battleRequest'
 
 const { BattleStream, getPlayerStreams } = BattleStreams
 
@@ -14,6 +15,7 @@ const EMPTY_MON: BattleMonState = {
 let stream: InstanceType<typeof BattleStream> | null = null
 let state: BattleState = makeInitialState()
 let firstMoveThisTurn = true
+let lastP1Request: any = null
 
 function makeInitialState(): BattleState {
   return {
@@ -54,7 +56,6 @@ function parseHp(s: string | undefined): [number, number] {
 }
 
 const sideOf = (ident: string): 'p1' | 'p2' => (ident.startsWith('p1') ? 'p1' : 'p2')
-const nameOf = (ident: string) => (ident.includes(': ') ? ident.split(': ').slice(1).join(': ') : ident)
 const speciesOf = (details: string) => details.split(',')[0]
 const levelOf = (details: string) => Number(/, L(\d+)/.exec(details)?.[1] ?? 100)
 const label = (ident: string) => `${sideOf(ident) === 'p2' ? 'The foe\'s ' : ''}${nameOf(ident)}`
@@ -180,14 +181,6 @@ function processLine(line: string) {
 
 // ─── Requests ─────────────────────────────────────────────────────────────────
 
-function parseRequest(chunk: string): any | null {
-  for (const line of chunk.split('\n')) {
-    if (line.startsWith('|request|') && line.length > 9) {
-      try { return JSON.parse(line.slice(9)) } catch { return null }
-    }
-  }
-  return null
-}
 
 function syncTeamFromRequest(req: any, side: 'p1' | 'p2') {
   if (!req?.side?.pokemon) return
@@ -220,20 +213,12 @@ function extractMoves(req: any): MoveChoice[] {
   }))
 }
 
-function extractSwitches(req: any): number[] {
-  if (!req?.side?.pokemon) return []
-  return (req.side.pokemon as any[])
-    .map((p, i) => ({ p, slot: i + 1 }))
-    .filter(({ p }) => !p.active && !p.condition.startsWith('0'))
-    .map(({ slot }) => slot)
-}
-
 const teamOrder = (req: any) => (req.side.pokemon as any[]).map((_, i) => i + 1).join('')
 
 function pickAiMove(req: any): string {
   if (req.forceSwitch?.[0]) {
-    const slots = extractSwitches(req)
-    return `switch ${slots.length ? slots[0] : 1}`
+    const target = switchTargets(req)[0]
+    return `switch ${target ? slotOf(req, target) : 1}`
   }
   const moves = (req?.active?.[0]?.moves ?? []) as any[]
   const avail = moves.map((m, i) => ({ m, slot: i + 1 })).filter(({ m }) => !m.disabled && m.pp > 0)
@@ -251,14 +236,17 @@ self.onmessage = (e: MessageEvent<WorkerInbound>) => {
     state.phase = 'processing'
     stream.write(`>p1 ${msg.payload.choice}`)
   } else if (msg.type === 'SWITCH' && stream && state.phase === 'waiting') {
+    const slot = slotOf(lastP1Request, msg.payload.name)
+    if (!slot || !switchTargets(lastP1Request).includes(msg.payload.name)) return
     state.phase = 'processing'
-    stream.write(`>p1 switch ${msg.payload.slot}`)
+    stream.write(`>p1 switch ${slot}`)
   }
 }
 
 function initBattle(payload: { format: string; p1Team: string; p2Team: string; seed?: number[] }) {
   state = makeInitialState()
   firstMoveThisTurn = true
+  lastP1Request = null
   stream = new BattleStream()
   const { p1: p1s, p2: p2s, omniscient: obs } = getPlayerStreams(stream)
   const fail = (err: unknown) => self.postMessage({ type: 'ERROR', message: String(err) } satisfies WorkerOutbound)
@@ -275,7 +263,8 @@ function initBattle(payload: { format: string; p1Team: string; p2Team: string; s
       if (req.teamPreview) { stream!.write(`>p1 team ${teamOrder(req)}`); continue }
       state.forcedSwitch = !!req.forceSwitch?.[0]
       state.availableMoves = state.forcedSwitch ? [] : extractMoves(req)
-      state.availableSwitches = extractSwitches(req)
+      lastP1Request = req
+      state.availableSwitches = switchTargets(req)
       state.phase = 'waiting'
       emit(null)
     }

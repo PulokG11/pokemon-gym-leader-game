@@ -62,8 +62,8 @@ export function useBattle(p1Team: string, p2Team: string, seed?: number[]) {
     workerRef.current?.postMessage({ type: 'MOVE', payload: { choice } })
   }, [])
 
-  const sendSwitch = useCallback((slot: number) => {
-    workerRef.current?.postMessage({ type: 'SWITCH', payload: { slot } })
+  const sendSwitch = useCallback((name: string) => {
+    workerRef.current?.postMessage({ type: 'SWITCH', payload: { name } })
   }, [])
 
   return { sendMove, sendSwitch }

@@ -14,6 +14,13 @@ git push origin main
 
 ---
 
+## v0.3.1 — Fix stuck switch after a faint (2026-11-15)
+
+- **Fix:** after a few switches, the party buttons could stay disabled when a Pokémon fainted, so the next Pokémon couldn't be sent out. The engine reorders the party on every switch; the UI was matching against the original order. Switches now go by Pokémon name, and the slot is looked up from the engine's latest state
+- Regression test drives a real engine battle through two switches (`src/lib/battleRequest.test.ts`)
+
+Rollback: `git checkout v0.3.0 -- .`
+
 ## v0.3.0 — Team building, progression and sprites (2026-11-15)
 
 - **Team select:** after picking a gym type, choose 3 of 5 random unevolved Pokémon of that type (Lv 12–16), with artwork, base stats, ability, evolution level and full move details (type, category, power, accuracy, PP, priority, effect)

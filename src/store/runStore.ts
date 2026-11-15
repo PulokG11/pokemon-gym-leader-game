@@ -14,7 +14,8 @@ interface RunStore {
   startDaily: () => boolean
   confirmTeam: (uids: string[]) => void
   winBattle: () => void
-  loseBattle: () => void
+  loseBattle: (forfeited?: boolean) => void
+  markBattleOpen: (key: string) => void
   continueRun: () => void
   clearRun: () => void
 }
@@ -97,20 +98,22 @@ export const useRunStore = create<RunStore>()(
         recordResult(run, wins, cleared, cleared)
         set({
           run: cleared
-            ? { ...run, roster, lastProgress, challengerIndex: wins, won: true, phase: 'run_ended' }
+            ? { ...run, roster, lastProgress, challengerIndex: wins, won: true, battleKey: null, phase: 'run_ended' }
             : {
-                ...run, roster, lastProgress, challengerIndex: wins,
+                ...run, roster, lastProgress, challengerIndex: wins, battleKey: null,
                 challenger: nextChallenger(run, roster, wins), phase: 'reward_pending',
               },
         })
       },
 
-      loseBattle: () => {
+      loseBattle: (forfeited = false) => {
         const run = get().run
         if (!run) return
         recordResult(run, run.challengerIndex, true, false)
-        set({ run: { ...run, won: false, phase: 'run_ended' } })
+        set({ run: { ...run, won: false, forfeited, battleKey: null, phase: 'run_ended' } })
       },
+
+      markBattleOpen: (key) => set(({ run }) => (run ? { run: { ...run, battleKey: key } } : {})),
 
       continueRun: () => set(({ run }) => (run ? { run: { ...run, phase: 'battle' } } : {})),
 

@@ -10,6 +10,9 @@ import { battleSpriteUrl, species } from '../lib/dex'
 import { challengerLabel, modeName } from '../lib/runLabels'
 import { TYPE_COLORS } from '../lib/typeColors'
 import { PokeBall } from '../components/PokeBall'
+import { NicknameDialog } from '../components/NicknameDialog'
+import { usePlayerStore } from '../store/playerStore'
+import { leaderboardEnabled } from '../lib/leaderboard'
 
 const APP_VERSION = 'v0.4.0'
 
@@ -74,6 +77,8 @@ export function HomeScreen() {
   const { speed, effects, setSpeed, setEffects } = useSettingsStore()
   const go = useUiStore(s => s.go)
   const install = useInstallPrompt()
+  const player = usePlayerStore()
+  const [dialog, setDialog] = useState<null | 'daily' | 'profile'>(null)
 
   const now = useUtcClock()
   const today = utcDate(now)
@@ -87,12 +92,17 @@ export function HomeScreen() {
   const dailyInProgress = activeRun?.mode === 'daily' && activeRun.dailyDate === today
   const typeColor = TYPE_COLORS[todayType]
 
-  function playDaily() {
-    if (dailyInProgress) return go('run')
-    if (todayResult) return go('ranking')
+  function beginDaily() {
     if (activeRun && !confirm(`Starting the Daily Challenge will abandon your ${modeName(activeRun)} run. Continue?`)) return
     clearRun()
     if (startDaily()) go('run')
+  }
+
+  function playDaily() {
+    if (dailyInProgress) return go('run')
+    if (todayResult) return go('ranking')
+    if (leaderboardEnabled() && !player.playerId && !player.declined) return setDialog('daily')
+    beginDaily()
   }
 
   function newQuest() {
@@ -107,6 +117,19 @@ export function HomeScreen() {
       <div className="absolute inset-x-[-20%] top-[-30%] h-[50%] bg-white/5 -skew-y-12 pointer-events-none" aria-hidden="true" />
 
       <div className="relative max-w-md mx-auto px-4 pt-8 pb-6 flex flex-col">
+        {leaderboardEnabled() && (
+          <button
+            onClick={() => setDialog('profile')}
+            className="absolute top-3 right-4 flex flex-col items-center gap-0.5 group"
+            aria-label={player.nickname ? `Nickname: ${player.nickname}. Change nickname` : 'Set a nickname for the leaderboard'}
+          >
+            <span className="w-11 h-11 rounded-lg bg-ink-900 border-2 border-black/40 grid place-items-center shadow-[0_3px_0_rgba(0,0,0,0.35)] group-hover:bg-ink-800">
+              <PokeBall className="w-6 h-6" />
+            </span>
+            <span className="text-[10px] font-extrabold max-w-20 truncate">{player.nickname ?? 'Nickname'}</span>
+          </button>
+        )}
+
         {/* Title */}
         <header className="flex flex-col items-center text-center">
           <span className="inline-block -skew-x-12 bg-ink-900 border-2 border-white/90 px-3 py-1 text-[10px] font-black tracking-[0.2em] uppercase shadow-[3px_3px_0_#1c1613]">
@@ -251,6 +274,18 @@ export function HomeScreen() {
           )}
         </footer>
       </div>
+
+      {dialog && (
+        <NicknameDialog
+          allowSkip={dialog === 'daily'}
+          onCancel={() => setDialog(null)}
+          onDone={() => {
+            const next = dialog
+            setDialog(null)
+            if (next === 'daily') beginDaily()
+          }}
+        />
+      )}
     </div>
   )
 }

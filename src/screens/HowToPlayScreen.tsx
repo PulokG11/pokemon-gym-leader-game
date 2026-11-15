@@ -17,7 +17,8 @@ export function HowToPlayScreen() {
       <div className="max-w-3xl mx-auto px-4 py-6 flex flex-col gap-4">
         <Section title="Daily Challenge">
           <p>Everyone gets the same Gym type, the same five starters and the same challengers each day. The day resets at midnight UTC.</p>
-          <p>Challengers never stop coming and get stronger every round. You get one try: your score is how many battles you win before your Gym falls.</p>
+          <p>Challengers never stop coming and get stronger every round. You get one try: your score is how many battles you win before your Gym falls. Leaving or reloading the page during a Daily battle counts as a loss; between battles you can safely leave and continue later.</p>
+          <p>Pick a nickname to appear on the Ranking. Today’s board ranks everyone on today’s Gym; the All time board shows each player’s best Daily run and which Gym it was on. No account or email is needed.</p>
         </Section>
         <Section title="Gym Quest">
           <p>Pick any of the 18 types and choose 3 of 5 starters of that type. Defend your Gym against 15 challengers, from Rookies through a Rival and the Elite Four to the Champion.</p>

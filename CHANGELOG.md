@@ -14,6 +14,18 @@ git push origin main
 
 ---
 
+## v0.5.0 — Online leaderboards (2026-11-15)
+
+- **Backend moved to Neon:** Supabase is removed from the stack. Leaderboards run on Neon Postgres (project `pokemon-gym-leader-game`, free plan) through the Neon Data API, with Neon Auth anonymous tokens; no server of our own. `@supabase/supabase-js` and the Supabase GitHub secrets are no longer used
+- **Leaderboards:** global Today and All time Daily Challenge boards. All time shows each player's best Daily run with its Gym type, date and Dailies played; your row is highlighted, with your position shown even outside the top 50
+- **Anonymous nicknames:** pick a nickname (or roll a random one) the first time you start a Daily, or from the nickname button on the home screen; no account or email. "Play without ranking" is available. Nicknames can be changed
+- **Server checks:** results go through validated database functions in a dedicated `api` schema (token check, today/yesterday UTC only, server-computed Gym type, wins only increase, finished runs frozen); tables sit in a private `gym` schema. Schema in `db/migrations/001_leaderboards.sql` with a `.down.sql` rollback
+- **Sync:** Daily results upload after every win/loss and retry when back online
+- **Fair play:** leaving or reloading during a Daily battle now counts as a loss, so battles can't be replayed
+- README updated with the Neon setup
+
+Rollback: `git checkout v0.4.0 -- .` (database: run `db/migrations/001_leaderboards.down.sql` in the Neon project)
+
 ## v0.4.0 — Home screen and game modes (2026-11-15)
 
 - **Home screen:** pixel-art "Gym Leader" title, hero showing today's Daily starters, mode cards, Continue card for a saved run, Ranking and How to play tiles, settings, credits

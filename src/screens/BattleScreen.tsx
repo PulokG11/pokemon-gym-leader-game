@@ -10,6 +10,7 @@ import { Sprite } from '../components/Sprite'
 import { TypeBadge } from '../components/TypeBadge'
 import { TYPE_COLORS, TYPE_EMOJI } from '../lib/typeColors'
 import { challengerLabel } from '../lib/runLabels'
+import { openBattle } from '../lib/battleGuard'
 import type { BattleMonState, GymType } from '../types/game'
 
 const STATUS_STYLE: Record<string, string> = {
@@ -60,6 +61,11 @@ export function BattleScreen() {
   const { sendMove, sendSwitch } = useBattle(p1Team, p2Team)
 
   const color = TYPE_COLORS[run.gymType]
+
+  useEffect(() => {
+    if (openBattle(run, useRunStore.getState().markBattleOpen)) loseBattle(true)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [run.id, run.challengerIndex])
 
   useEffect(() => {
     if (!battle || battle.phase !== 'ended' || animating) return

@@ -36,6 +36,11 @@ export function RunEndedScreen() {
               ? `Your Gym held for ${wins} ${wins === 1 ? 'battle' : 'battles'}. Today's try is used; a new Daily Gym opens at midnight UTC.`
               : `You defeated ${wins} of ${run.totalChallengers} challengers before falling.`}
         </p>
+        {run.forfeited && (
+          <p className="text-sm text-amber-300">
+            The page was left or reloaded during a Daily battle, so that battle counted as a loss.
+          </p>
+        )}
         <p className={`text-sm font-semibold uppercase tracking-widest ${color.text}`}>
           {modeName(run)} · {TYPE_EMOJI[run.gymType]} {run.gymType} Gym
         </p>

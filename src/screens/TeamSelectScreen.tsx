@@ -41,7 +41,7 @@ export function TeamSelectScreen() {
         </h1>
         <p className="text-slate-400 mt-1 mb-6">
           Choose {TEAM_SIZE} of these 5 Pokémon. They gain XP after every win, learn new moves and evolve.
-          {run.mode === 'daily' && ' Every player gets the same five today.'}
+          {run.mode === 'daily' && ' Every player gets the same five today. Leaving or reloading the page during a battle counts as a loss.'}
         </p>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">

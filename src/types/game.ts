@@ -44,6 +44,8 @@ export interface RunState {
   challenger: RosterMember[]
   lastProgress: ProgressReport[]
   won: boolean
+  battleKey?: string | null  // set while a battle is open; survives a reload
+  forfeited?: boolean        // Daily battle abandoned by leaving or reloading the page
   funds: number
   phase: RunPhase
   rank: number

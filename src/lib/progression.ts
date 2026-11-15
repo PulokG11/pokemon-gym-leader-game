@@ -132,12 +132,29 @@ export function gainXp(mon: RosterMember, amount: number, rng: Rng = Math.random
   return { uid: mon.uid, before: mon, after, xpGained: amount, events }
 }
 
+/** Raises a Pokémon by `levels` levels with normal move learning and evolution. */
+export function levelUp(mon: RosterMember, levels: number, rng: Rng = Math.random): ProgressReport {
+  const target = Math.min(MAX_LEVEL, mon.level + levels)
+  return gainXp(mon, Math.max(0, xpForLevel(target) - mon.xp), rng)
+}
+
+/** Evolution Stone: evolves into the next stage now, whatever the level or method. */
+export function evolveNow(mon: RosterMember, rng: Rng = Math.random): ProgressReport | null {
+  const evos = species(mon.species).evos
+  if (!evos.length) return null
+  const to = evos[Math.floor(rng() * evos.length)].to
+  const events: ProgressEvent[] = [{ kind: 'evolve', from: mon.species, to }]
+  const after: RosterMember = { ...mon, species: to, moves: [...mon.moves] }
+  for (const [lvl, m] of species(to).learnset) if (lvl === 0) learn(after.moves, m, events)
+  return { uid: mon.uid, before: mon, after, xpGained: 0, events }
+}
+
 /** Showdown packed-team format: name|species|item|ability|moves|nature|evs|gender|ivs|shiny|level|misc */
 export function packTeam(mons: RosterMember[]): string {
   return mons
     .map(m => {
       const s = species(m.species)
-      return `|${s.name}||${s.ability}|${m.moves.join(',')}|Hardy|||||${m.level}|`
+      return `|${s.name}|${m.item ?? ''}|${s.ability}|${m.moves.join(',')}|Hardy|||||${m.level}|`
     })
     .join(']')
 }

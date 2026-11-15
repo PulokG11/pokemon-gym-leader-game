@@ -14,6 +14,21 @@ git push origin main
 
 ---
 
+## v0.7.0 — Economy and rewards (2026-11-15)
+
+Released before v0.6 by design: the release order is v0.7 → v0.6 → v0.9 → v0.8.
+
+- **Gym Funds:** start with ₽150; each win pays ₽100 + ₽20 per challenger beaten
+- **Choose a reward** after every win: 3 cards (Common/Rare/Epic), Reroll (1 to start), or Skip for bonus funds. Battle report under Details. Daily offers are the same for every player
+- **Grow the team to 6:** a Recruit card is always offered while the team has room — pick 1 of 3 Pokémon of your Gym's type you don't own, joining near your team's level; at 6, choose who leaves
+- **Rewards:** Pokémon Training (+3 levels), Team Training (+1 each), Revive Pack, Potion Supply, Rare Candy Box, Evolution Stone (evolves at any level, incl. stone/trade evolutions), held items (Gym type booster, Leftovers, Sitrus Berry, Quick Claw, Focus Sash, Expert Belt…), League Favour (+2 rerolls)
+- **What's next?** after each reward: Training Camp (one Pokémon +3 levels or the team +1) or Visiting Merchant (Potion ₽80, Revive ₽150, Rare Candy ₽200, Evolution Stone ₽300, held items ₽250)
+- **HP carries over** between battles; conscious Pokémon recover 10% after a win; fainted ones sit out until revived
+- **Team modal:** HP, moves, held item, use bag items, give/take held items, reorder (first conscious Pokémon leads)
+- Trainer sprites from Pokémon Showdown on the event cards
+
+Rollback: `git checkout v0.5.0 -- .`
+
 ## v0.5.0 — Online leaderboards (2026-11-15)
 
 - **Backend moved to Neon:** Supabase is removed from the stack. Leaderboards run on Neon Postgres (project `pokemon-gym-leader-game`, free plan) through the Neon Data API, with Neon Auth anonymous tokens; no server of our own. `@supabase/supabase-js` and the Supabase GitHub secrets are no longer used

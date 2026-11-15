@@ -56,9 +56,11 @@ export function BattleScreen() {
   const battle = useBattleStore(s => s.battle)
   const animating = useBattleStore(s => s.animating)
 
-  const p1Team = useMemo(() => packTeam(run.roster), [run.roster])
+  // Fainted Pokémon sit out until revived; the rest start with the HP they ended on.
+  const fighters = useMemo(() => run.roster.filter(m => (m.hp ?? 1) > 0), [run.roster])
+  const p1Team = useMemo(() => packTeam(fighters), [fighters])
   const p2Team = useMemo(() => packTeam(run.challenger), [run.challenger])
-  const { sendMove, sendSwitch } = useBattle(p1Team, p2Team)
+  const { sendMove, sendSwitch } = useBattle(p1Team, p2Team, fighters.map(m => m.hp ?? 1))
 
   const color = TYPE_COLORS[run.gymType]
 
@@ -70,9 +72,10 @@ export function BattleScreen() {
   useEffect(() => {
     if (!battle || battle.phase !== 'ended' || animating) return
     const won = battle.winner === 'p1'
+    const finalHp = Object.fromEntries(battle.p1Team.map(m => [m.species, m.fainted || !m.maxHp ? 0 : m.hp / m.maxHp]))
     const t = setTimeout(() => {
       useBattleStore.getState().clearBattle()
-      if (won) winBattle()
+      if (won) winBattle(finalHp)
       else loseBattle()
     }, 1400)
     return () => clearTimeout(t)

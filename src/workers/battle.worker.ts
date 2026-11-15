@@ -243,7 +243,7 @@ self.onmessage = (e: MessageEvent<WorkerInbound>) => {
   }
 }
 
-function initBattle(payload: { format: string; p1Team: string; p2Team: string; seed?: number[] }) {
+function initBattle(payload: { format: string; p1Team: string; p2Team: string; p1Hp?: number[]; seed?: number[] }) {
   state = makeInitialState()
   firstMoveThisTurn = true
   lastP1Request = null
@@ -283,4 +283,9 @@ function initBattle(payload: { format: string; p1Team: string; p2Team: string; s
   stream.write(`>start ${JSON.stringify({ formatid: payload.format, ...(payload.seed ? { seed: payload.seed } : {}) })}`)
   stream.write(`>player p1 ${JSON.stringify({ name: 'Gym Leader', team: payload.p1Team })}`)
   stream.write(`>player p2 ${JSON.stringify({ name: 'Challenger', team: payload.p2Team })}`)
+  // HP carried over from earlier battles. Values are numbers we computed, never user text.
+  ;(payload.p1Hp ?? []).forEach((f, i) => {
+    const frac = Math.min(1, Math.max(0.01, Number(f) || 1))
+    if (frac < 1) stream!.write(`>eval p1.pokemon[${i}].sethp(Math.max(1, Math.round(p1.pokemon[${i}].maxhp * ${frac})))`)
+  })
 }

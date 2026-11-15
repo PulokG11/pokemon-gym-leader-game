@@ -9,6 +9,7 @@ export type RunPhase =
   | 'team_select'
   | 'battle'
   | 'reward_pending'
+  | 'event'
   | 'run_ended'
 
 export interface RosterMember {
@@ -17,7 +18,13 @@ export interface RosterMember {
   level: number
   xp: number        // total XP; level n needs n^3
   moves: string[]   // move ids, max 4
+  hp?: number       // fraction of max HP carried between battles (missing = full); 0 = fainted
+  item?: string | null
 }
+
+export interface Bag { potion: number; revive: number; candy: number; stone: number }
+
+export type EventKind = 'camp' | 'merchant'
 
 export type ProgressEvent =
   | { kind: 'levelup'; level: number }
@@ -44,6 +51,16 @@ export interface RunState {
   challenger: RosterMember[]
   lastProgress: ProgressReport[]
   won: boolean
+  bag?: Bag
+  heldItems?: string[]       // spare held items not given to anyone
+  rerolls?: number
+  rewardOffer?: import('../lib/economy').Reward[]
+  rewardTaken?: boolean      // reward chosen or skipped for the last win
+  lastFunds?: number         // funds earned by the last win
+  event?: EventKind | null   // event chosen on "What's next?"
+  campUsed?: boolean
+  stock?: import('../lib/economy').StockItem[]
+  log?: string[]             // newest first
   battleKey?: string | null  // set while a battle is open; survives a reload
   forfeited?: boolean        // Daily battle abandoned by leaving or reloading the page
   funds: number
@@ -118,7 +135,7 @@ export interface BattleState {
 }
 
 export type WorkerInbound =
-  | { type: 'INIT'; payload: { format: string; p1Team: string; p2Team: string; seed?: number[] } }
+  | { type: 'INIT'; payload: { format: string; p1Team: string; p2Team: string; p1Hp?: number[]; seed?: number[] } }
   | { type: 'MOVE'; payload: { choice: string } }
   | { type: 'SWITCH'; payload: { name: string } }
 

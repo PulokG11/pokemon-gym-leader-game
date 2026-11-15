@@ -8,7 +8,7 @@ const EVENT_MS: Record<string, number> = {
   move: 750, damage: 850, heal: 700, faint: 1000, switch: 800, status: 650, miss: 650, info: 600,
 }
 
-export function useBattle(p1Team: string, p2Team: string, seed?: number[]) {
+export function useBattle(p1Team: string, p2Team: string, p1Hp: number[] = [], seed?: number[]) {
   const workerRef = useRef<Worker | null>(null)
   const setBattleState = useBattleStore(s => s.setBattleState)
   const setAnimating = useBattleStore(s => s.setAnimating)
@@ -49,7 +49,7 @@ export function useBattle(p1Team: string, p2Team: string, seed?: number[]) {
     worker.onerror = e => console.error('[battle worker]', e.message)
     worker.postMessage({
       type: 'INIT',
-      payload: { format: 'gen9customgame', p1Team, p2Team, seed },
+      payload: { format: 'gen9customgame', p1Team, p2Team, p1Hp, seed },
     })
     workerRef.current = worker
     return () => {

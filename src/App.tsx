@@ -8,6 +8,7 @@ import { TeamSelectScreen } from './screens/TeamSelectScreen'
 import { BattleScreen } from './screens/BattleScreen'
 import { RewardScreen } from './screens/RewardScreen'
 import { RunEndedScreen } from './screens/RunEndedScreen'
+import { EventScreen } from './screens/EventScreen'
 
 function App() {
   const run = useRunStore(s => s.run)
@@ -23,6 +24,7 @@ function App() {
         case 'team_select':    return <TeamSelectScreen />
         case 'battle':         return <BattleScreen />
         case 'reward_pending': return <RewardScreen />
+        case 'event':          return <EventScreen />
         case 'run_ended':      return <RunEndedScreen />
       }
       return <HomeScreen />

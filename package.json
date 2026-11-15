@@ -10,7 +10,8 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:e2e": "playwright test",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "data": "node scripts/build-dex.mjs"
   },
   "dependencies": {
     "@pkmn/sim": "^0.11.0",

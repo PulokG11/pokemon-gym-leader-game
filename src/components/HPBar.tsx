@@ -13,7 +13,7 @@ export function HPBar({ hp, maxHp, size = 'lg' }: HPBarProps) {
     <div className="w-full">
       <div className={`w-full ${h} bg-slate-700 rounded-full overflow-hidden`}>
         <div
-          className={`${h} ${color} rounded-full transition-all duration-300`}
+          className={`${h} ${color} rounded-full transition-[width,background-color] duration-700 ease-out`}
           style={{ width: `${pct * 100}%` }}
         />
       </div>

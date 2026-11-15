@@ -26,6 +26,17 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         // battle worker bundles the full @pkmn/sim dex (~6.6 MB) and must be available offline
         maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/raw\.githubusercontent\.com\/PokeAPI\/sprites\//,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'pokemon-sprites',
+              expiration: { maxEntries: 600, maxAgeSeconds: 60 * 60 * 24 * 30 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+        ],
       }
     })
   ],

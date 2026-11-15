@@ -6,22 +6,30 @@ export type GymType =
 export type RunMode = 'standard' | 'daily'
 
 export type RunPhase =
-  | 'setup'
-  | 'pregym'
+  | 'team_select'
   | 'battle'
   | 'reward_pending'
   | 'run_ended'
 
 export interface RosterMember {
-  species: string
+  uid: string
+  species: string   // dex id, e.g. 'charmander'
   level: number
-  types: string[]
-  hp: number
-  maxHp: number
-  moves: string[]
-  ability: string
-  heldItem: string | null
-  fainted: boolean
+  xp: number        // total XP; level n needs n^3
+  moves: string[]   // move ids, max 4
+}
+
+export type ProgressEvent =
+  | { kind: 'levelup'; level: number }
+  | { kind: 'learn'; move: string; forgot?: string }
+  | { kind: 'evolve'; from: string; to: string }
+
+export interface ProgressReport {
+  uid: string
+  before: RosterMember
+  after: RosterMember
+  xpGained: number
+  events: ProgressEvent[]
 }
 
 export interface RunState {
@@ -30,7 +38,11 @@ export interface RunState {
   gymType: GymType
   challengerIndex: number
   totalChallengers: number
+  candidates: RosterMember[]
   roster: RosterMember[]
+  challenger: RosterMember[]
+  lastProgress: ProgressReport[]
+  won: boolean
   funds: number
   phase: RunPhase
   rank: number
@@ -63,10 +75,18 @@ export interface RewardChoice {
 
 export interface BattleMonState {
   name: string
+  species: string   // display name from the battle protocol, e.g. 'Charizard'
+  level: number
+  speed: number     // actual Speed stat, 0 if unknown
   hp: number
   maxHp: number
   fainted: boolean
   status: string
+}
+
+export interface BattleEvent {
+  kind: 'move' | 'damage' | 'heal' | 'faint' | 'switch' | 'status' | 'miss' | 'info'
+  side: 'p1' | 'p2'
 }
 
 export interface MoveChoice {
@@ -90,6 +110,8 @@ export interface BattleState {
   availableMoves: MoveChoice[]
   forcedSwitch: boolean
   availableSwitches: number[]  // 1-based slot indices
+  seq: number                  // increments on every snapshot
+  event: BattleEvent | null    // what changed in this snapshot, for animation
 }
 
 export type WorkerInbound =

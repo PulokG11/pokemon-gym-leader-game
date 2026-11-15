@@ -1,0 +1,57 @@
+import data from '../data/dex.json'
+
+export interface SpeciesData {
+  name: string
+  num: number
+  types: string[]
+  ability: string
+  baseStats: { hp: number; atk: number; def: number; spa: number; spd: number; spe: number }
+  evos: { to: string; level: number }[]
+  learnset: [number, string][]   // [level, moveId]; level 0 = learned on evolution
+}
+
+export interface MoveData {
+  name: string
+  type: string
+  category: 'Physical' | 'Special' | 'Status'
+  power: number
+  accuracy: number | true
+  pp: number
+  priority: number
+  desc: string
+}
+
+interface DexFile {
+  species: Record<string, SpeciesData>
+  moves: Record<string, MoveData>
+  starters: Record<string, string[]>
+  challengers: string[]
+}
+
+export const DEX = data as unknown as DexFile
+
+export const toID = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '')
+
+export function species(id: string): SpeciesData {
+  const s = DEX.species[toID(id)]
+  if (!s) throw new Error(`Unknown species: ${id}`)
+  return s
+}
+
+export const move = (id: string): MoveData | undefined => DEX.moves[toID(id)]
+
+const SPRITES = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon'
+const LAST_ANIMATED = 649 // Black/White animated sprites cover Gen 1–5
+
+export function artworkUrl(id: string): string {
+  return `${SPRITES}/other/official-artwork/${species(id).num}.png`
+}
+
+export function battleSpriteUrl(id: string, back: boolean): string {
+  const num = DEX.species[toID(id)]?.num
+  if (!num) return ''
+  if (num <= LAST_ANIMATED) {
+    return `${SPRITES}/versions/generation-v/black-white/animated/${back ? 'back/' : ''}${num}.gif`
+  }
+  return `${SPRITES}/${back ? 'back/' : ''}${num}.png`
+}

@@ -1,13 +1,15 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { GymType, RunState, RunPhase } from '../types/game'
+import type { GymType, RunState } from '../types/game'
+import { buildChallenger, gainXp, starterCandidates, xpReward } from '../lib/progression'
 
 interface RunStore {
   run: RunState | null
   startRun: (gymType: GymType) => void
-  setPhase: (phase: RunPhase) => void
-  advanceChallenger: () => void
-  endRun: () => void
+  confirmTeam: (uids: string[]) => void
+  winBattle: () => void
+  loseBattle: () => void
+  continueRun: () => void
   clearRun: () => void
 }
 
@@ -17,13 +19,17 @@ function newRun(gymType: GymType): RunState {
     mode: 'standard',
     gymType,
     challengerIndex: 0,
-    totalChallengers: 5,  // prototype: 5 challengers
+    totalChallengers: 5,
+    candidates: starterCandidates(gymType),
     roster: [],
+    challenger: [],
+    lastProgress: [],
+    won: false,
     funds: 0,
-    phase: 'battle',
+    phase: 'team_select',
     rank: 1,
-    rulesVersion: '1.0',
-    schemaVersion: 1,
+    rulesVersion: '1.1',
+    schemaVersion: 2,
   }
 }
 
@@ -34,24 +40,37 @@ export const useRunStore = create<RunStore>()(
 
       startRun: (gymType) => set({ run: newRun(gymType) }),
 
-      setPhase: (phase) =>
-        set(s => s.run ? { run: { ...s.run, phase } } : s),
-
-      advanceChallenger: () =>
-        set(s => {
-          if (!s.run) return s
-          const next = s.run.challengerIndex + 1
-          if (next >= s.run.totalChallengers) {
-            return { run: { ...s.run, phase: 'run_ended', challengerIndex: next } }
-          }
-          return { run: { ...s.run, challengerIndex: next, phase: 'reward_pending' } }
+      confirmTeam: (uids) =>
+        set(({ run }) => {
+          if (!run) return {}
+          const roster = uids.map(u => run.candidates.find(c => c.uid === u)!).filter(Boolean)
+          return { run: { ...run, roster, challenger: buildChallenger(roster, 0), phase: 'battle' } }
         }),
 
-      endRun: () =>
-        set(s => s.run ? { run: { ...s.run, phase: 'run_ended' } } : s),
+      winBattle: () =>
+        set(({ run }) => {
+          if (!run) return {}
+          const xp = xpReward(run.challenger)
+          const lastProgress = run.roster.map(m => gainXp(m, xp))
+          const roster = lastProgress.map(r => r.after)
+          const next = run.challengerIndex + 1
+          if (next >= run.totalChallengers) {
+            return { run: { ...run, roster, lastProgress, challengerIndex: next, won: true, phase: 'run_ended' } }
+          }
+          return {
+            run: {
+              ...run, roster, lastProgress, challengerIndex: next,
+              challenger: buildChallenger(roster, next), phase: 'reward_pending',
+            },
+          }
+        }),
+
+      loseBattle: () => set(({ run }) => (run ? { run: { ...run, won: false, phase: 'run_ended' } } : {})),
+
+      continueRun: () => set(({ run }) => (run ? { run: { ...run, phase: 'battle' } } : {})),
 
       clearRun: () => set({ run: null }),
     }),
-    { name: 'gym-run-v1' }
+    { name: 'gym-run-v2' }
   )
 )

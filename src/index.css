@@ -1,1 +1,22 @@
 @import "tailwindcss";
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Evolution: old form glows white and fades, new form emerges from the glow */
+@keyframes evo-out {
+  0% { opacity: 1; filter: brightness(1); }
+  60% { opacity: 1; filter: brightness(0) invert(1); }
+  100% { opacity: 0; filter: brightness(0) invert(1); transform: scale(0.8); }
+}
+@keyframes evo-in {
+  0%, 55% { opacity: 0; filter: brightness(0) invert(1); transform: scale(0.8); }
+  80% { opacity: 1; filter: brightness(0) invert(1); transform: scale(1.1); }
+  100% { opacity: 1; filter: brightness(1); transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 1ms !important; animation-delay: 0ms !important; }
+}

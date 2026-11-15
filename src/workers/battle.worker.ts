@@ -1,139 +1,184 @@
-import { BattleStreams } from '@pkmn/sim'
+import { BattleStreams, Dex } from '@pkmn/sim'
+import type {
+  BattleEvent, BattleMonState, BattleState, MoveChoice, WorkerInbound, WorkerOutbound,
+} from '../types/game'
+
 const { BattleStream, getPlayerStreams } = BattleStreams
-import type { BattleMonState, BattleState, MoveChoice, WorkerInbound, WorkerOutbound } from '../types/game'
 
 // ─── State ────────────────────────────────────────────────────────────────────
 
+const EMPTY_MON: BattleMonState = {
+  name: '', species: '', level: 0, speed: 0, hp: 0, maxHp: 0, fainted: false, status: '',
+}
+
 let stream: InstanceType<typeof BattleStream> | null = null
 let state: BattleState = makeInitialState()
-let logBuffer: string[] = []
+let firstMoveThisTurn = true
 
 function makeInitialState(): BattleState {
-  const empty: BattleMonState = { name: '', hp: 0, maxHp: 0, fainted: false, status: '' }
   return {
-    turn: 0, p1Active: empty, p2Active: empty,
+    turn: 0, p1Active: EMPTY_MON, p2Active: EMPTY_MON,
     p1Team: [], p2Team: [],
     log: [], winner: null,
     phase: 'processing',
     availableMoves: [], forcedSwitch: false, availableSwitches: [],
+    seq: 0, event: null,
   }
 }
 
-function post(msg: WorkerOutbound) { self.postMessage(msg) }
+function emit(event: BattleEvent | null) {
+  state.seq++
+  const msg: WorkerOutbound = {
+    type: 'STATE',
+    state: {
+      ...state,
+      event,
+      p1Team: state.p1Team.map(m => ({ ...m })),
+      p2Team: state.p2Team.map(m => ({ ...m })),
+      log: [...state.log],
+    },
+  }
+  self.postMessage(msg)
+}
 
 function addLog(text: string) {
-  logBuffer.push(text)
-  if (logBuffer.length > 20) logBuffer.shift()
-  state.log = [...logBuffer]
+  state.log = [...state.log, text].slice(-30)
 }
 
-// ─── Protocol parser ──────────────────────────────────────────────────────────
+// ─── Protocol helpers ─────────────────────────────────────────────────────────
 
-function parseHp(s: string): [number, number] {
-  if (!s || s.startsWith('0 fnt')) return [0, 0]
-  const [hp, max] = s.split('/').map(Number)
-  return [hp ?? 0, max ?? 0]
+function parseHp(s: string | undefined): [number, number] {
+  if (!s || s.startsWith('0')) return [0, 0]
+  const [hp, max] = s.split(' ')[0].split('/').map(Number)
+  return [hp || 0, max || 0]
 }
 
-function sideOf(ident: string): 'p1' | 'p2' {
-  return ident.startsWith('p1') ? 'p1' : 'p2'
+const sideOf = (ident: string): 'p1' | 'p2' => (ident.startsWith('p1') ? 'p1' : 'p2')
+const nameOf = (ident: string) => (ident.includes(': ') ? ident.split(': ').slice(1).join(': ') : ident)
+const speciesOf = (details: string) => details.split(',')[0]
+const levelOf = (details: string) => Number(/, L(\d+)/.exec(details)?.[1] ?? 100)
+const label = (ident: string) => `${sideOf(ident) === 'p2' ? 'The foe\'s ' : ''}${nameOf(ident)}`
+
+function teamOf(side: 'p1' | 'p2') { return side === 'p1' ? state.p1Team : state.p2Team }
+
+function updateMon(side: 'p1' | 'p2', name: string, patch: Partial<BattleMonState>) {
+  const team = teamOf(side)
+  const i = team.findIndex(m => m.name === name)
+  if (i >= 0) team[i] = { ...team[i], ...patch }
+  const activeKey = side === 'p1' ? 'p1Active' : 'p2Active'
+  if (state[activeKey].name === name) state[activeKey] = { ...state[activeKey], ...patch }
 }
 
-function nameOf(ident: string): string {
-  return ident.includes(': ') ? ident.split(': ').slice(1).join(': ') : ident
+const STATUS_TEXT: Record<string, string> = {
+  brn: 'was burned', par: 'is paralyzed', psn: 'was poisoned', tox: 'was badly poisoned',
+  slp: 'fell asleep', frz: 'was frozen solid',
+}
+const STAT_NAMES: Record<string, string> = {
+  atk: 'Attack', def: 'Defense', spa: 'Sp. Atk', spd: 'Sp. Def', spe: 'Speed', accuracy: 'accuracy', evasion: 'evasiveness',
 }
 
 function processLine(line: string) {
   if (!line.startsWith('|')) return
   const parts = line.slice(1).split('|')
-  const cmd = parts[0]
+  const [cmd, a = '', b = '', c = ''] = parts
 
   switch (cmd) {
     case 'turn':
-      state.turn = parseInt(parts[1]) || state.turn
+      state.turn = Number(a) || state.turn
+      firstMoveThisTurn = true
+      addLog(`— Turn ${state.turn} —`)
+      emit({ kind: 'info', side: 'p1' })
       break
 
     case 'switch':
     case 'drag': {
-      const side = sideOf(parts[1])
-      const name = nameOf(parts[1])
-      const [hp, maxHp] = parseHp(parts[3])
-      const mon: BattleMonState = { name, hp, maxHp, fainted: false, status: '' }
-      if (side === 'p1') {
-        state.p1Active = mon
-        const i = state.p1Team.findIndex(m => m.name === name)
-        if (i >= 0) state.p1Team[i] = { ...state.p1Team[i], hp, maxHp, fainted: false }
-      } else {
-        state.p2Active = mon
-        const i = state.p2Team.findIndex(m => m.name === name)
-        if (i >= 0) state.p2Team[i] = { ...state.p2Team[i], hp, maxHp, fainted: false }
+      const side = sideOf(a)
+      const name = nameOf(a)
+      const [hp, maxHp] = parseHp(c)
+      const known = teamOf(side).find(m => m.name === name)
+      const mon: BattleMonState = {
+        ...EMPTY_MON, ...known, name, species: speciesOf(b), level: levelOf(b), hp, maxHp, fainted: false,
       }
-      addLog(`${name} entered the battle!`)
+      if (side === 'p1') state.p1Active = mon
+      else state.p2Active = mon
+      updateMon(side, name, { hp, maxHp, fainted: false })
+      addLog(side === 'p1' ? `Go! ${name}!` : `The challenger sent out ${name}!`)
+      emit({ kind: 'switch', side })
       break
     }
 
-    case 'move':
-      addLog(`${nameOf(parts[1])} used ${parts[2]}!`)
+    case 'move': {
+      const side = sideOf(a)
+      const m = Dex.moves.get(b)
+      addLog(`${label(a)} used ${b}!`)
+      if (firstMoveThisTurn && m.priority > 0) {
+        const me = side === 'p1' ? state.p1Active : state.p2Active
+        const foe = side === 'p1' ? state.p2Active : state.p1Active
+        if (me.speed && foe.speed && me.speed < foe.speed) {
+          addLog(`${b} has +${m.priority} priority, so it struck first despite lower Speed!`)
+        }
+      }
+      firstMoveThisTurn = false
+      emit({ kind: 'move', side })
       break
+    }
 
     case '-damage':
     case '-heal': {
-      const side = sideOf(parts[1])
-      const name = nameOf(parts[1])
-      const [hp, maxHp] = parseHp(parts[2])
-      if (side === 'p1') {
-        state.p1Active = { ...state.p1Active, hp, maxHp }
-        const i = state.p1Team.findIndex(m => m.name === name)
-        if (i >= 0) state.p1Team[i] = { ...state.p1Team[i], hp, maxHp }
-      } else {
-        state.p2Active = { ...state.p2Active, hp, maxHp }
-        const i = state.p2Team.findIndex(m => m.name === name)
-        if (i >= 0) state.p2Team[i] = { ...state.p2Team[i], hp, maxHp }
-      }
+      const side = sideOf(a)
+      const [hp, maxHp] = parseHp(b)
+      updateMon(side, nameOf(a), maxHp ? { hp, maxHp } : { hp: 0 })
+      const from = /\[from\] (?:item: |ability: )?(.+)/.exec(parts.slice(3).join('|'))?.[1]
+      if (from) addLog(`${label(a)} ${cmd === '-damage' ? 'was hurt by' : 'restored HP with'} ${from}.`)
+      emit({ kind: cmd === '-damage' ? 'damage' : 'heal', side })
       break
     }
 
-    case 'faint': {
-      const side = sideOf(parts[1])
-      const name = nameOf(parts[1])
-      if (side === 'p1') {
-        state.p1Active = { ...state.p1Active, hp: 0, fainted: true }
-        const i = state.p1Team.findIndex(m => m.name === name)
-        if (i >= 0) state.p1Team[i] = { ...state.p1Team[i], hp: 0, fainted: true }
-      } else {
-        state.p2Active = { ...state.p2Active, hp: 0, fainted: true }
-        const i = state.p2Team.findIndex(m => m.name === name)
-        if (i >= 0) state.p2Team[i] = { ...state.p2Team[i], hp: 0, fainted: true }
-      }
-      addLog(`${name} fainted!`)
+    case 'faint':
+      updateMon(sideOf(a), nameOf(a), { hp: 0, fainted: true })
+      addLog(`${label(a)} fainted!`)
+      emit({ kind: 'faint', side: sideOf(a) })
       break
-    }
 
-    case '-status': {
-      const side = sideOf(parts[1])
-      if (side === 'p1') state.p1Active = { ...state.p1Active, status: parts[2] }
-      else state.p2Active = { ...state.p2Active, status: parts[2] }
+    case '-status':
+      updateMon(sideOf(a), nameOf(a), { status: b })
+      addLog(`${label(a)} ${STATUS_TEXT[b] ?? `got ${b}`}!`)
+      emit({ kind: 'status', side: sideOf(a) })
       break
-    }
 
-    case '-curestatus': {
-      const side = sideOf(parts[1])
-      if (side === 'p1') state.p1Active = { ...state.p1Active, status: '' }
-      else state.p2Active = { ...state.p2Active, status: '' }
+    case '-curestatus':
+      updateMon(sideOf(a), nameOf(a), { status: '' })
+      addLog(`${label(a)} recovered.`)
+      emit({ kind: 'info', side: sideOf(a) })
+      break
+
+    case '-supereffective': addLog("It's super effective!"); emit({ kind: 'info', side: sideOf(a) }); break
+    case '-resisted': addLog("It's not very effective..."); emit({ kind: 'info', side: sideOf(a) }); break
+    case '-crit': addLog('A critical hit!'); emit({ kind: 'info', side: sideOf(a) }); break
+    case '-immune': addLog(`It doesn't affect ${label(a)}...`); emit({ kind: 'info', side: sideOf(a) }); break
+    case '-fail': addLog('But it failed!'); emit({ kind: 'info', side: sideOf(a) }); break
+    case '-miss': addLog(`${label(a)}'s attack missed!`); emit({ kind: 'miss', side: sideOf(a) }); break
+    case 'cant': addLog(`${label(a)} can't move${b ? ` (${b.replace(/^.*: /, '')})` : ''}!`); emit({ kind: 'info', side: sideOf(a) }); break
+
+    case '-boost':
+    case '-unboost': {
+      const n = Number(c) || 1
+      const dir = cmd === '-boost' ? 'rose' : 'fell'
+      addLog(`${label(a)}'s ${STAT_NAMES[b] ?? b} ${n > 1 ? `sharply ${dir}` : dir}!`)
+      emit({ kind: 'info', side: sideOf(a) })
       break
     }
 
     case 'win':
-      state.winner = parts[1].toLowerCase().includes('gym') ? 'p1' : 'p2'
+      state.winner = a === 'Gym Leader' ? 'p1' : 'p2'
       state.phase = 'ended'
-      addLog(state.winner === 'p1' ? 'You win!' : 'You lose...')
+      addLog(state.winner === 'p1' ? 'The challenger was defeated! 🏅' : 'Your gym has fallen...')
+      emit({ kind: 'info', side: state.winner })
       break
   }
 }
 
-function processChunk(chunk: string) {
-  for (const line of chunk.split('\n')) processLine(line.trim())
-}
+// ─── Requests ─────────────────────────────────────────────────────────────────
 
 function parseRequest(chunk: string): any | null {
   for (const line of chunk.split('\n')) {
@@ -144,15 +189,34 @@ function parseRequest(chunk: string): any | null {
   return null
 }
 
+function syncTeamFromRequest(req: any, side: 'p1' | 'p2') {
+  if (!req?.side?.pokemon) return
+  const fresh: BattleMonState[] = (req.side.pokemon as any[]).map(p => {
+    const [hp, maxHp] = parseHp(p.condition)
+    return {
+      name: nameOf(p.ident), species: speciesOf(p.details), level: levelOf(p.details),
+      speed: p.stats?.spe ?? 0, hp, maxHp, fainted: p.condition.startsWith('0'), status: '',
+    }
+  })
+  const team = teamOf(side)
+  if (team.length === 0) {
+    team.push(...fresh)
+  } else {
+    // Keep animated HP from the event stream; only refresh stats.
+    for (const f of fresh) {
+      const m = team.find(t => t.name === f.name)
+      if (m) m.speed = f.speed
+    }
+  }
+  const activeKey = side === 'p1' ? 'p1Active' : 'p2Active'
+  const t = team.find(m => m.name === state[activeKey].name)
+  if (t) state[activeKey] = { ...state[activeKey], speed: t.speed }
+}
+
 function extractMoves(req: any): MoveChoice[] {
   if (!req?.active?.[0]?.moves) return []
   return (req.active[0].moves as any[]).map((m, i) => ({
-    slot: i + 1,
-    id: m.id,
-    name: m.move,
-    pp: m.pp,
-    maxPp: m.maxpp,
-    disabled: !!m.disabled,
+    slot: i + 1, id: m.id, name: m.move, pp: m.pp, maxPp: m.maxpp, disabled: !!m.disabled,
   }))
 }
 
@@ -160,25 +224,11 @@ function extractSwitches(req: any): number[] {
   if (!req?.side?.pokemon) return []
   return (req.side.pokemon as any[])
     .map((p, i) => ({ p, slot: i + 1 }))
-    .filter(({ p }) => !p.active && p.condition !== '0 fnt')
+    .filter(({ p }) => !p.active && !p.condition.startsWith('0'))
     .map(({ slot }) => slot)
 }
 
-function initTeamFromRequest(req: any, side: 'p1' | 'p2') {
-  const arr = side === 'p1' ? state.p1Team : state.p2Team
-  if (arr.length > 0) return
-  if (!req?.side?.pokemon) return
-  const mons: BattleMonState[] = (req.side.pokemon as any[]).map(p => {
-    const [hp, maxHp] = parseHp(p.condition)
-    return { name: nameOf(p.ident), hp, maxHp, fainted: p.condition === '0 fnt', status: '' }
-  })
-  if (side === 'p1') state.p1Team = mons
-  else state.p2Team = mons
-}
-
-function teamOrder(req: any): string {
-  return (req.side.pokemon as any[]).map((_, i) => i + 1).join('')
-}
+const teamOrder = (req: any) => (req.side.pokemon as any[]).map((_, i) => i + 1).join('')
 
 function pickAiMove(req: any): string {
   if (req.forceSwitch?.[0]) {
@@ -186,66 +236,60 @@ function pickAiMove(req: any): string {
     return `switch ${slots.length ? slots[0] : 1}`
   }
   const moves = (req?.active?.[0]?.moves ?? []) as any[]
-  const avail = moves.filter(m => !m.disabled && m.pp > 0)
+  const avail = moves.map((m, i) => ({ m, slot: i + 1 })).filter(({ m }) => !m.disabled && m.pp > 0)
   if (!avail.length) return 'move 1'
-  const pick = avail[Math.floor(Math.random() * avail.length)]
-  return `move ${pick.slot ?? moves.indexOf(pick) + 1}`
+  return `move ${avail[Math.floor(Math.random() * avail.length)].slot}`
 }
 
 // ─── Message handler ──────────────────────────────────────────────────────────
 
 self.onmessage = (e: MessageEvent<WorkerInbound>) => {
-  const { type, payload } = e.data
-  if (type === 'INIT') {
-    initBattle(payload as { format: string; p1Team: string; p2Team: string; seed?: number[] })
-  } else if (type === 'MOVE' && stream && state.phase === 'waiting') {
+  const msg = e.data
+  if (msg.type === 'INIT') {
+    initBattle(msg.payload)
+  } else if (msg.type === 'MOVE' && stream && state.phase === 'waiting') {
     state.phase = 'processing'
-    stream.write(`>p1 ${(payload as { choice: string }).choice}`)
-  } else if (type === 'SWITCH' && stream) {
+    stream.write(`>p1 ${msg.payload.choice}`)
+  } else if (msg.type === 'SWITCH' && stream && state.phase === 'waiting') {
     state.phase = 'processing'
-    stream.write(`>p1 switch ${(payload as { slot: number }).slot}`)
+    stream.write(`>p1 switch ${msg.payload.slot}`)
   }
 }
 
-async function initBattle(payload: { format: string; p1Team: string; p2Team: string; seed?: number[] }) {
+function initBattle(payload: { format: string; p1Team: string; p2Team: string; seed?: number[] }) {
   state = makeInitialState()
-  logBuffer = []
+  firstMoveThisTurn = true
   stream = new BattleStream()
   const { p1: p1s, p2: p2s, omniscient: obs } = getPlayerStreams(stream)
+  const fail = (err: unknown) => self.postMessage({ type: 'ERROR', message: String(err) } satisfies WorkerOutbound)
 
-  // Omniscient: parse display state
   ;(async () => {
-    for await (const chunk of obs!) {
-      processChunk(chunk)
-      post({ type: 'STATE', state: { ...state, p1Team: [...state.p1Team], p2Team: [...state.p2Team], log: [...state.log] } })
-    }
-  })().catch(() => {})
+    for await (const chunk of obs) for (const line of chunk.split('\n')) processLine(line.trim())
+  })().catch(fail)
 
-  // p1 stream: get move requests → surface to main thread
   ;(async () => {
-    for await (const chunk of p1s!) {
+    for await (const chunk of p1s) {
       const req = parseRequest(chunk)
       if (!req || req.wait) continue
-      initTeamFromRequest(req, 'p1')
+      syncTeamFromRequest(req, 'p1')
       if (req.teamPreview) { stream!.write(`>p1 team ${teamOrder(req)}`); continue }
       state.forcedSwitch = !!req.forceSwitch?.[0]
-      state.availableMoves = req.forceSwitch ? [] : extractMoves(req)
+      state.availableMoves = state.forcedSwitch ? [] : extractMoves(req)
       state.availableSwitches = extractSwitches(req)
       state.phase = 'waiting'
-      post({ type: 'STATE', state: { ...state, p1Team: [...state.p1Team], p2Team: [...state.p2Team], log: [...state.log] } })
+      emit(null)
     }
-  })().catch(() => {})
+  })().catch(fail)
 
-  // p2 stream: AI responds automatically
   ;(async () => {
-    for await (const chunk of p2s!) {
+    for await (const chunk of p2s) {
       const req = parseRequest(chunk)
       if (!req || req.wait) continue
-      initTeamFromRequest(req, 'p2')
+      syncTeamFromRequest(req, 'p2')
       if (req.teamPreview) { stream!.write(`>p2 team ${teamOrder(req)}`); continue }
       stream!.write(`>p2 ${pickAiMove(req)}`)
     }
-  })().catch(() => {})
+  })().catch(fail)
 
   stream.write(`>start ${JSON.stringify({ formatid: payload.format, ...(payload.seed ? { seed: payload.seed } : {}) })}`)
   stream.write(`>player p1 ${JSON.stringify({ name: 'Gym Leader', team: payload.p1Team })}`)

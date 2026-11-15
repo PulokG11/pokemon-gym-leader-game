@@ -21,46 +21,46 @@ const GYM_PLACES: Record<GymType, [string, string]> = {
 
 export const gymName = (type: GymType) => `${GYM_PLACES[type][0]} ${GYM_PLACES[type][1]} Gym`
 
-interface ClassInfo { label: string; sprites: string[]; style: string; quotes: string[] }
+interface ClassInfo { label: string; sprites: string[]; style: string; quotes: string[]; defeat: string[] }
 
 const CLASSES: Record<string, ClassInfo> = {
   Rookie: {
     label: 'Promising Trainer', sprites: ['youngster', 'lass', 'bugcatcher'], style: 'Rookie: picks moves at random',
-    quotes: ['I just got my first badge case!', 'My Pokémon and I trained all week.', 'Is this the right Gym?'],
+    quotes: ['I just got my first badge case!', 'My Pokémon and I trained all week.', 'Is this the right Gym?'], defeat: ['Aww… I’ll train harder!', 'You’re really strong!'],
   },
   Trainer: {
     label: 'Trainer', sprites: ['picnicker', 'camper', 'hiker', 'birdkeeper'], style: 'Trainer: favours strong attacks',
-    quotes: ['Wings beat walls.', 'I came a long way for this badge.', 'Let’s see what your Gym is made of!'],
+    quotes: ['Wings beat walls.', 'I came a long way for this badge.', 'Let’s see what your Gym is made of!'], defeat: ['So this is a Gym Leader’s strength…', 'I’ll be back for that badge.'],
   },
   'Ace Trainer': {
     label: 'Ace Trainer', sprites: ['acetrainer', 'acetrainerf'], style: 'Tactician: knows type matchups',
-    quotes: ['I’ve studied every Gym in the region.', 'Type advantage is everything.', 'Don’t expect an easy win.'],
+    quotes: ['I’ve studied every Gym in the region.', 'Type advantage is everything.', 'Don’t expect an easy win.'], defeat: ['My research wasn’t enough.', 'Impressive. Truly.'],
   },
   Rival: {
     label: 'Rival', sprites: ['barry', 'hilbert'], style: 'Tactician: brings counters to your type',
-    quotes: ['So you’re the new Gym Leader? I studied your type all week. This won’t take long.'],
+    quotes: ['So you’re the new Gym Leader? I studied your type all week. This won’t take long.'], defeat: ['Fine, you win this time. Next time is mine!'],
   },
   'Rival Gym Leader': {
     label: 'Rival Gym Leader', sprites: [], style: 'Gym Leader: a full team with a plan',
-    quotes: ['One Gym Leader to another: show me what you’ve got.'],
+    quotes: ['One Gym Leader to another: show me what you’ve got.'], defeat: ['Your Gym earned its reputation today.'],
   },
   'Elite Trainer': {
     label: 'Elite Trainer', sprites: ['veteran', 'veteranf'], style: 'Veteran: punishes mistakes',
-    quotes: ['I’ve beaten Gyms tougher than this.', 'Experience wins battles.'],
+    quotes: ['I’ve beaten Gyms tougher than this.', 'Experience wins battles.'], defeat: ['You’ve got the makings of a legend.'],
   },
   'Elite Four Member': {
     label: 'Elite Four', sprites: ['lucian'], style: 'Elite Four: strong, balanced team',
-    quotes: ['The League sent me to test you personally.'],
+    quotes: ['The League sent me to test you personally.'], defeat: ['The League will hear of this.'],
   },
   Champion: {
     label: 'Champion', sprites: ['cynthia'], style: 'Champion: the strongest challenger of all',
-    quotes: ['Let’s make this a battle worth remembering.'],
+    quotes: ['Let’s make this a battle worth remembering.'], defeat: ['A battle worth remembering. Your Gym stands!'],
   },
 }
 
 const FIRST_NAMES = ['Perry', 'Gina', 'Wade', 'Rowan', 'Tess', 'Milo', 'Ivy', 'Jonah', 'Rhea', 'Owen', 'Lena', 'Cole', 'Nina', 'Theo', 'Mara']
 
-export interface Trainer { name: string; title: string; sprite: string; quote: string; style: string }
+export interface Trainer { name: string; title: string; sprite: string; quote: string; style: string; defeat: string }
 
 /** The trainer behind challenger `index`: stable for a run, identical for everyone on a Daily. */
 export function challengerTrainer(run: RunState, index = run.challengerIndex): Trainer {
@@ -74,11 +74,11 @@ export function challengerTrainer(run: RunState, index = run.challengerIndex): T
     const t = pick(types)
     const leader = LEADER_SPRITE[t]
     const name = leader === 'ltsurge' ? 'Lt. Surge' : leader[0].toUpperCase() + leader.slice(1)
-    return { name: `Leader ${name}`, title: info.label, sprite: leader, quote: pick(info.quotes), style: info.style }
+    return { name: `Leader ${name}`, title: info.label, sprite: leader, quote: pick(info.quotes), style: info.style, defeat: pick(info.defeat) }
   }
   const sprite = pick(info.sprites)
   const prefix = cls === 'Rookie' || cls === 'Trainer' ? `${sprite === 'birdkeeper' ? 'Bird Keeper' : sprite === 'bugcatcher' ? 'Bug Catcher' : sprite[0].toUpperCase() + sprite.slice(1)} ` : cls === 'Rival' ? 'Rival ' : cls === 'Champion' ? 'Champion ' : ''
-  return { name: `${prefix}${first}`, title: info.label, sprite, quote: pick(info.quotes), style: info.style }
+  return { name: `${prefix}${first}`, title: info.label, sprite, quote: pick(info.quotes), style: info.style, defeat: pick(info.defeat) }
 }
 
 /** Track nodes that are boss fights in a 15-battle Gym Quest. */

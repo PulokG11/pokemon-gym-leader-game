@@ -27,6 +27,7 @@ interface DexFile {
   moves: Record<string, MoveData>
   starters: Record<string, string[]>
   challengers: string[]
+  typeChart: Record<string, Record<string, number>>
 }
 
 export const DEX = data as unknown as DexFile
@@ -40,6 +41,11 @@ export function species(id: string): SpeciesData {
 }
 
 export const move = (id: string): MoveData | undefined => DEX.moves[toID(id)]
+
+/** Damage multiplier of an attack type against a defender's types (ignores abilities). */
+export function effectiveness(attackType: string, defenderTypes: string[]): number {
+  return defenderTypes.reduce((m, t) => m * (DEX.typeChart[t]?.[attackType] ?? 1), 1)
+}
 
 const SPRITES = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon'
 const LAST_ANIMATED = 649 // Black/White animated sprites cover Gen 1–5

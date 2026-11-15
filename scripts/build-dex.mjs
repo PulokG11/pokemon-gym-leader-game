@@ -45,7 +45,16 @@ for (const s of candidates) {
   if (ls.length) learnsets.set(s.id, ls)
 }
 
-const out = { species: {}, moves: {}, starters: {}, challengers: [] }
+const out = { species: {}, moves: {}, starters: {}, challengers: [], typeChart: {} }
+
+// typeChart[defending][attacking] = damage multiplier (Showdown damageTaken: 1 weak, 2 resist, 3 immune)
+const TYPE_MULT = { 0: 1, 1: 2, 2: 0.5, 3: 0 }
+for (const t of Dex.types.all()) {
+  if (t.isNonstandard) continue
+  out.typeChart[t.name] = Object.fromEntries(
+    Dex.types.all().filter(a => !a.isNonstandard).map(a => [a.name, TYPE_MULT[t.damageTaken[a.name] ?? 0]]),
+  )
+}
 const usedMoves = new Set()
 
 for (const s of candidates) {

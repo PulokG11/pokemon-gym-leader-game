@@ -48,6 +48,10 @@
   100% { opacity: 1; filter: brightness(1); transform: scale(1); }
 }
 
+@keyframes confetti {
+  to { transform: translateY(110vh) rotate(720deg); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 1ms !important; animation-delay: 0ms !important; }
 }

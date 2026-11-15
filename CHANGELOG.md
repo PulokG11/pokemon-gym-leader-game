@@ -14,6 +14,20 @@ git push origin main
 
 ---
 
+## v0.9.0 — Battle presentation (2026-11-15)
+
+Order so far: v0.7 → v0.6 → v0.9; v0.8 (upgrades and challenger AI) comes next.
+
+- **VS intro:** your Gym (shown by a famous Leader of your type) against the challenger, "X wants to battle!" (tap to skip)
+- **New battle layout:** top bar with both sides' remaining Pokémon, Home, battle speed (1×/2×/3×) and effects toggle; type-themed arena; cream info cards with level, HP bar, status tag (PSN, SLP…) and Speed; your exact HP, the foe's as a percentage
+- **Text box** with "What will X do?" and a ▼ button for the **Battle history** (newest first)
+- **Moves** coloured by type with a PP bar and an effectiveness badge against the current foe (×2, ×4, ×½, ×¼, ×0), checked against the engine for every type pairing
+- **Pokémon (S)** button swaps the moves for your party to switch; **Details** shows both Pokémon's types and full move info; keys **1–4** pick moves
+- **Gym Defended!** with confetti and the challenger's parting line, or **Gym fallen…** on a loss; Continue leads to rewards
+- No sound toggle yet: the game has no sound assets
+
+Rollback: `git checkout v0.6.0 -- .`
+
 ## v0.6.0 — Gym hub (2026-11-15)
 
 Released after v0.7.0 by design (order: v0.7 → v0.6 → v0.9 → v0.8).

@@ -1,7 +1,7 @@
 import type { GymType, RunState } from '../types/game'
 import { questChallengerTitle } from './progression'
 import { seededRng } from './daily'
-import { regionOf, type Tier } from './regions'
+import { regionOf, trainerTitleName, type Tier } from './regions'
 
 export const trainerSprite = (name: string) => `https://play.pokemonshowdown.com/sprites/trainers/${name}.png`
 
@@ -75,8 +75,7 @@ const TIER_STYLE: Record<Tier, string> = {
 export function regionalTrainer(run: RunState, index = run.challengerIndex): Trainer {
   const region = regionOf(run.region)
   const t = region.trainers[Math.min(index, region.trainers.length - 1)]
-  const prefix = t.title === 'Gym Leader' ? 'Leader' : t.title === 'Elite Four' ? 'Elite Four' : 'Champion'
-  return { name: `${prefix} ${t.name}`, title: t.title, sprite: t.sprite, quote: t.quote, style: TIER_STYLE[t.tier], defeat: t.defeat }
+  return { name: trainerTitleName(t), title: t.title, sprite: t.sprite, quote: t.quote, style: TIER_STYLE[t.tier], defeat: t.defeat }
 }
 
 export function challengerTrainer(run: RunState, index = run.challengerIndex): Trainer {

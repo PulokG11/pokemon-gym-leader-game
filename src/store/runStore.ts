@@ -13,8 +13,8 @@ import { upgradesFor, type UpgradeId } from '../lib/upgrades'
 import { move as moveData, species } from '../lib/dex'
 import { dailyRng, dailyType, utcDate } from '../lib/daily'
 import { useRecordsStore } from './recordsStore'
-import { REGIONS, levelCapFor, regionOf, type RegionId } from '../lib/regions'
-import { buildTrainerTeam, regionalPicks, usableMegaStones } from '../lib/regional'
+import { REGIONS, Z_CRYSTALS, levelCapFor, regionOf, trainerTitleName, type RegionId } from '../lib/regions'
+import { buildTrainerTeam, regionalPicks, usableMegaStones, usableZCrystals } from '../lib/regional'
 import { regionalRewardOffer } from '../lib/economy'
 import { createMon, xpForLevel } from '../lib/progression'
 
@@ -139,31 +139,38 @@ const heldBy = (run: RunState) => [...(run.heldItems ?? []), ...[...run.roster, 
 function regionalWin(run: RunState): RunState {
   const region = regionOf(run.region)
   const beaten = region.trainers[run.challengerIndex]
+  if (!beaten || run.phase === 'run_ended') return run
   const wins = run.challengerIndex + 1
   const cap = levelCapFor(region, wins)
   const xp = xpReward(run.challenger) * REGIONAL_XP_MULT
   const lastProgress = run.roster.map(m => gainXp(m, Math.max(0, Math.min(xp, xpForLevel(cap) - m.xp))))
   const roster = fullHeal(lastProgress.map(r => r.after))
   const box = fullHeal(run.box)
+  // Alola trials award their Z-Crystal: it goes in the bag as a held item.
+  const trialCrystal = region.zCrystals && beaten.badge && Object.values(Z_CRYSTALS).includes(beaten.badge) ? beaten.badge : null
+  const heldItems = trialCrystal ? [...(run.heldItems ?? []), trialCrystal] : run.heldItems
   const lines = [
-    `Defeated ${beaten.title === 'Gym Leader' ? 'Leader ' : ''}${beaten.name}!${beaten.badge ? ` Got the ${beaten.badge}.` : ''}`,
+    `Defeated ${trainerTitleName(beaten)}!${beaten.badge ? ` Got the ${beaten.badge}.` : ''}`,
     ...lastProgress.flatMap(r => (r.events.length ? describe(r) : [])),
   ]
-  const done: RunState = { ...run, roster, box, lastProgress, challengerIndex: wins, battleKey: null, lastFunds: 0 }
+  const done: RunState = { ...run, roster, box, heldItems, lastProgress, challengerIndex: wins, battleKey: null, lastFunds: 0 }
   if (wins >= region.trainers.length) {
     recordResult(run, wins, true, true)
     return withLog({ ...done, won: true, phase: 'run_ended' }, [...lines, `You are the new ${region.name} Champion!`])
   }
   const next = region.trainers[wins]
   const owned = [...roster, ...box]
-  const stones = usableMegaStones(region, owned).filter(s => !heldBy(run).includes(s))
+  const held = heldBy(done)
+  const special = region.zCrystals
+    ? { kind: 'z_crystal' as const, items: usableZCrystals(region, owned).filter(c => !held.includes(c)) }
+    : { kind: 'mega_stone' as const, items: usableMegaStones(region, owned).filter(s => !held.includes(s)) }
   return withLog({
     ...done,
     gymType: next.type,
     challenger: buildTrainerTeam(region, wins, run.starter),
     picks: regionalPicks(region.id, regionalJoinLevel(region.id, wins), owned, Math.random, REGIONAL_PICKS),
     pickTaken: false,
-    rewardOffer: regionalRewardOffer(next.type, stones, Math.random),
+    rewardOffer: regionalRewardOffer(next.type, special, Math.random),
     rewardTaken: false,
     phase: 'reward_pending',
   }, lines)
@@ -443,6 +450,7 @@ export const useRunStore = create<RunStore>()(
                   message: `${nameOf(target)} learned ${moveName(opts.move)}${opts.forget ? ` (forgot ${moveName(opts.forget)})` : ''}.`,
                 }
               }
+              case 'z_crystal':
               case 'mega_stone': {
                 if (!reward.item) return 'Unknown item.'
                 if (target) {

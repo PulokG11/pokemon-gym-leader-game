@@ -14,15 +14,17 @@ Works on desktop and mobile, and can be installed as an app (PWA) for offline pl
 |---|---|
 | **Daily Challenge** | Singles only. The same Gym type, six starters and challengers for every player, chosen by the UTC date. Challengers never stop and gain 3 levels per round. One try per day; your score is how many battles you win. |
 | **Gym Quest** | Pick any of the 18 types, choose **Singles** or **Doubles**, and defend against 15 challengers: Rookie → Trainer → Ace Trainer → Rival → Rival Gym Leader → Elite Trainer → Elite Four Member → Champion. Beat all 15 to win. |
-| **Regional Quest** | Play as the challenger in **Kanto** (more regions later): pick Bulbasaur, Charmander or Squirtle plus 2 unevolved Kanto Pokémon, then beat the 8 Gym Leaders, the Elite Four and Champion Blue: 13 battles. 3 retries per quest. |
+| **Regional Quest** | Play as the challenger in any of the **9 regions**: Kanto, Johto, Hoenn, Sinnoh, Unova, Kalos, Alola, Galar or Paldea. Pick one of the region's 3 starters plus 2 unevolved Pokémon from that region, then beat its 8 Gym Leaders (Alola: trial captains and kahunas), its Elite Four (Galar: the Champion Cup) and its Champion: 13 battles. 3 retries per quest. |
 
 ### Regional Quest rules
 
 - **Rising difficulty.** Brock opens with 3 Pokémon and normal movesets; later Leaders bring up to 6 with their best moves. The Elite Four have 6 trained Pokémon with items, and the Champion has a fully trained team with a pseudo-legendary (Dragonite), a legendary (Zapdos) and a Mega-Evolving counter to your starter.
 - **Catch after every win.** Choose 1 of 3 unevolved Pokémon from the region. It joins the team, or the **box** once the team has 6. Swap boxed Pokémon in from the map before any battle. Only team members earn XP, up to the next opponent's top level.
-- **Full heal after every battle.** Rewards are a Move Tutor, a held item, Rare Candies, an Evolution Stone or a **Mega Stone** for a Pokémon you own (Kanto has no Z-Crystals; they arrive with Alola).
-- **Mega Evolution.** A fully evolved holder of the right stone shows a **Mega Evolve** button in battle.
-- Kanto includes Pokémon that aren't in Scarlet/Violet (e.g. Onix, Kabuto, Mr. Mime); their moves come from the newest game that has them.
+- **Full heal after every battle.** Rewards are a Move Tutor, a held item, Rare Candies, an Evolution Stone, and the region's own power: **Mega Stones** in Kanto, Hoenn and Kalos, **Z-Crystals** in Alola (where each trial also awards its Z-Crystal). Johto, Sinnoh, Unova, Galar and Paldea have the standard rewards.
+- **Z-Moves.** In Alola, a Pokémon holding a Z-Crystal shows a **Z-Move** button: its matching attack becomes a Z-Move once per battle.
+- **Mega Evolution.** A fully evolved holder of the right stone shows a **Mega Evolve** button in battle. Champions Blue, Steven and Diantha Mega Evolve; Kukui uses a Z-Move.
+- **Champions** bring a pseudo-legendary or a legendary: Zapdos, Ho-Oh, Latios, Giratina, Reshiram, Xerneas, Tapu Koko, Zacian and Koraidon. Blue and Kukui pick the starter that beats yours.
+- Every region includes Pokémon that aren't in Scarlet/Violet (e.g. Onix, Kabuto, Mr. Mime); their moves come from the newest game that has them. Every trainer uses one level curve, from Lv 14 at the first Gym to Lv 65 for the Champion.
 
 **Battles** run on the real Pokémon Showdown engine: Speed decides who moves first, and priority moves (e.g. Quick Attack +1) go before that. Each turn plays out move by move with animated sprites.
 

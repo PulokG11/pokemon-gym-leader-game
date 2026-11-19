@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useRunStore } from '../store/runStore'
 import { MAX_TEAM, type Reward } from '../lib/economy'
-import { regionOf } from '../lib/regions'
-import { megaUsers, lineOf } from '../lib/regional'
+import { regionOf, trainerTitleName } from '../lib/regions'
+import { megaUsers, lineOf, zUsers } from '../lib/regional'
 import { BattleReport } from '../components/BattleReport'
 import { ItemIcon, itemSprite } from '../components/ItemIcon'
 import { Modal } from '../components/Modal'
@@ -33,7 +33,7 @@ export function RegionalRewardScreen() {
 
   function choose(r: Reward) {
     setError(null)
-    if (r.kind === 'move_tutor' || r.kind === 'held_item' || r.kind === 'mega_stone') return setPending(r)
+    if (r.kind === 'move_tutor' || r.kind === 'held_item' || r.kind === 'mega_stone' || r.kind === 'z_crystal') return setPending(r)
     const res = takeReward(r)
     if (!res.ok) setError(res.message)
   }
@@ -51,15 +51,17 @@ export function RegionalRewardScreen() {
   }
 
   // Mega Stones are best given to a Pokémon whose line can use them.
-  const megaHolders = pending?.kind === 'mega_stone' && pending.item
-    ? run.roster.filter(m => lineOf(m.species).some(id => megaUsers(pending.item!).includes(id)))
+  const special = pending?.kind === 'mega_stone' || pending?.kind === 'z_crystal'
+  const megaHolders = !pending?.item ? []
+    : pending.kind === 'mega_stone' ? run.roster.filter(m => lineOf(m.species).some(id => megaUsers(pending.item!).includes(id)))
+    : pending.kind === 'z_crystal' ? zUsers(pending.item, run.roster)
     : []
 
   return (
     <div className="home-bg min-h-screen text-white font-sans px-4 py-8">
       <div className="max-w-4xl mx-auto flex flex-col gap-4">
         <h1 className="screen-title text-3xl sm:text-4xl text-center">{beaten?.badge ? `${beaten.badge} earned!` : `${beaten?.name} defeated!`}</h1>
-        <p className="text-center text-sm text-white/75">Your team is fully healed. Next: {next.title === 'Gym Leader' ? `Leader ${next.name}, ${next.place}` : `${next.title} ${next.name}`}.</p>
+        <p className="text-center text-sm text-white/75">Your team is fully healed. Next: {trainerTitleName(next)}, {next.place}.</p>
 
         <TeamStrip roster={run.roster} onSelect={setTeamUid} levelUps={Object.fromEntries(run.lastProgress.map(r => [r.uid, r.after.level > r.before.level]))} />
         <div className="flex justify-end -mt-2">
@@ -96,9 +98,9 @@ export function RegionalRewardScreen() {
                 >
                   <span className="flex items-center gap-2">
                     <span className="w-12 h-12 rounded-lg bg-black/50 grid place-items-center" aria-hidden="true">
-                      <ItemIcon src={itemSprite(r.kind === 'mega_stone' || r.kind === 'held_item' ? { held: r.item } : { reward: r.kind, gymType: run.gymType })} className="w-9 h-9" />
+                      <ItemIcon src={itemSprite(r.kind === 'mega_stone' || r.kind === 'z_crystal' || r.kind === 'held_item' ? { held: r.item } : { reward: r.kind, gymType: run.gymType })} className="w-9 h-9" />
                     </span>
-                    <span className={`text-[10px] font-black uppercase rounded px-1.5 ${RARITY_BADGE[r.rarity]}`}>{r.kind === 'mega_stone' ? 'Mega Stone' : r.rarity}</span>
+                    <span className={`text-[10px] font-black uppercase rounded px-1.5 ${RARITY_BADGE[r.rarity]}`}>{r.kind === 'mega_stone' ? 'Mega Stone' : r.kind === 'z_crystal' ? 'Z-Crystal' : r.rarity}</span>
                   </span>
                   <span className="font-black text-lg">{r.title}</span>
                   <span className="text-sm text-white/75">{r.desc}</span>
@@ -119,15 +121,17 @@ export function RegionalRewardScreen() {
             <TutorPicker onDone={(targetUid, move, forget) => finish({ targetUid, move, forget })} />
           ) : (
             <>
-              {pending.kind === 'mega_stone' && (
+              {special && (
                 <p className="text-sm text-white/70 mb-3">
                   {megaHolders.length
-                    ? 'Give it to one of these: they can Mega Evolve in battle once fully evolved.'
+                    ? pending.kind === 'z_crystal'
+                      ? 'Give it to one of these: they know a move it can turn into a Z-Move.'
+                      : 'Give it to one of these: they can Mega Evolve in battle once fully evolved.'
                     : 'None of your team can use it yet; keep it in the bag for later.'}
                 </p>
               )}
               <PickMember
-                roster={pending.kind === 'mega_stone' && megaHolders.length ? megaHolders : run.roster}
+                roster={special && megaHolders.length ? megaHolders : run.roster}
                 onPick={uid => finish({ targetUid: uid })}
                 extra={<button onClick={() => finish({})} className="rounded-xl border border-dashed border-white/25 hover:bg-white/5 p-2 text-sm font-bold">Keep in bag</button>}
               />

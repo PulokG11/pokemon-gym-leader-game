@@ -41,13 +41,15 @@ export function slotRequests(req: any, moveTargets: (id: string) => string): Slo
     if (forced.length) {
       const must = !!forced[pos] && forcedLeft > 0
       if (must) forcedLeft--
-      return { pos, name, moves: [], forced: must, pass: !must, canMega: false }
+      return { pos, name, moves: [], forced: must, pass: !must, canMega: false, zMoves: [] }
     }
     const fainted = !p || isFainted(p)
     const moves = ((req.active?.[pos]?.moves ?? []) as any[]).map((m, i) => ({
       slot: i + 1, id: m.id, name: m.move, pp: m.pp, maxPp: m.maxpp, disabled: !!m.disabled, target: m.target ?? moveTargets(m.id),
     }))
-    return { pos, name, moves, forced: false, pass: fainted, canMega: !fainted && !!req.active?.[pos]?.canMegaEvo }
+    const z = (req.active?.[pos]?.canZMove ?? []) as ({ move: string } | null)[]
+    const zMoves = moves.map((_, i) => (fainted ? null : z[i]?.move ?? null))
+    return { pos, name, moves, forced: false, pass: fainted, canMega: !fainted && !!req.active?.[pos]?.canMegaEvo, zMoves }
   })
 }
 
@@ -57,7 +59,7 @@ export function buildChoice(req: any, actions: BattleAction[]): string {
     .map(a => {
       if (a.kind === 'pass') return 'pass'
       if (a.kind === 'switch') return `switch ${slotOf(req, a.name)}`
-      const mega = a.mega ? ' mega' : ''
+      const mega = a.mega ? ' mega' : a.zmove ? ' zmove' : ''
       return a.target === undefined ? `move ${a.move}${mega}` : `move ${a.move} ${a.target}${mega}`
     })
     .join(', ')

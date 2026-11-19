@@ -182,6 +182,11 @@ function processLine(line: string) {
       emit(ev('info'))
       break
 
+    case '-zpower':
+      addLog(`${label(a)} surrounded itself with its Z-Power!`)
+      emit(ev('info'))
+      break
+
     case '-supereffective': addLog("It's super effective!"); emit(ev('info')); break
     case '-resisted': addLog("It's not very effective..."); emit(ev('info')); break
     case '-crit': addLog('A critical hit!'); emit(ev('info')); break
@@ -343,8 +348,10 @@ function aiChoice(req: any): string {
       return { kind: 'switch', name }
     }
     const action = pickSlot(req, s.pos)
-    // Trainers always Mega Evolve when they can.
-    return action.kind === 'move' && s.canMega ? { ...action, mega: true } : action
+    // Trainers always Mega Evolve when they can, and use a Z-Move as soon as their chosen attack has one.
+    if (action.kind === 'move' && s.canMega) return { ...action, mega: true }
+    if (action.kind === 'move' && s.zMoves[action.move - 1]) return { ...action, zmove: true }
+    return action
   })
   return buildChoice(req, actions)
 }
@@ -415,6 +422,8 @@ function invalidReason(actions: BattleAction[]): string | null {
     if (s.pass || s.forced || !m || m.disabled || m.pp <= 0) return `slot ${i} cannot use move ${a.move}`
     if (a.target !== undefined && ![1, 2, -1, -2].includes(a.target)) return `bad target ${a.target}`
     if (a.mega && !s.canMega) return `slot ${i} cannot Mega Evolve`
+    if (a.zmove && !s.zMoves[a.move - 1]) return `slot ${i} has no Z-Move for move ${a.move}`
+    if (a.zmove && a.mega) return 'cannot Mega Evolve and use a Z-Move together'
   }
   return null
 }

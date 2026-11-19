@@ -14,6 +14,21 @@ git push origin main
 
 ---
 
+## v0.13.0 — Regional Quest: all 9 regions (2026-11-19)
+
+- **Johto, Hoenn, Sinnoh, Unova, Kalos, Alola, Galar and Paldea** join Kanto in the Regional Quest, each with its 3 starters, a catch pool of the region's unevolved Pokémon, 8 Gym Leaders, 4 Elite Four members and a Champion modelled on the original games:
+  - Alola uses its trial captains and kahunas in place of Gyms (trials award their Z-Crystal) and Professor Kukui as Champion
+  - Galar's Champion Cup (Marnie, Hop, Bede, Allister) stands in for the Elite Four before Leon
+  - every Champion brings a legendary or pseudo-legendary: Ho-Oh, Latios, Giratina, Reshiram, Xerneas, Tapu Koko, Zacian, Koraidon; Steven and Diantha Mega Evolve; Kukui uses the starter that beats yours with a Z-Crystal
+- **Region rewards:** Mega Stones in Kanto, Hoenn and Kalos; **Z-Crystals** in Alola; standard rewards elsewhere
+- **Z-Moves in battle:** a Z-Move toggle shows each attack's Z-Move and uses it once per battle; trainers use Z-Moves too
+- **Region picker:** a card per region with its player, starters, Champion and special reward
+- One level curve for every region (first Gym Lv 14 → Champion Lv 65); Kanto keeps its hand-set levels
+- **Pokédex:** now all 1,024 Pokémon from Kanto to Paldea; Gym Quest and Daily pools are unchanged
+- Fixed: winning again after a finished quest no longer errors
+
+Rollback: `git checkout v0.12.0 -- .`
+
 ## v0.12.0 — Regional Quest: Kanto (2026-11-19)
 
 - **Regional Quest** is playable, starting with **Kanto** (other regions are listed as coming soon). You play the challenger:

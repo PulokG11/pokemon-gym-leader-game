@@ -236,7 +236,7 @@ export function HomeScreen() {
               <span className="block font-extrabold text-lg leading-tight">Regional Quest</span>
               <span className="block text-xs text-white/65">Pick a starter, earn 8 badges, beat the Elite Four and the Champion</span>
             </span>
-            <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-200 rounded px-2 py-1">Kanto</span>
+            <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-200 rounded px-2 py-1">9 regions</span>
             <span className="text-gold-400 text-xl group-hover:translate-x-0.5 transition-transform" aria-hidden="true">▶</span>
           </button>
 

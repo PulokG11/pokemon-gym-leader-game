@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useRunStore } from '../store/runStore'
 import { useUiStore } from '../store/uiStore'
 import { battleSpriteUrl, species } from '../lib/dex'
-import { regionOf } from '../lib/regions'
+import { regionOf, trainerTitleName } from '../lib/regions'
 import { trainerSprite } from '../lib/trainers'
 import { PokemonCard, PokemonDetails } from '../components/PokemonCard'
 import { TypeBadge } from '../components/TypeBadge'
@@ -60,7 +60,7 @@ export function RegionalDraftScreen() {
         <section className={`${panel} px-4 py-3 flex items-center gap-3`}>
           <img src={trainerSprite(first.sprite)} alt="" className="h-16 [image-rendering:pixelated]" />
           <div className="text-sm">
-            <p className="font-ui font-bold text-base">First up: Leader {first.name}, {first.place}</p>
+            <p className="font-ui font-bold text-base">First up: {trainerTitleName(first)}, {first.place}</p>
             <p className="flex flex-wrap items-center gap-1.5 mt-0.5 text-white/75">
               <TypeBadge type={first.type} /> {first.team.length} Pokémon, up to Lv {Math.max(...first.team.map(m => m.level))}
             </p>

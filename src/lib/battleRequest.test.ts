@@ -136,3 +136,31 @@ describe('Mega Evolution', () => {
     expect(log.some(l => l.startsWith('|detailschange|p1a: Charizard|Charizard-Mega-X'))).toBe(true)
   })
 })
+
+describe('Z-Moves', () => {
+  it('lists the Z-Move for a move matching the held Z-Crystal and sends "zmove"', async () => {
+    const { packTeam, createMon } = await import('./progression')
+    const zard = { ...createMon('charizard', 50), moves: ['flamethrower', 'airslash'], item: 'Firium Z' }
+    const lax = createMon('snorlax', 50)
+    const stream = new BattleStreams.BattleStream()
+    const { p1, p2, omniscient } = BattleStreams.getPlayerStreams(stream)
+    const log: string[] = []
+    ;(async () => { for await (const c of omniscient) log.push(...c.split('\n')) })()
+    const p1It = p1[Symbol.asyncIterator]()
+    const p2It = p2[Symbol.asyncIterator]()
+    stream.write(`>start {"formatid":"gen9customgame"}`)
+    stream.write(`>player p1 ${JSON.stringify({ name: 'You', team: packTeam([zard]) })}`)
+    stream.write(`>player p2 ${JSON.stringify({ name: 'Kiawe', team: packTeam([lax]) })}`)
+    await nextRequest(p1It); await nextRequest(p2It)
+    stream.write('>p1 team 1'); stream.write('>p2 team 1')
+    const req = await nextRequest(p1It)
+    await nextRequest(p2It)
+    const [slot] = slotRequests(req, () => 'normal')
+    expect(slot.zMoves).toEqual(['Inferno Overdrive', null])
+    const choice = buildChoice(req, [{ kind: 'move', move: 1, zmove: true }])
+    expect(choice).toBe('move 1 zmove')
+    stream.write(`>p1 ${choice}`); stream.write('>p2 move 1')
+    await nextRequest(p1It)
+    expect(log.some(l => l.startsWith('|move|p1a: Charizard|Inferno Overdrive'))).toBe(true)
+  })
+})

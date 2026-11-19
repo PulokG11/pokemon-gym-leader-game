@@ -4,7 +4,7 @@ import { useUiStore } from '../store/uiStore'
 import { artworkUrl, battleSpriteUrl, effectiveness, species } from '../lib/dex'
 import { BAG_INFO, heldItemDesc, MAX_TEAM, type BagItem } from '../lib/economy'
 import { readyEvolutions } from '../lib/progression'
-import { levelCapFor, regionOf, type RegionTrainer } from '../lib/regions'
+import { levelCapFor, regionOf, trainerTitleName, type RegionTrainer } from '../lib/regions'
 import { regionalTrainer, trainerSprite } from '../lib/trainers'
 import { WEAK_TO } from '../lib/typechart'
 import { TYPE_COLORS } from '../lib/typeColors'
@@ -18,7 +18,7 @@ import type { RosterMember, RunState } from '../types/game'
 const panel = 'rounded-xl bg-ink-900 border-2 border-black shadow-[0_5px_0_rgba(0,0,0,0.35)]'
 const cap = (t: string) => t[0].toUpperCase() + t.slice(1)
 
-/** 8 badges, 4 Elite Four members and the Champion. */
+/** 8 badges (or trials), 4 Elite Four members (or equivalents) and the Champion. */
 function RegionTrack({ run }: { run: RunState }) {
   const region = regionOf(run.region)
   return (
@@ -33,7 +33,7 @@ function RegionTrack({ run }: { run: RunState }) {
             {i > 0 && <span className={`w-2.5 sm:w-4 h-1 ${i <= run.challengerIndex ? 'bg-emerald-400' : 'bg-white/15'}`} />}
             <span
               aria-current={current ? 'step' : undefined}
-              title={`${t.name}${t.badge ? ` · ${t.badge}` : ` · ${t.title}`}`}
+              title={`${trainerTitleName(t)}${t.badge ? ` · ${t.badge}` : ''}`}
               className={`grid place-items-center border-2 text-[10px] font-black ${league ? 'w-8 h-8 rotate-45 rounded-md' : 'w-7 h-7 rounded-full'} ${
                 done ? `${color.bg} border-white/70 text-white` : current ? 'bg-gold-400 border-gold-300 text-ink-900' : 'bg-black/30 border-white/20 text-white/60'
               }`}
@@ -125,6 +125,7 @@ export function RegionalHubScreen() {
   const boxMon = box.find(m => m.uid === boxUid)
   const bag = run.bag ?? { potion: 0, revive: 0, candy: 0, stone: 0 }
   const badges = region.trainers.slice(0, run.challengerIndex).filter(x => x.badge).length
+  const noun = region.badgeNoun ?? 'badge'
   const retries = run.retries ?? 0
   const evolvable = run.roster.filter(m => readyEvolutions(m).length > 0)
   const counts: Record<Tab, number | null> = { team: run.roster.length, box: box.length, bag: null, log: null }
@@ -144,7 +145,7 @@ export function RegionalHubScreen() {
             <button onClick={() => go('home')} aria-label="Home" className="w-10 h-10 rounded-lg bg-white/10 hover:bg-white/15 text-lg">☰</button>
             <div className="flex-1 min-w-0">
               <h1 className="font-ui font-bold text-xl sm:text-2xl truncate">{region.name} · Regional Quest</h1>
-              <p className="text-xs text-white/60">{badges} {badges === 1 ? 'badge' : 'badges'} · battle <b className="text-white">{run.challengerIndex + 1}</b>/{region.trainers.length}</p>
+              <p className="text-xs text-white/60">{badges} {noun}{badges === 1 ? '' : 's'} · battle <b className="text-white">{run.challengerIndex + 1}</b>/{region.trainers.length}</p>
             </div>
             <span className="rounded-full bg-black/40 px-3 py-1 font-black text-red-300 tabular-nums" title={`${retries} retries left`} aria-label={`${retries} retries left`}>
               {'♥'.repeat(retries)}<span className="text-white/25">{'♥'.repeat(Math.max(0, 3 - retries))}</span>

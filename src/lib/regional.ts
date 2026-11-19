@@ -1,6 +1,6 @@
 import { DEX, move, species } from './dex'
 import { createMon, movesAtLevel, type Rng } from './progression'
-import { RIVAL_COUNTER, RIVAL_STARTER, type Region, type Tier } from './regions'
+import { RIVAL_STARTER, Z_CRYSTALS, type Region, type Tier } from './regions'
 import type { RosterMember } from '../types/game'
 
 // Moves the AI handles badly or that need a second turn, recharge, or a sacrifice.
@@ -61,7 +61,8 @@ export function buildTrainerTeam(region: Region, index: number, playerStarter: s
     let id = entry.species
     let item = entry.item
     if (id === RIVAL_STARTER) {
-      const counter = RIVAL_COUNTER[playerStarter ?? 'bulbasaur'] ?? RIVAL_COUNTER.bulbasaur
+      const counters = region.rivalCounter ?? {}
+      const counter = counters[playerStarter ?? ''] ?? Object.values(counters)[0]
       id = counter.species
       item = counter.item
     }
@@ -107,3 +108,16 @@ export function usableMegaStones(region: Region, owned: RosterMember[]): string[
 
 /** Who can hold a Mega Stone and use it once fully evolved. */
 export const megaUsers = (stone: string) => Object.values(DEX.megas).filter(m => m.stone === stone).map(m => m.base)
+
+/** Z-Crystals for the types of attacks your Pokémon know (Alola only). */
+export function usableZCrystals(region: Region, owned: RosterMember[]): string[] {
+  if (!region.zCrystals) return []
+  const types = new Set(owned.flatMap(m => m.moves.map(id => move(id)).filter(d => d && d.category !== 'Status').map(d => d!.type)))
+  return [...types].map(t => Z_CRYSTALS[t]).filter(Boolean)
+}
+
+/** Team members that know an attack of this Z-Crystal's type. */
+export function zUsers(crystal: string, team: RosterMember[]): RosterMember[] {
+  const type = Object.entries(Z_CRYSTALS).find(([, c]) => c === crystal)?.[0]
+  return team.filter(m => m.moves.some(id => move(id)?.type === type && move(id)?.category !== 'Status'))
+}

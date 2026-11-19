@@ -11,7 +11,7 @@ const STONE: Partial<Record<GymType, string>> = {
   fairy: 'moon-stone', psychic: 'moon-stone', dark: 'dusk-stone', ghost: 'dusk-stone',
 }
 
-const REWARD_SPRITE: Record<Exclude<RewardKind, 'held_item' | 'evo_stone' | 'mega_stone'>, string> = {
+const REWARD_SPRITE: Record<Exclude<RewardKind, 'held_item' | 'evo_stone' | 'mega_stone' | 'z_crystal'>, string> = {
   recruit: 'poke-ball', training: 'exp-share', team_training: 'exp-share', revive_pack: 'revive',
   potion_supply: 'hyper-potion', rare_candy: 'rare-candy', league_favour: 'lucky-egg', move_tutor: 'tm-normal',
 }
@@ -21,6 +21,7 @@ export function itemSprite(opts: { bag?: BagItem; held?: string; reward?: Reward
   if (opts.held) return `${ITEMS}/${slug(opts.held)}.png`
   if (opts.reward === 'evo_stone') return `${ITEMS}/${(opts.gymType && STONE[opts.gymType]) ?? 'shiny-stone'}.png`
   if (opts.reward === 'mega_stone') return `${ITEMS}/key-stone.png`
+  if (opts.reward === 'z_crystal') return `${ITEMS}/z-ring.png`
   if (opts.reward && opts.reward !== 'held_item') return `${ITEMS}/${REWARD_SPRITE[opts.reward]}.png`
   return `${ITEMS}/poke-ball.png`
 }

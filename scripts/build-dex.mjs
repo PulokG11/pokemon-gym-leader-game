@@ -40,9 +40,21 @@ function levelUpMoves(id) {
   return entries.sort((a, b) => a[0] - b[0])
 }
 
-// Regional Quest: every Pokémon of the region's original Pokédex, legendaries included,
+// Regional Quest: every Pokémon of each region's original Pokédex, legendaries included,
 // plus anything they evolve into in later games.
-const REGIONS = { kanto: { first: 1, last: 151 } }
+const REGIONS = {
+  kanto: { first: 1, last: 151 },
+  johto: { first: 152, last: 251 },
+  hoenn: { first: 252, last: 386 },
+  sinnoh: { first: 387, last: 493 },
+  unova: { first: 494, last: 649 },
+  kalos: { first: 650, last: 721 },
+  alola: { first: 722, last: 809 },
+  galar: { first: 810, last: 898 },
+  paldea: { first: 906, last: 1025 },
+}
+// Not offered as catches: Transform-only, Sketch-only, 1 HP, or no attacks of their own.
+const POOL_SKIP = new Set(['ditto', 'smeargle', 'shedinja', 'unown', 'wobbuffet', 'wynaut', 'cosmog', 'cosmoem'])
 const regional = new Set()
 for (const { first, last } of Object.values(REGIONS)) {
   const queue = Dex.species.all().filter(s => s.exists && !s.forme && s.num >= first && s.num <= last)
@@ -157,7 +169,7 @@ for (const [id, { first, last }] of Object.entries(REGIONS)) {
   const inRegion = s => s.num >= first && s.num <= last
   out.regions[id] = {
     pool: candidates
-      .filter(s => inRegion(s) && out.species[s.id] && s.tags.length === 0 && s.id !== 'ditto')
+      .filter(s => inRegion(s) && out.species[s.id] && s.tags.length === 0 && !POOL_SKIP.has(s.id))
       .filter(s => !s.prevo || !inRegion(Dex.species.get(s.prevo)))
       .map(s => s.id),
   }

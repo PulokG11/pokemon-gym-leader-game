@@ -95,6 +95,7 @@ export function BattleScreen() {
   const [picks, setPicks] = useState<(BattleAction | null)[]>([])
   const [targeting, setTargeting] = useState<MoveChoice | null>(null)
   const [megaOn, setMegaOn] = useState(false)
+  const [zOn, setZOn] = useState(false)
 
   const format = run.format ?? 'singles'
   const doubles = format === 'doubles'
@@ -134,6 +135,7 @@ export function BattleScreen() {
     setPicks(slots.map(s => (s.pass ? { kind: 'pass' } : null)))
     setTargeting(null)
     setMegaOn(false)
+    setZOn(false)
     setView('moves')
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [requestKey])
@@ -149,7 +151,9 @@ export function BattleScreen() {
   function decide(action: BattleAction) {
     if (cursor < 0) return
     if (action.kind === 'move' && megaOn && slot?.canMega) action = { ...action, mega: true }
+    else if (action.kind === 'move' && zOn && slot?.zMoves[action.move - 1]) action = { ...action, zmove: true }
     setMegaOn(false)
+    setZOn(false)
     const next = [...picks]
     next[cursor] = action
     setPicks(next)
@@ -353,6 +357,16 @@ export function BattleScreen() {
                 {megaOn ? '✦ Mega: on' : '✦ Mega Evolve'}
               </button>
             )}
+            {canAct && slot && !slot.forced && slot.zMoves.some(Boolean) && (
+              <button
+                onClick={() => setZOn(v => !v)}
+                aria-pressed={zOn}
+                title="Turn the next move you pick into its Z-Move (once per battle)"
+                className={`rounded-lg border-2 py-1.5 text-xs font-black ${zOn ? 'bg-amber-400 border-white text-ink-900 shadow-[0_0_12px_rgba(251,191,36,0.8)]' : 'bg-amber-900/70 border-black text-amber-100 hover:bg-amber-800'}`}
+              >
+                {zOn ? '◆ Z-Move: on' : '◆ Z-Move'}
+              </button>
+            )}
             <button onClick={() => setModal('details')} className="rounded-lg bg-white/10 hover:bg-white/15 border-2 border-black py-1.5 text-xs font-black">Details</button>
           </div>
 
@@ -411,7 +425,7 @@ export function BattleScreen() {
                 return (
                   <button
                     key={m.slot}
-                    disabled={m.disabled || m.pp === 0}
+                    disabled={m.disabled || m.pp === 0 || (zOn && !slot.zMoves[i])}
                     onClick={() => pickMove(m)}
                     title={d ? `${d.category} · Pow ${d.power || '—'} · Acc ${d.accuracy === true ? '—' : d.accuracy} · ${d.desc}` : undefined}
                     className={`relative overflow-hidden rounded-lg border-2 border-black ${TYPE_COLORS[type]?.bg ?? 'bg-stone-500'} ${typeTextClass(type)} px-3 py-2 text-left disabled:opacity-40 hover:brightness-110 shadow-[0_3px_0_rgba(0,0,0,0.4)]`}
@@ -419,7 +433,7 @@ export function BattleScreen() {
                     <span className="absolute inset-y-0 right-0 w-1/2 bg-white/10 skew-x-[-20deg] translate-x-6" aria-hidden="true" />
                     <span className="relative flex items-center justify-between gap-1">
                       <span className="font-ui font-bold text-base sm:text-lg leading-tight">
-                        <span className="opacity-60 text-[11px] mr-1">{i + 1}</span>{m.name}
+                        <span className="opacity-60 text-[11px] mr-1">{i + 1}</span>{zOn && slot.zMoves[i] ? slot.zMoves[i] : m.name}
                       </span>
                       <span className="flex gap-0.5">
                         {showMults.map((x, k) => (

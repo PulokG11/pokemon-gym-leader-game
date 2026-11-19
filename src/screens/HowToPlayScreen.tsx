@@ -25,9 +25,9 @@ export function HowToPlayScreen() {
           <p>Beat all 15 to win the quest. Lose one battle and the quest ends.</p>
         </Section>
         <Section title="Regional Quest">
-          <p>This time you are the challenger. In Kanto, pick a starter and 2 unevolved Kanto Pokémon, then beat the 8 Gym Leaders, the Elite Four and the Champion. Each opponent is tougher than the last; the Champion picks the starter that beats yours and can Mega Evolve.</p>
+          <p>This time you are the challenger. Choose one of 9 regions, pick one of its starters and 2 unevolved Pokémon from that region, then beat its 8 Gym Leaders (Alola’s trial captains and kahunas), its Elite Four (Galar’s Champion Cup) and its Champion. Each opponent is tougher than the last, and every Champion brings a legendary or pseudo-legendary.</p>
           <p>After every win your whole team is healed and you catch 1 of 3 new Pokémon. Six can be on the team; the rest wait in the box, and you can swap them in before any battle. Boxed Pokémon don’t earn XP.</p>
-          <p>Rewards are Move Tutors, held items, Rare Candies, Evolution Stones and Mega Stones. You have 3 retries: lose a fourth time and the quest ends. More regions are coming.</p>
+          <p>Rewards are Move Tutors, held items, Rare Candies and Evolution Stones, plus Mega Stones in Kanto, Hoenn and Kalos and Z-Crystals in Alola. Use the Mega Evolve or Z-Move button in battle. You have 3 retries: lose a fourth time and the quest ends.</p>
         </Section>
         <Section title="Battles">
           <p>Pick a move each turn. The faster Pokémon (higher Speed) acts first, unless a move has priority: Quick Attack (+1) goes before normal moves even from a slower Pokémon.</p>

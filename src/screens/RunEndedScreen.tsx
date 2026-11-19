@@ -5,7 +5,7 @@ import { TYPE_COLORS } from '../lib/typeColors'
 import { LEADER_SPRITE, gymName, trainerSprite } from '../lib/trainers'
 import { artworkUrl, species } from '../lib/dex'
 import { modeName } from '../lib/runLabels'
-import { regionOf } from '../lib/regions'
+import { regionOf, trainerTitleName } from '../lib/regions'
 import { ProgressCard } from '../components/ProgressCard'
 
 export function RunEndedScreen() {
@@ -20,6 +20,7 @@ export function RunEndedScreen() {
   const regional = run.mode === 'regional'
   const region = regionOf(run.region)
   const badges = region.trainers.slice(0, wins).filter(t => t.badge).length
+  const noun = region.badgeNoun ?? 'badge'
 
   function leave(to: 'home' | 'type_select' | 'region_select' | 'ranking') {
     clearBattle()
@@ -37,8 +38,8 @@ export function RunEndedScreen() {
         <p className="text-white/65">
           {regional
             ? won
-              ? `You earned all 8 badges, beat the Elite Four and Champion ${region.trainers.at(-1)!.name}. Your team enters the Hall of Fame.`
-              : `Out of retries against ${region.trainers[wins]?.name}. You earned ${badges} ${badges === 1 ? 'badge' : 'badges'} and won ${wins} of ${region.trainers.length} battles.`
+              ? `You completed all 8 ${noun}s, beat the Elite Four and ${trainerTitleName(region.trainers.at(-1)!)}. Your team enters the Hall of Fame.`
+              : `Out of retries against ${region.trainers[wins]?.name}. You completed ${badges} ${noun}${badges === 1 ? '' : 's'} and won ${wins} of ${region.trainers.length} battles.`
             : won
             ? `You defended your Gym against all ${run.totalChallengers} challengers, Champion included.`
             : isDaily

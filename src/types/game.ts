@@ -140,13 +140,14 @@ export interface SlotRequest {
   forced: boolean     // must switch in a replacement
   pass: boolean       // nothing to decide (fainted with no replacement, or not forced)
   canMega: boolean    // holds a usable Mega Stone and hasn't Mega Evolved yet
+  zMoves: (string | null)[]  // per move: the Z-Move it can become this turn, if any
 }
 
 export type BattleFormat = 'singles' | 'doubles'
 
 /** One slot's choice, sent to the engine. Targets: 1/2 = foe slots, -1/-2 = your slots. */
 export type BattleAction =
-  | { kind: 'move'; move: number; target?: number; mega?: boolean }
+  | { kind: 'move'; move: number; target?: number; mega?: boolean; zmove?: boolean }
   | { kind: 'switch'; name: string }
   | { kind: 'pass' }
 

@@ -124,3 +124,37 @@ describe('Regional Quest', () => {
     expect(run().won).toBe(true)
   })
 })
+
+describe('other regions', () => {
+  beforeEach(() => store().clearRun())
+
+  it('every region starts with its own starters and first Leader', () => {
+    for (const region of Object.values(REGIONS)) {
+      store().startRegional(region.id)
+      expect(run().candidates.filter(c => region.starters.includes(c.species))).toHaveLength(3)
+      const starter = run().candidates.find(c => c.species === region.starters[1])!
+      const picks = run().candidates.filter(c => !region.starters.includes(c.species)).slice(0, 2).map(c => c.uid)
+      expect(store().confirmRegionalTeam(starter.uid, picks).ok).toBe(true)
+      expect(run().challenger.map(m => m.species)).toEqual(region.trainers[0].team.map(m => m.species))
+    }
+  })
+
+  it('Alola trials award their Z-Crystal and offer Z-Crystals, not Mega Stones', () => {
+    store().startRegional('alola')
+    const starter = run().candidates.find(c => c.species === 'litten')!
+    const picks = run().candidates.filter(c => !REGIONS.alola.starters.includes(c.species)).slice(0, 2).map(c => c.uid)
+    store().confirmRegionalTeam(starter.uid, picks)
+    store().winBattle()
+    expect(run().heldItems).toContain('Normalium Z')
+    for (let i = 0; i < 10; i++) {
+      for (const r of run().rewardOffer ?? []) expect(r.kind).not.toBe('mega_stone')
+      store().winBattle()
+    }
+    expect(run().heldItems).toEqual(expect.arrayContaining(['Waterium Z', 'Firium Z', 'Groundium Z']))
+  })
+
+  it('Kukui counters your starter with a Z-Crystal holder', async () => {
+    const { buildTrainerTeam } = await import('../lib/regional')
+    expect(buildTrainerTeam(REGIONS.alola, 12, 'litten').at(-1)).toMatchObject({ species: 'primarina', item: 'Waterium Z' })
+  })
+})

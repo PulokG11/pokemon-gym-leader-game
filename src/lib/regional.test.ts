@@ -75,3 +75,35 @@ describe('picks and Mega Stones', () => {
     expect(usableMegaStones(kanto, [createMon('rattata', 12)])).toEqual([])
   })
 })
+
+describe('all regions', () => {
+  for (const region of Object.values(REGIONS)) {
+    it(`${region.name}: 13 valid trainers, starters, items and a catch pool`, () => {
+      expect(region.trainers).toHaveLength(13)
+      expect(region.trainers.map(t => t.title)).toEqual([...Array(8).fill('Gym Leader'), ...Array(4).fill('Elite Four'), 'Champion'])
+      expect(region.trainers[0].team).toHaveLength(3)
+      for (const id of region.starters) expect(DEX.species[id], id).toBeTruthy()
+      for (const t of region.trainers) {
+        for (const m of t.team) {
+          if (m.species !== 'rival-starter') expect(DEX.species[m.species], `${t.name}: ${m.species}`).toBeTruthy()
+          if (m.item) expect(Dex.items.get(m.item).exists, m.item).toBe(true)
+        }
+      }
+      for (const s of region.megaStones) expect(Dex.items.get(s).megaStone, s).toBeTruthy()
+      for (const c of Object.values(region.rivalCounter ?? {})) {
+        expect(DEX.species[c.species]).toBeTruthy()
+        expect(Dex.items.get(c.item).exists).toBe(true)
+      }
+      for (const starter of region.starters) {
+        const champ = buildTrainerTeam(region, 12, starter)
+        expect(champ).toHaveLength(6)
+        for (const m of champ) { expect(m.moves.length).toBeGreaterThanOrEqual(2); expect(m.evs).toBeDefined() }
+        // A legendary or pseudo-legendary on every Champion's team.
+        expect(champ.some(m => Dex.species.get(m.species).tags.length > 0 || Dex.species.get(m.species).bst >= 600)).toBe(true)
+      }
+      expect(regionalPicks(region.id, 12, [], seeded(5), 3)).toHaveLength(3)
+      const caps = region.trainers.map((_, i) => levelCapFor(region, i))
+      expect([...caps].sort((a, b) => a - b)).toEqual(caps)
+    })
+  }
+})

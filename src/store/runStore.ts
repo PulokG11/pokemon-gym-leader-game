@@ -123,7 +123,9 @@ function recordResult(run: RunState, wins: number, finished: boolean, cleared: b
 export const REGIONAL_RETRIES = 3
 /** Team members earn this many times the usual XP, up to the next opponent's top level. */
 const REGIONAL_XP_MULT = 3
-const REGIONAL_PICKS = 3
+/** After each win: 5 Pokémon offered, 2 caught, 2 of the 5 strong against the next 2 opponents. */
+export const REGIONAL_PICKS = 5
+export const REGIONAL_CATCHES = 2
 const DRAFT_POOL = 8
 
 /** New Pokémon join a couple of levels under the next opponent's weakest Pokémon. */
@@ -168,8 +170,12 @@ function regionalWin(run: RunState): RunState {
     ...done,
     gymType: next.type,
     challenger: buildTrainerTeam(region, wins, run.starter),
-    picks: regionalPicks(region.id, regionalJoinLevel(region.id, wins), owned, Math.random, REGIONAL_PICKS),
+    picks: regionalPicks(
+      region.id, regionalJoinLevel(region.id, wins), owned, Math.random, REGIONAL_PICKS,
+      region.trainers.slice(wins, wins + 2).map(t => t.type),
+    ),
     pickTaken: false,
+    picksTaken: 0,
     rewardOffer: regionalRewardOffer(next.type, special, Math.random),
     rewardTaken: false,
     phase: 'reward_pending',
@@ -285,18 +291,22 @@ export const useRunStore = create<RunStore>()(
 
         takeRegionalPick: (uid) =>
           apply(run => {
-            if (run.mode !== 'regional' || run.pickTaken) return 'You already chose a Pokémon for this win.'
+            const taken = run.picksTaken ?? 0
+            if (run.mode !== 'regional' || run.pickTaken) return `You already caught ${REGIONAL_CATCHES} Pokémon for this win.`
             const p = run.picks?.find(x => x.uid === uid)
             if (!p) return 'Choose a Pokémon.'
             const joined = { ...p, hp: 1, item: null }
             const toTeam = run.roster.length < MAX_TEAM
+            const done = taken + 1 >= REGIONAL_CATCHES || (run.picks?.length ?? 0) <= 1
             return {
               run: {
                 ...run,
-                pickTaken: true,
+                picks: run.picks?.filter(x => x.uid !== uid),
+                picksTaken: taken + 1,
+                pickTaken: done,
                 roster: toTeam ? [...run.roster, joined] : run.roster,
                 box: toTeam ? run.box : [...(run.box ?? []), joined],
-                phase: run.rewardTaken ? 'gym' : 'reward_pending',
+                phase: done && run.rewardTaken ? 'gym' : 'reward_pending',
               },
               message: `${nameOf(p)} joined ${toTeam ? 'your team' : 'your box'}!`,
             }

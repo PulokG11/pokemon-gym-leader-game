@@ -18,6 +18,7 @@ vi.hoisted(() => {
 import { useRunStore, REGIONAL_RETRIES } from './runStore'
 import { REGIONS } from '../lib/regions'
 import { createMon } from '../lib/progression'
+import { superEffectiveTypes } from '../lib/regional'
 
 const kanto = REGIONS.kanto
 const store = () => useRunStore.getState()
@@ -48,7 +49,7 @@ describe('Regional Quest', () => {
     expect(run().retries).toBe(REGIONAL_RETRIES)
   })
 
-  it('a win heals everyone, caps XP at the next opponent, then offers a Pokémon and a reward', () => {
+  it('a win heals everyone, caps XP at the next opponent, then offers 2 of 5 Pokémon and a reward', () => {
     startWithCharmander()
     useRunStore.setState({ run: { ...run(), roster: run().roster.map((m, i) => ({ ...m, hp: i === 0 ? 0 : 0.3 })) } })
     store().winBattle()
@@ -58,13 +59,22 @@ describe('Regional Quest', () => {
     expect(r.roster.every(m => m.hp === 1)).toBe(true)
     const misty = Math.max(...kanto.trainers[1].team.map(m => m.level))
     expect(Math.max(...r.roster.map(m => m.level))).toBeLessThanOrEqual(misty)
-    expect(r.picks).toHaveLength(3)
+    expect(r.picks).toHaveLength(5)
+    // At least one counter each for Misty (Water) and Lt. Surge (Electric).
+    expect(r.picks!.some(p => superEffectiveTypes(p, 'water').length > 0)).toBe(true)
+    expect(r.picks!.some(p => superEffectiveTypes(p, 'electric').length > 0)).toBe(true)
     expect(r.rewardOffer).toHaveLength(3)
     expect(r.challenger.map(m => m.species)).toEqual(['staryu', 'psyduck', 'starmie'])
     expect(r.gymType).toBe('water')
 
     expect(store().takeRegionalPick(r.picks![0].uid).ok).toBe(true)
     expect(run().roster).toHaveLength(4)
+    expect(run().pickTaken).toBe(false)
+    expect(run().picks).toHaveLength(4)
+    expect(store().takeRegionalPick(run().picks![0].uid).ok).toBe(true)
+    expect(run().roster).toHaveLength(5)
+    expect(run().pickTaken).toBe(true)
+    expect(store().takeRegionalPick(run().picks![0].uid).ok).toBe(false) // only 2 per win
     expect(run().phase).toBe('reward_pending')
     const candy = run().rewardOffer!.find(x => x.kind === 'rare_candy') ?? run().rewardOffer!.find(x => x.kind === 'evo_stone')
     if (candy) {
@@ -81,7 +91,9 @@ describe('Regional Quest', () => {
     store().winBattle()
     const pick = run().picks![0]
     store().takeRegionalPick(pick.uid)
+    store().takeRegionalPick(run().picks![0].uid)
     expect(run().roster).toHaveLength(6)
+    expect(run().box).toHaveLength(2)
     expect(run().box!.map(m => m.uid)).toContain(pick.uid)
 
     const out = run().roster[5]

@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { useRunStore } from '../store/runStore'
+import { REGIONAL_CATCHES, useRunStore } from '../store/runStore'
+import type { RosterMember } from '../types/game'
 import { MAX_TEAM, type Reward } from '../lib/economy'
 import { regionOf, trainerTitleName } from '../lib/regions'
-import { megaUsers, lineOf, zUsers } from '../lib/regional'
+import { megaUsers, lineOf, superEffectiveTypes, zUsers } from '../lib/regional'
 import { BattleReport } from '../components/BattleReport'
 import { ItemIcon, itemSprite } from '../components/ItemIcon'
 import { Modal } from '../components/Modal'
@@ -30,6 +31,23 @@ export function RegionalRewardScreen() {
   const picks = run.picks ?? []
   const infoMon = picks.find(p => p.uid === info)
   const toBox = run.roster.length >= MAX_TEAM
+  const caught = run.picksTaken ?? 0
+  const left = REGIONAL_CATCHES - caught
+  const upcoming = region.trainers.slice(run.challengerIndex, run.challengerIndex + 2)
+  /** "Super effective vs Misty" tags for the next two opponents' specialty types. */
+  const counterNote = (p: RosterMember) => {
+    const hits = upcoming.filter(t => superEffectiveTypes(p, t.type).length > 0)
+    if (!hits.length) return undefined
+    return (
+      <span className="flex flex-wrap gap-1">
+        {hits.map(t => (
+          <span key={t.name} className="text-[10px] font-black rounded px-1.5 py-0.5 bg-emerald-900/70 text-emerald-200">
+            ✓ Super effective vs {t.name} ({t.type[0].toUpperCase() + t.type.slice(1)})
+          </span>
+        ))}
+      </span>
+    )
+  }
 
   function choose(r: Reward) {
     setError(null)
@@ -71,15 +89,19 @@ export function RegionalRewardScreen() {
         {error && <p role="alert" className="text-center rounded-lg bg-red-900/60 px-3 py-2 text-sm">{error}</p>}
 
         <section className={run.pickTaken ? 'opacity-60' : ''}>
-          <h2 className="font-ui font-bold text-xl mb-1">1. Catch a Pokémon {run.pickTaken && <span className="text-emerald-300 text-base">✓ done</span>}</h2>
+          <h2 className="font-ui font-bold text-xl mb-1">
+            1. Catch {REGIONAL_CATCHES} Pokémon{' '}
+            {run.pickTaken ? <span className="text-emerald-300 text-base">✓ done</span> : <span className="text-white/60 text-base">{caught}/{REGIONAL_CATCHES}</span>}
+          </h2>
           {!run.pickTaken && (
             <>
               <p className="text-sm text-white/70 mb-2">
-                {toBox ? 'Your team is full, so it goes to the box. Swap it in from the map before any battle.' : 'It joins your team right away.'}
+                Pick {left} more. Two of these hit your next {upcoming.length > 1 ? 'two opponents' : 'opponent'} super-effectively.{' '}
+                {toBox ? 'Your team is full, so catches go to the box; swap them in from the map before any battle.' : 'Catches join your team until it has 6.'}
               </p>
-              <div className="grid sm:grid-cols-3 gap-3">
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {picks.map(p => (
-                  <PokemonCard key={p.uid} mon={p} order={0} full={false} onToggle={() => catchMon(p.uid)} onDetails={() => setInfo(p.uid)} />
+                  <PokemonCard key={p.uid} mon={p} order={0} full={false} onToggle={() => catchMon(p.uid)} onDetails={() => setInfo(p.uid)} note={counterNote(p)} />
                 ))}
               </div>
             </>

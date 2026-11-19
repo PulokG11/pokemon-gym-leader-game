@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { artworkUrl, species, type SpeciesData } from '../lib/dex'
 import { strongAgainst, weakTo } from '../lib/gymInfo'
 import { TypeBadge } from './TypeBadge'
@@ -108,9 +109,9 @@ export function PokemonDetails({ mon, picked, canAdd, onToggle, onClose }: {
 }
 
 
-/** Summary card: tap to pick, with a separate Details button. `order` is its 1-based pick number. */
-export function PokemonCard({ mon, order, full, onToggle, onDetails }: {
-  mon: RosterMember; order: number; full: boolean; onToggle: () => void; onDetails: () => void
+/** Summary card: tap to pick, with a separate Details button. `order` is its 1-based pick number; `note` shows above Details. */
+export function PokemonCard({ mon, order, full, onToggle, onDetails, note }: {
+  mon: RosterMember; order: number; full: boolean; onToggle: () => void; onDetails: () => void; note?: ReactNode
 }) {
   const s = species(mon.species)
   const selected = order > 0
@@ -141,6 +142,7 @@ export function PokemonCard({ mon, order, full, onToggle, onDetails }: {
                     </span>
                   </span>
                 </button>
+                {note && <div className="px-3 pb-2 -mt-1">{note}</div>}
                 <button
                   onClick={onDetails}
                   aria-label={`Details for ${s.name}`}

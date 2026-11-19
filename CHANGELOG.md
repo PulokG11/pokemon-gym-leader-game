@@ -14,6 +14,14 @@ git push origin main
 
 ---
 
+## v0.14.0 — Regional Quest: catch 2 of 5 (2026-11-20)
+
+- **Easier Regional Quest:** after every win you now catch **2 of 5** Pokémon (was 1 of 3)
+- **Counters guaranteed:** two of the five hit your next two opponents' specialty types super-effectively, by their own type and, where possible, an attack they already know. They're tagged "✓ Super effective vs Misty (Water)". If a region has no unevolved answer (e.g. no Ground type in Kalos), one is borrowed from the wider Pokédex
+- README, How to play and the victory message updated
+
+Rollback: `git checkout v0.13.0 -- .`
+
 ## v0.13.0 — Regional Quest: all 9 regions (2026-11-19)
 
 - **Johto, Hoenn, Sinnoh, Unova, Kalos, Alola, Galar and Paldea** join Kanto in the Regional Quest, each with its 3 starters, a catch pool of the region's unevolved Pokémon, 8 Gym Leaders, 4 Elite Four members and a Champion modelled on the original games:

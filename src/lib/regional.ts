@@ -1,4 +1,4 @@
-import { DEX, move, species } from './dex'
+import { DEX, effectiveness, move, species } from './dex'
 import { createMon, movesAtLevel, type Rng } from './progression'
 import { RIVAL_STARTER, Z_CRYSTALS, type Region, type Tier } from './regions'
 import type { RosterMember } from '../types/game'
@@ -80,15 +80,53 @@ export function lineOf(id: string): string[] {
   return out
 }
 
-/** `n` unevolved Pokémon of the region you don't own yet, joining at `level` with at least one attack. */
-export function regionalPicks(regionId: string, level: number, owned: RosterMember[], rng: Rng, n: number): RosterMember[] {
+const capType = (t: string) => t[0].toUpperCase() + t.slice(1)
+
+/** Attack types of this Pokémon that hit `defType` super-effectively: its own types and its known attacks. */
+export function superEffectiveTypes(mon: RosterMember, defType: string): string[] {
+  const attacks = mon.moves.map(id => move(id)).filter(d => d && d.category !== 'Status').map(d => d!.type)
+  const types = new Set([...species(mon.species).types, ...attacks])
+  return [...types].filter(t => effectiveness(t, [capType(defType)]) >= 2)
+}
+
+/**
+ * `n` unevolved Pokémon of the region you don't own yet, joining at `level` with at least one attack.
+ * For each type in `counters` (the next opponents' specialties), one of them is guaranteed to hit it
+ * super-effectively: by its own type and, when possible, with an attack it already knows.
+ */
+export function regionalPicks(regionId: string, level: number, owned: RosterMember[], rng: Rng, n: number, counters: string[] = []): RosterMember[] {
   const ownedLines = new Set(owned.flatMap(m => lineOf(baseOfRegional(m.species))))
   const pool = (DEX.regions[regionId]?.pool ?? []).filter(id =>
     !ownedLines.has(id) && movesAtLevel(id, level).some(m => move(m)?.category !== 'Status'),
   )
+  const take = (ids: string[]) => {
+    const id = ids[Math.floor(rng() * ids.length)]
+    pool.splice(pool.indexOf(id), 1)
+    return createMon(id, level)
+  }
   const out: RosterMember[] = []
-  const copy = [...pool]
-  while (out.length < n && copy.length) out.push(createMon(copy.splice(Math.floor(rng() * copy.length), 1)[0], level))
+  for (const def of counters.slice(0, n)) {
+    const se = (t: string) => effectiveness(t, [capType(def)]) >= 2
+    const stab = (id: string) => species(id).types.some(se)
+    const seAttack = (id: string, ownType: boolean) => movesAtLevel(id, level).some(m => {
+      const d = move(m)
+      return !!d && d.category !== 'Status' && se(d.type) && (!ownType || species(id).types.includes(d.type))
+    })
+    // Best: its own type with a matching attack; then its own type; then any super-effective attack it knows.
+    const choice = [pool.filter(id => stab(id) && seAttack(id, true)), pool.filter(stab), pool.filter(id => seAttack(id, false))]
+      .find(c => c.length)
+    if (choice) { out.push(take(choice)); continue }
+    // The region has no answer (e.g. no unevolved Ground type in Kalos): borrow one from the wider Pokédex.
+    const elsewhere = [...new Set(Object.values(DEX.regions).flatMap(r => r.pool))]
+      .filter(id => !ownedLines.has(id) && !out.some(m => m.species === id) && stab(id) && seAttack(id, true))
+    if (elsewhere.length) out.push(createMon(elsewhere[Math.floor(rng() * elsewhere.length)], level))
+  }
+  while (out.length < n && pool.length) out.push(take(pool))
+  // Shuffle so the counters aren't always first.
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1))
+    ;[out[i], out[j]] = [out[j], out[i]]
+  }
   return out
 }
 

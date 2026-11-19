@@ -74,7 +74,8 @@ export interface RunState {
   box?: RosterMember[]       // caught Pokémon not on the team (no XP)
   retries?: number           // losses left before the quest ends
   picks?: RosterMember[]     // Pokémon offered after the last win
-  pickTaken?: boolean
+  pickTaken?: boolean        // all catches for the last win are done
+  picksTaken?: number        // catches made so far for the last win
   funds: number
   phase: RunPhase
   rank: number

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { Dex } from '@pkmn/sim'
 import { DEX } from './dex'
 import { REGIONS, levelCapFor } from './regions'
-import { bestMoves, buildTrainerTeam, regionalPicks, usableMegaStones } from './regional'
+import { bestMoves, buildTrainerTeam, regionalPicks, superEffectiveTypes, usableMegaStones } from './regional'
 import { createMon } from './progression'
 
 const kanto = REGIONS.kanto
@@ -102,6 +102,15 @@ describe('all regions', () => {
         expect(champ.some(m => Dex.species.get(m.species).tags.length > 0 || Dex.species.get(m.species).bst >= 600)).toBe(true)
       }
       expect(regionalPicks(region.id, 12, [], seeded(5), 3)).toHaveLength(3)
+      // Counters for the next two opponents, from every point in the region.
+      for (let i = 0; i < 12; i++) {
+        const [a, b] = [region.trainers[i].type, region.trainers[i + 1].type]
+        const level = Math.min(...region.trainers[i].team.map(m => m.level)) - 2
+        const picks = regionalPicks(region.id, Math.max(11, level), [], seeded(i + 1), 5, [a, b])
+        expect(picks).toHaveLength(5)
+        expect(picks.some(p => superEffectiveTypes(p, a).length > 0), `${region.name} ${i}: vs ${a}`).toBe(true)
+        expect(picks.some(p => superEffectiveTypes(p, b).length > 0), `${region.name} ${i}: vs ${b}`).toBe(true)
+      }
       const caps = region.trainers.map((_, i) => levelCapFor(region, i))
       expect([...caps].sort((a, b) => a - b)).toEqual(caps)
     })

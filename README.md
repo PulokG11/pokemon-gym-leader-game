@@ -4,7 +4,7 @@ A browser roguelike with two sides of the Pokémon League: **defend your own Gym
 
 **Play it: https://pulokg11.github.io/pokemon-gym-leader-game/**
 
-Works on desktop and mobile, and can be installed as an app (PWA) for offline play. Current release: **v0.13.0** ([changelog](CHANGELOG.md)).
+Works on desktop and mobile, and can be installed as an app (PWA) for offline play. Current release: **v0.14.0** ([changelog](CHANGELOG.md)).
 
 ---
 
@@ -42,7 +42,7 @@ Works on desktop and mobile, and can be installed as an app (PWA) for offline pl
 
 - **Draft.** Pick a starter, then 2 unevolved Pokémon of that region, so your team matches the first Leader's 3.
 - **Rising difficulty.** Gyms grow from 3 to 6 Pokémon; the first four Leaders use normal level-up moves, the next four their best moves. The Elite Four (in Galar, the Champion Cup: Marnie, Hop, Bede, Allister) bring 6 trained Pokémon with held items; Champions are fully trained and bring a legendary or pseudo-legendary. Levels follow one curve: Lv 14 at the first Gym to Lv 65 for the Champion.
-- **After every win** the whole team and box are healed, team members earn XP up to the next opponent's top level, you **catch 1 of 3** unevolved Pokémon of the region, and pick **1 of 3 rewards**: Move Tutor, held item, Rare Candy, Evolution Stone, or the region's power (a Mega Stone or Z-Crystal one of your Pokémon can use). Alola's trials also award their Z-Crystal.
+- **After every win** the whole team and box are healed, team members earn XP up to the next opponent's top level, you **catch 2 of 5** unevolved Pokémon of the region (two of the five are guaranteed to hit your next two opponents' types super-effectively, and are tagged so), and pick **1 of 3 rewards**: Move Tutor, held item, Rare Candy, Evolution Stone, or the region's power (a Mega Stone or Z-Crystal one of your Pokémon can use). Alola's trials also award their Z-Crystal.
 - **Team and box.** Six Pokémon travel with you; extra catches wait in the box and can be swapped in before any battle. Boxed Pokémon earn no XP.
 - **Mega Evolution and Z-Moves.** A fully evolved holder of its Mega Stone shows a **Mega Evolve** button; a Z-Crystal holder shows a **Z-Move** button that turns a matching attack into its Z-Move, once per battle. Trainers use both.
 - **3 retries.** A loss heals your team and repeats the battle; a fourth loss ends the quest. Beat the Champion to enter the Hall of Fame.
@@ -137,7 +137,7 @@ Every push to `main` runs the type-check and tests, then builds and deploys to G
 
 ## Versioning and rollback
 
-Each release is a git tag (latest `v0.13.0`) with an entry in [CHANGELOG.md](CHANGELOG.md), including its rollback command. To roll back, e.g. to v0.12.0:
+Each release is a git tag (latest `v0.14.0`) with an entry in [CHANGELOG.md](CHANGELOG.md), including its rollback command. To roll back, e.g. to v0.12.0:
 
 ```bash
 git checkout v0.12.0 -- .

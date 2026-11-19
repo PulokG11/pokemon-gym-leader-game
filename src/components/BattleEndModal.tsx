@@ -56,7 +56,7 @@ export function BattleEndModal({ won, trainer, onContinue, regional, retries = 0
         </div>
         <p className="text-center text-sm text-gold-300 mt-3">
           {regional
-            ? won ? 'Your team grows stronger · catch a new Pokémon next' : retries > 0 ? `Your team will be healed to try again (${retries} ${retries === 1 ? 'retry' : 'retries'} left).` : 'No retries left: the quest ends here.'
+            ? won ? 'Your team grows stronger · catch 2 new Pokémon next' : retries > 0 ? `Your team will be healed to try again (${retries} ${retries === 1 ? 'retry' : 'retries'} left).` : 'No retries left: the quest ends here.'
             : won ? 'Your team grows stronger · Gym Funds earned' : 'Your team can’t battle any more.'}
         </p>
         <button autoFocus onClick={onContinue} className="w-full mt-4 rounded-lg bg-gold-400 text-ink-900 font-black py-2.5 border-2 border-black shadow-[0_4px_0_#b8431a] hover:bg-gold-300">

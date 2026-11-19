@@ -1,40 +1,59 @@
 # Pokémon Gym Leader
 
-A browser roguelike where **you are the Gym Leader**: pick a type, draft a team, and defend your Gym against wave after wave of challengers.
+A browser roguelike with two sides of the Pokémon League: **defend your own Gym** against wave after wave of challengers, or **take on a whole region** as the challenger, from the first Gym to the Champion.
 
 **Play it: https://pulokg11.github.io/pokemon-gym-leader-game/**
 
-Works on desktop and mobile, and can be installed as an app (PWA) for offline play.
+Works on desktop and mobile, and can be installed as an app (PWA) for offline play. Current release: **v0.13.0** ([changelog](CHANGELOG.md)).
 
 ---
 
 ## Game modes
 
-| Mode | Rules |
-|---|---|
-| **Daily Challenge** | Singles only. The same Gym type, six starters and challengers for every player, chosen by the UTC date. Challengers never stop and gain 3 levels per round. One try per day; your score is how many battles you win. |
-| **Gym Quest** | Pick any of the 18 types, choose **Singles** or **Doubles**, and defend against 15 challengers: Rookie → Trainer → Ace Trainer → Rival → Rival Gym Leader → Elite Trainer → Elite Four Member → Champion. Beat all 15 to win. |
-| **Regional Quest** | Play as the challenger in any of the **9 regions**: Kanto, Johto, Hoenn, Sinnoh, Unova, Kalos, Alola, Galar or Paldea. Pick one of the region's 3 starters plus 2 unevolved Pokémon from that region, then beat its 8 Gym Leaders (Alola: trial captains and kahunas), its Elite Four (Galar: the Champion Cup) and its Champion: 13 battles. 3 retries per quest. |
+| Mode | You are | Goal |
+|---|---|---|
+| **Daily Challenge** | A Gym Leader | Same Gym type, six starters and challengers for every player that UTC day. Challengers never stop; your score is how many you beat. One try per day, Singles only. |
+| **Gym Quest** | A Gym Leader | Pick any of the 18 types and Singles or Doubles, then beat 15 challengers: Rookie → Trainer → Ace Trainer → Rival → Rival Gym Leader → Elite Trainer → Elite Four → Champion. One loss ends the quest. |
+| **Regional Quest** | The challenger | Pick one of 9 regions, earn its 8 badges, beat its Elite Four and its Champion: 13 battles, 3 retries. |
 
-### Regional Quest rules
+### Gym Quest and Daily Challenge
 
-- **Rising difficulty.** Brock opens with 3 Pokémon and normal movesets; later Leaders bring up to 6 with their best moves. The Elite Four have 6 trained Pokémon with items, and the Champion has a fully trained team with a pseudo-legendary (Dragonite), a legendary (Zapdos) and a Mega-Evolving counter to your starter.
-- **Catch after every win.** Choose 1 of 3 unevolved Pokémon from the region. It joins the team, or the **box** once the team has 6. Swap boxed Pokémon in from the map before any battle. Only team members earn XP, up to the next opponent's top level.
-- **Full heal after every battle.** Rewards are a Move Tutor, a held item, Rare Candies, an Evolution Stone, and the region's own power: **Mega Stones** in Kanto, Hoenn and Kalos, **Z-Crystals** in Alola (where each trial also awards its Z-Crystal). Johto, Sinnoh, Unova, Galar and Paldea have the standard rewards.
-- **Z-Moves.** In Alola, a Pokémon holding a Z-Crystal shows a **Z-Move** button: its matching attack becomes a Z-Move once per battle.
-- **Mega Evolution.** A fully evolved holder of the right stone shows a **Mega Evolve** button in battle. Champions Blue, Steven and Diantha Mega Evolve; Kukui uses a Z-Move.
-- **Champions** bring a pseudo-legendary or a legendary: Zapdos, Ho-Oh, Latios, Giratina, Reshiram, Xerneas, Tapu Koko, Zacian and Koraidon. Blue and Kukui pick the starter that beats yours.
-- Every region includes Pokémon that aren't in Scarlet/Violet (e.g. Onix, Kabuto, Mr. Mime); their moves come from the newest game that has them. Every trainer uses one level curve, from Lv 14 at the first Gym to Lv 65 for the Champion.
+- **Draft.** Choose 3 of 6 starters of your Gym's type (4 in Doubles). Each card shows level, type, base stat total, ability and evolution; **Details** opens the full stats, moveset and type matchups.
+- **Gym hub.** See the next challenger, **Scout** their team (each Pokémon tagged **⚠ THREAT** or **✓ WEAK TO YOU**), and manage your team, bag and log.
+- **Economy.** Wins pay Gym Funds and offer 1 of 3 rewards: recruits (team up to 6), training, Rare Candies, Evolution Stones, potions, revives, held items, League Favour rerolls and the **Move Tutor**. After each reward, visit the **Training Camp** (free levels) or the **Visiting Merchant**.
+- **Gym upgrades** (Gym Quest only): Pokémon Center, Training Room, Item Workshop, Recruitment Office, Gym Reputation, Home Crowd, Analysis Desk and Infirmary, plus a type **Arena** (weather or terrain at the start of battle) and a type **Forge**.
+- **HP carries over** between battles: conscious Pokémon recover 10% after a win; fainted ones need a Revive.
+- **Doubles.** Two Pokémon out on each side; for each of yours you pick a move and, for single-target moves, which foe to hit (spread moves like Surf hit both). Doubles challengers bring 2, then 3, then 4 Pokémon.
+- **Challenger AI** grows with each class: Rookies pick at random, Trainers favour strong attacks, Ace Trainers and up play type matchups, use status moves and switch out of bad matchups.
 
-**Battles** run on the real Pokémon Showdown engine: Speed decides who moves first, and priority moves (e.g. Quick Attack +1) go before that. Each turn plays out move by move with animated sprites.
+### Regional Quest
 
-**Singles or Doubles.** In Singles one Pokémon is out on each side and you pick 3 of 6 starters. In Doubles two are out on each side and you pick 4: for each of your Pokémon you choose a move and, for single-target moves, which foe it goes for (spread moves like Surf hit both). Doubles challengers bring 2 Pokémon early on, then 3, then 4.
+| Region | Starters | Gyms (first → last) | Champion | Region power |
+|---|---|---|---|---|
+| Kanto | Bulbasaur, Charmander, Squirtle | Brock → Giovanni | Blue (Zapdos, Dragonite; counters your starter) | Mega Stones |
+| Johto | Chikorita, Cyndaquil, Totodile | Falkner → Clair | Lance (Ho-Oh, Tyranitar) | — |
+| Hoenn | Treecko, Torchic, Mudkip | Roxanne → Juan | Steven (Latios, Mega Metagross) | Mega Stones |
+| Sinnoh | Turtwig, Chimchar, Piplup | Roark → Volkner | Cynthia (Giratina, Garchomp) | — |
+| Unova | Snivy, Tepig, Oshawott | Cilan → Drayden | Alder (Reshiram, Hydreigon) | — |
+| Kalos | Chespin, Fennekin, Froakie | Viola → Wulfric | Diantha (Xerneas, Mega Gardevoir) | Mega Stones |
+| Alola | Rowlet, Litten, Popplio | Captain Ilima → Kahuna Hapu (trials) | Kukui (Tapu Koko, Kommo-o; counters your starter) | Z-Crystals |
+| Galar | Grookey, Scorbunny, Sobble | Milo → Raihan | Leon (Zacian, Dragapult), after the Champion Cup | — |
+| Paldea | Sprigatito, Fuecoco, Quaxly | Katy → Grusha | Geeta (Koraidon, Garchomp) | — |
 
-**Your team grows.** After each win every team member gains XP and learns Gen 9 level-up moves. When its moves are full, a new move is offered instead of replacing one: swap it in from the Team screen whenever you like. Once a Pokémon reaches its evolution level an **Evolve** button appears (in the battle report, the Team screen and the Gym hub); evolving is your choice. Rewards include recruits (up to 6), training, Rare Candies, Evolution Stones, held items and the **Move Tutor**, which teaches one of 3 TM, tutor or egg moves.
+- **Draft.** Pick a starter, then 2 unevolved Pokémon of that region, so your team matches the first Leader's 3.
+- **Rising difficulty.** Gyms grow from 3 to 6 Pokémon; the first four Leaders use normal level-up moves, the next four their best moves. The Elite Four (in Galar, the Champion Cup: Marnie, Hop, Bede, Allister) bring 6 trained Pokémon with held items; Champions are fully trained and bring a legendary or pseudo-legendary. Levels follow one curve: Lv 14 at the first Gym to Lv 65 for the Champion.
+- **After every win** the whole team and box are healed, team members earn XP up to the next opponent's top level, you **catch 1 of 3** unevolved Pokémon of the region, and pick **1 of 3 rewards**: Move Tutor, held item, Rare Candy, Evolution Stone, or the region's power (a Mega Stone or Z-Crystal one of your Pokémon can use). Alola's trials also award their Z-Crystal.
+- **Team and box.** Six Pokémon travel with you; extra catches wait in the box and can be swapped in before any battle. Boxed Pokémon earn no XP.
+- **Mega Evolution and Z-Moves.** A fully evolved holder of its Mega Stone shows a **Mega Evolve** button; a Z-Crystal holder shows a **Z-Move** button that turns a matching attack into its Z-Move, once per battle. Trainers use both.
+- **3 retries.** A loss heals your team and repeats the battle; a fourth loss ends the quest. Beat the Champion to enter the Hall of Fame.
+- Regions include Pokémon that aren't in Scarlet/Violet (e.g. Onix, Kabuto, Mr. Mime); their moves come from the newest game that has them.
 
-**Scouting.** Before each battle, Scout team marks the challenger's Pokémon that are a **⚠ THREAT** to your type and those **✓ WEAK TO YOU**.
+### Every mode
 
-**Leaderboards.** Join with an anonymous nickname (no account or email). The **Today** board ranks everyone on today's Daily; the **All time** board shows each player's best Daily run and the Gym type it was on.
+- **Battles** run on the real Pokémon Showdown engine: Speed decides who moves first, priority moves (e.g. Quick Attack +1) go before that, and turns play out move by move with animated sprites, a battle log, effectiveness badges on moves and 1×/2×/3× speed.
+- **Your team grows.** Every win gives XP and Gen 9 level-up moves. With 4 moves known, new ones are offered instead of forced: tap a move in the Team screen to swap. At the evolution level an **Evolve** button appears (battle report, Team screen, hub) and an evolution cutscene plays; evolving is your choice.
+- **Battle report** after every win: HP, XP, level-ups, new moves and Evolve buttons.
+- **Leaderboards.** Join with an anonymous nickname (no account or email). The **Today** board ranks everyone on today's Daily; the **All time** board shows each player's best Daily run and its Gym type. Gym Quest and Regional Quest results are kept on your device.
 
 ---
 
@@ -46,8 +65,8 @@ Works on desktop and mobile, and can be installed as an app (PWA) for offline pl
 | Build | Vite 6, vite-plugin-pwa |
 | State | Zustand 5 (persisted to `localStorage`) |
 | Battle engine | [`@pkmn/sim`](https://github.com/pkmn/ps) (Pokémon Showdown) in a Web Worker |
-| Pokédex data | Generated from `@pkmn/sim` into `src/data/dex.json` |
-| Sprites | [PokeAPI sprites](https://github.com/PokeAPI/sprites) |
+| Pokédex data | Generated from `@pkmn/sim` into `src/data/dex.json`: all 1,024 Pokémon, learnsets, Move Tutor pools, evolutions, Mega forms, regional catch pools |
+| Sprites | [PokeAPI sprites](https://github.com/PokeAPI/sprites) (Pokémon, items); [Pokémon Showdown](https://play.pokemonshowdown.com/sprites/) (trainers, Mega Evolutions) |
 | Leaderboards | [Neon](https://neon.com) Postgres + Neon Data API + Neon Auth (anonymous tokens) |
 | Tests | Vitest |
 | CI/CD | GitHub Actions → GitHub Pages |
@@ -70,7 +89,7 @@ npm run dev          # dev server
 npm run build        # type-check + production build → dist/
 npm run preview      # serve the production build
 npm test             # Vitest in watch mode
-npm run test:run     # Vitest single run (CI)
+npm run test:run     # Vitest single run (CI); on low-memory machines add --no-file-parallelism
 npm run typecheck    # TypeScript only (tsc -b, checks the app and tooling configs)
 npm run data         # regenerate src/data/dex.json from @pkmn/sim
 ```
@@ -79,12 +98,14 @@ npm run data         # regenerate src/data/dex.json from @pkmn/sim
 
 ```
 src/
-├── screens/         # Home, Gym picker, starter select, Gym hub, battle, rewards, events, ranking, how to play
-├── components/      # Sprites, HP bars, move info, type badges, battle report, evolution cutscene…
+├── screens/         # Home, Gym picker, starter select, Gym hub, battle, rewards, events, ranking, how to play,
+│                    #   Regional Quest: region picker, draft, map hub, rewards
+├── components/      # Sprites, HP bars, Pokémon cards and Details, move info, battle report, evolution cutscene…
 ├── store/           # Zustand: run, battle, records, player, settings, ui
-├── workers/         # battle.worker.ts — @pkmn/sim in a Web Worker (Singles and Doubles, challenger AI)
-├── lib/             # dex, progression, battle requests, economy, upgrades, daily seeding, neon.ts client, leaderboard API
-├── data/dex.json    # generated Pokédex (species, learnsets, Move Tutor pools, evolutions, moves)
+├── workers/         # battle.worker.ts — @pkmn/sim in a Web Worker (Singles, Doubles, Mega Evolution, Z-Moves, AI)
+├── lib/             # dex, progression, battle requests, economy, upgrades, daily seeding, neon.ts client, leaderboard API,
+│                    #   regions.ts (9 regions' trainers), regional.ts (team building, catches, Mega/Z rewards)
+├── data/dex.json    # generated Pokédex (species, learnsets, tutor pools, evolutions, moves, Megas, region pools)
 └── types/game.ts    # shared domain types
 scripts/build-dex.mjs   # generates src/data/dex.json
 db/migrations/          # leaderboard schema (+ .down.sql rollback)
@@ -116,14 +137,14 @@ Every push to `main` runs the type-check and tests, then builds and deploys to G
 
 ## Versioning and rollback
 
-Each release is a git tag (`v0.4.0`, …) with an entry in [CHANGELOG.md](CHANGELOG.md). To roll back:
+Each release is a git tag (latest `v0.13.0`) with an entry in [CHANGELOG.md](CHANGELOG.md), including its rollback command. To roll back, e.g. to v0.12.0:
 
 ```bash
-git checkout v0.4.0 -- .
-git commit -m "rollback: to v0.4.0"
+git checkout v0.12.0 -- .
+git commit -m "rollback: to v0.12.0"
 git push origin main
 ```
 
 ## Credits
 
-Battles run on the Pokémon Showdown simulator via [`@pkmn/sim`](https://github.com/pkmn/ps) (MIT). Sprites from [PokeAPI](https://github.com/PokeAPI/sprites). Pokémon © Nintendo / Game Freak; this is a non-commercial fan project.
+Battles run on the Pokémon Showdown simulator via [`@pkmn/sim`](https://github.com/pkmn/ps) (MIT). Sprites from [PokeAPI](https://github.com/PokeAPI/sprites) and [Pokémon Showdown](https://play.pokemonshowdown.com/sprites/). Pokémon © Nintendo / Game Freak; this is a non-commercial fan project.

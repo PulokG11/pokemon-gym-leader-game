@@ -1,5 +1,9 @@
 import { DEX, species } from './dex'
-import type { ProgressEvent, ProgressReport, RosterMember } from '../types/game'
+import type { BattleFormat, ProgressEvent, ProgressReport, RosterMember } from '../types/game'
+
+/** Starters offered at the start of a run: pick 3 for Singles, 4 for Doubles. */
+export const STARTER_CHOICES = 6
+export const teamSizeFor = (format: BattleFormat) => (format === 'doubles' ? 4 : 3)
 
 export const MAX_LEVEL = 100
 export const START_LEVEL_MIN = 12
@@ -53,7 +57,7 @@ function pickDistinct<T>(pool: T[], n: number, rng: Rng): T[] {
 
 /** Five unevolved Pokémon of the gym's type to choose the starting team from. */
 export function starterCandidates(gymType: string, rng: Rng = Math.random): RosterMember[] {
-  return pickDistinct(DEX.starters[gymType], 5, rng).map(id =>
+  return pickDistinct(DEX.starters[gymType], STARTER_CHOICES, rng).map(id =>
     createMon(id, START_LEVEL_MIN + Math.floor(rng() * (START_LEVEL_MAX - START_LEVEL_MIN + 1))),
   )
 }
@@ -64,19 +68,23 @@ export function challengerLevel(roster: RosterMember[], index: number): number {
   return Math.max(5, Math.min(MAX_LEVEL, Math.round(avg - 2 + index)))
 }
 
-export function buildChallenger(roster: RosterMember[], index: number, rng: Rng = Math.random): RosterMember[] {
+/** Challenger team size: 3 in Singles; in Doubles 2 for the first rookies, then 3, then 4. */
+export const challengerSize = (format: BattleFormat, index: number) =>
+  format === 'doubles' ? (index < 2 ? 2 : index < 6 ? 3 : 4) : 3
+
+export function buildChallenger(roster: RosterMember[], index: number, rng: Rng = Math.random, size = 3): RosterMember[] {
   const level = challengerLevel(roster, index)
   const taken = new Set(roster.map(m => m.species))
   const pool = DEX.challengers.filter(id => !taken.has(id))
-  return pickDistinct(pool, 3, rng).map(base => createMon(stageForLevel(base, level, rng), level))
+  return pickDistinct(pool, size, rng).map(base => createMon(stageForLevel(base, level, rng), level))
 }
 
 /** Daily challengers ignore the player's team so every player faces the same sequence. */
 export const dailyChallengerLevel = (index: number) => Math.min(MAX_LEVEL, 10 + 3 * index)
 
-export function buildDailyChallenger(index: number, rng: Rng): RosterMember[] {
+export function buildDailyChallenger(index: number, rng: Rng, size = 3): RosterMember[] {
   const level = dailyChallengerLevel(index)
-  return pickDistinct(DEX.challengers, 3, rng).map(base => createMon(stageForLevel(base, level, rng), level))
+  return pickDistinct(DEX.challengers, size, rng).map(base => createMon(stageForLevel(base, level, rng), level))
 }
 
 export const GYM_QUEST_LENGTH = 15
@@ -98,19 +106,19 @@ export function questChallengerTitle(index: number): string {
 export const xpReward = (opponents: RosterMember[]) =>
   opponents.reduce((sum, m) => sum + 3 * m.level ** 2, 0)
 
+/** Adds a new move, or offers it (to swap in from Team) when 4 moves are already known. */
 function learn(moves: string[], m: string, events: ProgressEvent[]) {
   if (moves.includes(m)) return
   if (moves.length < 4) {
     moves.push(m)
     events.push({ kind: 'learn', move: m })
   } else {
-    const forgot = moves.shift()!
-    moves.push(m)
-    events.push({ kind: 'learn', move: m, forgot })
+    events.push({ kind: 'learn', move: m, offered: true })
   }
 }
 
-export function gainXp(mon: RosterMember, amount: number, rng: Rng = Math.random): ProgressReport {
+/** Levels up from XP and learns moves. Evolution is the player's choice: see readyEvolutions. */
+export function gainXp(mon: RosterMember, amount: number): ProgressReport {
   const events: ProgressEvent[] = []
   const after: RosterMember = { ...mon, moves: [...mon.moves], xp: mon.xp + amount }
   const target = levelFromXp(after.xp)
@@ -119,35 +127,74 @@ export function gainXp(mon: RosterMember, amount: number, rng: Rng = Math.random
     after.level++
     events.push({ kind: 'levelup', level: after.level })
     for (const [lvl, m] of species(after.species).learnset) if (lvl === after.level) learn(after.moves, m, events)
-
-    const ready = species(after.species).evos.filter(e => e.level <= after.level)
-    if (ready.length) {
-      const to = ready[Math.floor(rng() * ready.length)].to
-      events.push({ kind: 'evolve', from: after.species, to })
-      after.species = to
-      for (const [lvl, m] of species(to).learnset) {
-        if (lvl === 0 || lvl === after.level) learn(after.moves, m, events)
-      }
-    }
   }
   return { uid: mon.uid, before: mon, after, xpGained: amount, events }
 }
 
-/** Raises a Pokémon by `levels` levels with normal move learning and evolution. */
-export function levelUp(mon: RosterMember, levels: number, rng: Rng = Math.random): ProgressReport {
+/** Raises a Pokémon by `levels` levels with normal move learning. */
+export function levelUp(mon: RosterMember, levels: number): ProgressReport {
   const target = Math.min(MAX_LEVEL, mon.level + levels)
-  return gainXp(mon, Math.max(0, xpForLevel(target) - mon.xp), rng)
+  return gainXp(mon, Math.max(0, xpForLevel(target) - mon.xp))
+}
+
+/** Species this Pokémon is high enough level to evolve into right now. */
+export const readyEvolutions = (mon: RosterMember): string[] =>
+  species(mon.species).evos.filter(e => e.level <= mon.level).map(e => e.to)
+
+function evolveTo(mon: RosterMember, to: string): ProgressReport {
+  const events: ProgressEvent[] = [{ kind: 'evolve', from: mon.species, to }]
+  const after: RosterMember = { ...mon, species: to, moves: [...mon.moves] }
+  for (const [lvl, m] of species(to).learnset) if (lvl === 0 || lvl === mon.level) learn(after.moves, m, events)
+  return { uid: mon.uid, before: mon, after, xpGained: 0, events }
+}
+
+/** Evolves into `to` (one of readyEvolutions), learning the new form's evolution moves. */
+export function evolveInto(mon: RosterMember, to: string): ProgressReport | null {
+  return readyEvolutions(mon).includes(to) ? evolveTo(mon, to) : null
 }
 
 /** Evolution Stone: evolves into the next stage now, whatever the level or method. */
-export function evolveNow(mon: RosterMember, rng: Rng = Math.random): ProgressReport | null {
+export function evolveNow(mon: RosterMember, rng: Rng = Math.random, to?: string): ProgressReport | null {
   const evos = species(mon.species).evos
   if (!evos.length) return null
-  const to = evos[Math.floor(rng() * evos.length)].to
-  const events: ProgressEvent[] = [{ kind: 'evolve', from: mon.species, to }]
-  const after: RosterMember = { ...mon, species: to, moves: [...mon.moves] }
-  for (const [lvl, m] of species(to).learnset) if (lvl === 0) learn(after.moves, m, events)
-  return { uid: mon.uid, before: mon, after, xpGained: 0, events }
+  const target = to && evos.some(e => e.to === to) ? to : evos[Math.floor(rng() * evos.length)].to
+  return evolveTo(mon, target)
+}
+
+/** Moves this Pokémon could swap in: its level-up moves so far plus anything taught, minus what it knows. */
+export function learnableMoves(mon: RosterMember): string[] {
+  const out = new Set<string>()
+  for (const [lvl, m] of species(mon.species).learnset) if (lvl <= mon.level) out.add(m)
+  for (const m of mon.taught ?? []) out.add(m)
+  for (const m of mon.moves) out.delete(m)
+  return [...out]
+}
+
+/** Swaps a known move for a learnable one. */
+export function replaceMove(mon: RosterMember, oldMove: string, newMove: string): RosterMember | null {
+  const i = mon.moves.indexOf(oldMove)
+  if (i < 0 || mon.moves.includes(newMove) || !learnableMoves(mon).includes(newMove)) return null
+  const moves = [...mon.moves]
+  moves[i] = newMove
+  return { ...mon, moves }
+}
+
+/** Up to `n` TM, tutor or egg moves this Pokémon doesn't know yet. */
+export function tutorOptions(mon: RosterMember, rng: Rng, n = 3): string[] {
+  const pool = species(mon.species).tutor.filter(m => !mon.moves.includes(m) && !(mon.taught ?? []).includes(m))
+  return pickDistinct(pool, n, rng)
+}
+
+/** Teaches a tutor move, replacing `forget` when 4 moves are already known. */
+export function teachMove(mon: RosterMember, newMove: string, forget?: string): RosterMember | null {
+  if (mon.moves.includes(newMove)) return null
+  const taught = [...new Set([...(mon.taught ?? []), newMove])]
+  if (mon.moves.length < 4) return { ...mon, moves: [...mon.moves, newMove], taught }
+  const i = forget ? mon.moves.indexOf(forget) : -1
+  if (i < 0) return null
+  const moves = [...mon.moves]
+  moves[i] = newMove
+  return { ...mon, moves, taught: forget ? [...new Set([...taught, forget])] : taught }
 }
 
 /** Showdown packed-team format: name|species|item|ability|moves|nature|evs|gender|ivs|shiny|level|misc */

@@ -14,6 +14,20 @@ git push origin main
 
 ---
 
+## v0.11.0 — Doubles battles, evolution on demand, Move Tutor (2026-11-19)
+
+- **Doubles battles** (Gym Quest): choose Singles or Doubles when picking starters. Doubles puts two Pokémon out on each side; you pick 4 starters, challengers bring 2 early on, then 3, then 4. Each turn you choose for each of your Pokémon in turn (▼ marks who is choosing, their card is highlighted), and single-target moves ask "Who should X go for?" with name tags over the foes; spread moves hit both. Forced replacements, fainted slots and the challenger AI (per-foe targeting, no ally-only moves) all handle two slots. Runs on Showdown's `gen9doublescustomgame`
+- **Starter select redesign:** "Pick 3 starters" (4 in Doubles) from 6, your Gym's strengths and weaknesses, a Singles/Doubles toggle, compact cards with an ⓘ panel (ability, base stat total, evolution chain, moves with type dots, add/remove) and a bottom bar with your picks and **Open the Gym ▶**
+- **Gym hub:** a Doubles tag next to the Gym name; "✓ N weak to you" next to "⚠ N strong vs you"; a dismissable **First run** panel (goal, losing still counts, scouting tip); a "✦ N Pokémon can evolve" bar
+- **Scout team** marks each challenger Pokémon as **⚠ THREAT** (has a type your Gym is weak to) or **✓ WEAK TO YOU**
+- **Evolution on demand:** Pokémon no longer evolve automatically. At the evolution level an **Evolve** button appears in the battle report, the Team screen and the hub (Eevee-style branches let you pick); a cutscene plays "What? X is evolving!" then "Evolution complete!"
+- **Battle report** opens as a modal after every win: HP bars or FNT, XP, level-ups, move chips, new moves and Evolve buttons, then Continue
+- **New moves are offered, not forced:** when a Pokémon already knows 4 moves, a new level-up move is offered ("New move ★ X — swap in from Team") instead of replacing the oldest. In the Team screen, tap a move to replace it with any move it has learned (level-up moves so far plus tutored moves)
+- **Move Tutor reward:** choose a Pokémon, pick 1 of 3 TM, tutor or egg moves it can't learn by levelling, choose a move to forget, Confirm. Seeded in the Daily so everyone gets the same offers. `dex.json` now carries up to 10 tutor moves per species (+86 KB)
+- `npm run typecheck` now runs `tsc -b` (the old command checked no files)
+
+Rollback: `git checkout v0.10.0 -- .`
+
 ## v0.10.0 — Design pass (2026-11-19)
 
 - **One visual language:** team select, end-of-run, Ranking, How to play, the Gym picker and the error screen moved from the old slate/indigo look onto the orange stage, coal panels and gold main action used everywhere else

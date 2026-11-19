@@ -6,13 +6,19 @@ import { BAG_INFO, heldItemDesc, type BagItem } from '../lib/economy'
 import { Modal } from './Modal'
 import { TypeBadge } from './TypeBadge'
 import { MoveInfo } from './MoveInfo'
+import { EvolveButtons } from './Evolution'
+import { learnableMoves } from '../lib/progression'
+import { move as moveData } from '../lib/dex'
+import { useUiStore } from '../store/uiStore'
 
 /** One team member: HP, moves, held item, order, and bag items to use on it. */
 export function TeamModal({ uid, onClose }: { uid: string; onClose: () => void }) {
   const run = useRunStore(s => s.run)!
-  const { useBagItem, giveHeldItem, takeHeldItem, moveMember } = useRunStore()
+  const { useBagItem, giveHeldItem, takeHeldItem, moveMember, swapMove } = useRunStore()
+  const showEvolution = useUiStore(s => s.showEvolution)
   const [selected, setSelected] = useState(uid)
   const [message, setMessage] = useState<string | null>(null)
+  const [replacing, setReplacing] = useState<string | null>(null)
   const m = run.roster.find(x => x.uid === selected) ?? run.roster[0]
   if (!m) return null
   const s = species(m.species)
@@ -26,7 +32,7 @@ export function TeamModal({ uid, onClose }: { uid: string; onClose: () => void }
         {run.roster.map(x => (
           <button
             key={x.uid}
-            onClick={() => { setSelected(x.uid); setMessage(null) }}
+            onClick={() => { setSelected(x.uid); setMessage(null); setReplacing(null) }}
             className={`w-12 h-12 rounded-lg border-2 ${x.uid === m.uid ? 'border-gold-400 bg-white/10' : 'border-white/10 hover:bg-white/5'}`}
           >
             <img src={artworkUrl(x.species)} alt={species(x.species).name} className={`w-full h-full object-contain ${(x.hp ?? 1) <= 0 ? 'grayscale opacity-50' : ''}`} />
@@ -42,6 +48,7 @@ export function TeamModal({ uid, onClose }: { uid: string; onClose: () => void }
               {s.name} {index === 0 && <span className="ml-1 text-[10px] bg-gold-400 text-ink-900 rounded px-1 align-middle">LEAD</span>}
             </p>
             <div className="flex items-center gap-1.5 mt-1">{s.types.map(t => <TypeBadge key={t} type={t} small />)}<span className="text-sm text-white/70">Lv {m.level}</span></div>
+            <EvolveButtons mon={m} />
             <div className="w-full mt-2">
               <div className="flex justify-between text-[11px] text-white/60"><span>HP</span><span>{hp <= 0 ? 'FNT' : `${Math.round(hp * 100)}%`}</span></div>
               <div className="h-2 rounded-full bg-black/60 overflow-hidden"><div className={`h-full ${hp > 0.5 ? 'bg-emerald-400' : hp > 0.25 ? 'bg-yellow-400' : 'bg-red-500'}`} style={{ width: `${hp * 100}%` }} /></div>
@@ -53,7 +60,15 @@ export function TeamModal({ uid, onClose }: { uid: string; onClose: () => void }
               <button
                 key={item}
                 disabled={!bag[item]}
-                onClick={() => setMessage(useBagItem(item, m.uid).message)}
+                onClick={() => {
+                  const before = m
+                  const res = useBagItem(item, m.uid)
+                  setMessage(res.message)
+                  const after = useRunStore.getState().run?.roster.find(x => x.uid === before.uid)
+                  if (res.ok && item === 'stone' && after && after.species !== before.species) {
+                    showEvolution({ uid: before.uid, before, after, xpGained: 0, events: [{ kind: 'evolve', from: before.species, to: after.species }] })
+                  }
+                }}
                 title={BAG_INFO[item].desc}
                 className="rounded-lg bg-white/5 hover:bg-white/10 disabled:opacity-35 disabled:cursor-not-allowed px-2 py-1.5 text-left text-xs font-bold"
               >
@@ -71,8 +86,33 @@ export function TeamModal({ uid, onClose }: { uid: string; onClose: () => void }
         <div className="flex flex-col gap-3">
           {message && <p role="status" className="rounded-lg bg-gold-400/15 border border-gold-400/40 px-3 py-2 text-sm">{message}</p>}
           <div>
-            <h3 className="text-[11px] font-bold uppercase tracking-wider text-white/50 mb-1.5">Moves</h3>
-            <div className="grid sm:grid-cols-2 gap-1.5">{m.moves.map(mv => <MoveInfo key={mv} id={mv} />)}</div>
+            <h3 className="text-[11px] font-bold uppercase tracking-wider text-white/50 mb-1.5">Moves <span className="normal-case tracking-normal font-normal">· tap one to replace it</span></h3>
+            <div className="grid sm:grid-cols-2 gap-1.5">
+              {m.moves.map(mv => (
+                <button key={mv} onClick={() => setReplacing(replacing === mv ? null : mv)} aria-pressed={replacing === mv}
+                  className={`text-left rounded-md border-2 ${replacing === mv ? 'border-gold-400' : 'border-transparent hover:border-white/20'}`}>
+                  <MoveInfo id={mv} />
+                </button>
+              ))}
+            </div>
+            {replacing && (() => {
+              const options = learnableMoves(m)
+              return (
+                <div className="mt-2 rounded-lg border-2 border-gold-400/50 bg-gold-400/5 p-2">
+                  <p className="text-sm font-bold mb-1.5">Replace {moveData(replacing)?.name ?? replacing} with…</p>
+                  {options.length ? (
+                    <div className="grid sm:grid-cols-2 gap-1.5 max-h-60 overflow-y-auto">
+                      {options.map(id => (
+                        <button key={id} onClick={() => { setMessage(swapMove(m.uid, replacing, id).message); setReplacing(null) }}
+                          className="text-left rounded-md border-2 border-transparent hover:border-gold-400">
+                          <MoveInfo id={id} />
+                        </button>
+                      ))}
+                    </div>
+                  ) : <p className="text-xs text-white/60">No other moves yet. {s.name} learns more as it levels up, and the Move Tutor can teach new ones.</p>}
+                </div>
+              )
+            })()}
           </div>
           <div>
             <h3 className="text-[11px] font-bold uppercase tracking-wider text-white/50 mb-1.5">Held item</h3>

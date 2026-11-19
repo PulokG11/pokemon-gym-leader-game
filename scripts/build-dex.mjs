@@ -35,6 +35,32 @@ function movesAt(learnset, level) {
   return known.slice(-4)
 }
 
+// Move Tutor pool: Gen 9 TM, tutor and egg moves a species can't learn by level-up.
+const TUTOR_LIMIT = 10
+const TUTOR_STATUS = new Set(['swordsdance', 'nastyplot', 'calmmind', 'dragondance', 'bulkup', 'quiverdance', 'recover', 'roost', 'protect', 'willowisp', 'thunderwave', 'toxic', 'helpinghand', 'trickroom', 'tailwind'])
+// Moves that only work in odd situations, or need Terastallizing.
+const TUTOR_SKIP = new Set(['terablast', 'focuspunch', 'dreameater', 'synchronoise', 'lastresort', 'belch', 'steelroller', 'burnup', 'doubleshock'])
+function tutorMoves(id, levelUp) {
+  const own = new Set(levelUp.map(([, m]) => m))
+  const pool = new Set()
+  // Include what earlier stages could learn, as the games do.
+  for (let s = Dex.species.get(id); s?.exists; s = s.prevo ? Dex.species.get(s.prevo) : null) {
+    const learnset = Dex.species.getLearnsetData(s.id)?.learnset ?? {}
+    for (const [move, sources] of Object.entries(learnset)) {
+      if (own.has(move) || !sources.some(src => /^9[MTE]/.test(src))) continue
+      const m = Dex.moves.get(move)
+      if (!m.exists || m.isNonstandard || m.isZ || m.isMax || m.priority < 0 || m.selfdestruct || TUTOR_SKIP.has(move)) continue
+      if (m.category === 'Status' ? TUTOR_STATUS.has(move) : m.basePower >= 50 && !m.flags.charge && !m.flags.recharge) pool.add(move)
+    }
+  }
+  const types = Dex.species.get(id).types
+  const score = m => {
+    const d = Dex.moves.get(m)
+    return d.category === 'Status' ? 70 : d.basePower * (d.accuracy === true ? 1 : d.accuracy / 100) * (types.includes(d.type) ? 1.2 : 1)
+  }
+  return [...pool].sort((a, b) => score(b) - score(a) || a.localeCompare(b)).slice(0, TUTOR_LIMIT)
+}
+
 const hasDamagingMove = (learnset, level) =>
   movesAt(learnset, level).some(m => Dex.moves.get(m).category !== 'Status')
 
@@ -77,8 +103,10 @@ for (const s of candidates) {
     baseStats: s.baseStats,
     evos,
     learnset,
+    tutor: tutorMoves(s.id, learnset),
   }
   for (const [, m] of learnset) usedMoves.add(m)
+  for (const m of out.species[s.id].tutor) usedMoves.add(m)
 
   if (!s.prevo && s.bst <= MAX_BASE_BST && hasDamagingMove(learnset, START_LEVEL_MIN)) {
     out.challengers.push(s.id)

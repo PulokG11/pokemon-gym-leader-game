@@ -63,8 +63,8 @@ export function ProgressCard({ report, delay = 0 }: { report: ProgressReport; de
                 {species(e.from).name} evolved into {species(e.to).name}!
               </li>
             ) : e.kind === 'learn' ? (
-              <li key={i} className="text-sky-300">
-                Learned {move(e.move)?.name ?? e.move}
+              <li key={i} className={e.offered ? 'text-gold-300' : 'text-sky-300'}>
+                {e.offered ? '★ Can learn ' : 'Learned '}{move(e.move)?.name ?? e.move}
                 {e.forgot && <span className="text-white/50"> (forgot {move(e.forgot)?.name ?? e.forgot})</span>}
               </li>
             ) : null,

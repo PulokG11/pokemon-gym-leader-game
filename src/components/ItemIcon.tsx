@@ -13,7 +13,7 @@ const STONE: Partial<Record<GymType, string>> = {
 
 const REWARD_SPRITE: Record<Exclude<RewardKind, 'held_item' | 'evo_stone'>, string> = {
   recruit: 'poke-ball', training: 'exp-share', team_training: 'exp-share', revive_pack: 'revive',
-  potion_supply: 'hyper-potion', rare_candy: 'rare-candy', league_favour: 'lucky-egg',
+  potion_supply: 'hyper-potion', rare_candy: 'rare-candy', league_favour: 'lucky-egg', move_tutor: 'tm-normal',
 }
 
 export function itemSprite(opts: { bag?: BagItem; held?: string; reward?: RewardKind; gymType?: GymType }): string {

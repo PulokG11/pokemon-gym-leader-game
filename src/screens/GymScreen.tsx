@@ -2,11 +2,13 @@ import { useState } from 'react'
 import { ItemIcon, itemSprite } from '../components/ItemIcon'
 import { useRunStore } from '../store/runStore'
 import { useUiStore } from '../store/uiStore'
-import { artworkUrl, battleSpriteUrl, species } from '../lib/dex'
+import { useSettingsStore } from '../store/settingsStore'
+import { artworkUrl, battleSpriteUrl, effectiveness, species } from '../lib/dex'
 import { BAG_INFO, heldItemDesc, type BagItem } from '../lib/economy'
 import { BOSS_NODES, LEADER_SPRITE, challengerTrainer, gymName, trainerSprite } from '../lib/trainers'
 import { WEAK_TO, threatsTo } from '../lib/typechart'
 import { upgradesFor } from '../lib/upgrades'
+import { readyEvolutions } from '../lib/progression'
 import { TypeBadge } from '../components/TypeBadge'
 import { TeamModal } from '../components/TeamModal'
 import { Modal } from '../components/Modal'
@@ -15,6 +17,12 @@ import { ArenaBackdrop } from '../components/ArenaBackdrop'
 
 
 const panel = 'rounded-xl bg-ink-900 border-2 border-black shadow-[0_5px_0_rgba(0,0,0,0.35)]'
+
+const cap = (t: string) => t[0].toUpperCase() + t.slice(1)
+/** The challenger Pokémon has a type your Gym type is weak to. */
+const isThreat = (run: RunState, types: string[]) => types.some(t => WEAK_TO[run.gymType].includes(t.toLowerCase() as never))
+/** Your Gym type's attacks hit this Pokémon super-effectively. */
+const isWeakToYou = (run: RunState, types: string[]) => effectiveness(cap(run.gymType), types) >= 2
 
 function ProgressTrack({ run }: { run: RunState }) {
   const total = run.totalChallengers
@@ -65,6 +73,10 @@ function ScoutModal({ run, onClose, onBattle }: { run: RunState; onClose: () => 
               <img src={artworkUrl(m.species)} alt="" className="w-16 h-16 object-contain" />
               <div>
                 <p><b>{s.name}</b> <span className="text-xs text-white/60">Lv {m.level}</span></p>
+                <div className="flex flex-wrap gap-1 mt-0.5">
+                  {isThreat(run, s.types) && <span className="text-[10px] font-black rounded px-1.5 py-0.5 bg-red-900/70 text-red-200">⚠ THREAT</span>}
+                  {isWeakToYou(run, s.types) && <span className="text-[10px] font-black rounded px-1.5 py-0.5 bg-emerald-900/70 text-emerald-200">✓ WEAK TO YOU</span>}
+                </div>
                 <div className="flex gap-1 my-1">{s.types.map(x => <TypeBadge key={x} type={x} small />)}</div>
                 <p className="text-[11px] text-white/60">Possible abilities: {s.abilities.join(', ')}</p>
               </div>
@@ -137,6 +149,11 @@ export function GymScreen() {
   const lead = run.roster.find(m => (m.hp ?? 1) > 0)
   const challengerTypes = [...new Set(run.challenger.flatMap(m => species(m.species).types))]
   const threats = threatsTo(run.gymType, run.challenger.map(m => species(m.species).types))
+  const weakToYou = run.challenger.filter(m => isWeakToYou(run, species(m.species).types)).length
+  const introDismissed = useSettingsStore(s => s.introDismissed)
+  const dismissIntro = useSettingsStore(s => s.dismissIntro)
+  const evolvable = run.roster.filter(m => readyEvolutions(m).length > 0)
+  const showIntro = !introDismissed && run.challengerIndex === 0 && run.mode === 'quest'
   const level = Math.max(...run.challenger.map(m => m.level))
   const bag = run.bag ?? { potion: 0, revive: 0, candy: 0, stone: 0 }
   const canFight = !!lead
@@ -148,7 +165,10 @@ export function GymScreen() {
           <div className="flex items-center gap-3">
             <button onClick={() => go('home')} aria-label="Home" className="w-10 h-10 rounded-lg bg-white/10 hover:bg-white/15 text-lg">☰</button>
             <div className="flex-1 min-w-0">
-              <h1 className="font-ui font-bold text-xl sm:text-2xl truncate">{gymName(run.gymType)}</h1>
+              <h1 className="font-ui font-bold text-xl sm:text-2xl truncate flex items-center gap-2">
+                <span className="truncate">{gymName(run.gymType)}</span>
+                {run.format === 'doubles' && <span className="shrink-0 text-[11px] font-black rounded-md bg-sky-500/25 border border-sky-300/50 text-sky-200 px-1.5 py-0.5">Doubles</span>}
+              </h1>
               <p className="text-xs text-white/60">
                 {run.totalChallengers === null ? 'Daily Challenge' : <>Challenger <b className="text-white">{run.challengerIndex + 1}</b>/{run.totalChallengers}</>}
               </p>
@@ -157,6 +177,29 @@ export function GymScreen() {
           </div>
           <ProgressTrack run={run} />
         </header>
+
+        {showIntro && (
+          <section className={`${panel} px-4 py-3 relative`} aria-label="First run">
+            <button onClick={dismissIntro} aria-label="Dismiss tips" className="absolute top-2 right-2 w-8 h-8 rounded-lg hover:bg-white/10 text-white/70">✕</button>
+            <h2 className="font-ui font-bold text-lg text-gold-300">First run</h2>
+            <ul className="mt-1.5 grid sm:grid-cols-3 gap-3 text-sm text-white/85 pr-6">
+              <li><b className="text-white">Your goal.</b> Defend the Gym against {run.totalChallengers} challengers. Every win pays prize money and offers a reward.</li>
+              <li><b className="text-white">Losing is progress.</b> Every win still counts when the run ends: it is saved to your records and the Ranking. Learn the matchups and go again.</li>
+              <li><b className="text-white">Tip.</b> Press Scout team before each battle: <span className="text-red-200">⚠ THREAT</span> Pokémon hit your type hard, <span className="text-emerald-200">✓ WEAK TO YOU</span> ones are easy targets.</li>
+            </ul>
+          </section>
+        )}
+
+        {evolvable.length > 0 && (
+          <button
+            onClick={() => setTeamUid(evolvable[0].uid)}
+            className="rounded-xl bg-amber-400/15 border-2 border-amber-400/60 hover:bg-amber-400/25 px-4 py-2.5 flex items-center gap-3 text-left"
+          >
+            <span className="flex -space-x-2">{evolvable.slice(0, 4).map(m => <img key={m.uid} src={battleSpriteUrl(m.species, false)} alt="" className="h-9 [image-rendering:pixelated]" />)}</span>
+            <span className="flex-1 font-bold text-amber-200">✦ {evolvable.length} Pokémon can evolve</span>
+            <span className="text-xs font-black rounded-lg bg-amber-400 text-ink-900 border-2 border-black px-2.5 py-1">View</span>
+          </button>
+        )}
 
         <div className="grid lg:grid-cols-[1.4fr_1fr] gap-4 items-start">
           {/* Challenger */}
@@ -175,6 +218,7 @@ export function GymScreen() {
                   <div className="flex flex-wrap gap-1 mt-1.5">
                     {challengerTypes.map(t => <TypeBadge key={t} type={t} small />)}
                     {threats > 0 && <span className="text-[10px] font-bold rounded px-1.5 bg-red-900/60 text-red-200">⚠ {threats} strong vs you</span>}
+                    {weakToYou > 0 && <span className="text-[10px] font-bold rounded px-1.5 bg-emerald-900/60 text-emerald-200">✓ {weakToYou} weak to you</span>}
                   </div>
                 </div>
                 <div className="flex items-end gap-1">
@@ -210,6 +254,7 @@ export function GymScreen() {
                   return (
                     <button key={m.uid} onClick={() => setTeamUid(m.uid)} className="relative h-20 rounded-lg bg-black/25 hover:bg-white/5 border-2 border-black flex items-center gap-2 px-2 text-left">
                       {m === lead && <span className="absolute -top-1.5 left-1.5 text-[9px] font-black bg-gold-400 text-ink-900 rounded px-1">LEAD</span>}
+                      {readyEvolutions(m).length > 0 && <span className="absolute -top-1.5 right-1.5 text-[9px] font-black bg-amber-400 text-ink-900 rounded px-1">✦ EVOLVE</span>}
                       <img src={artworkUrl(m.species)} alt="" className={`w-14 h-14 object-contain ${hp <= 0 ? 'grayscale opacity-50' : ''}`} />
                       <span className="flex-1 min-w-0">
                         <span className="block font-bold truncate">{species(m.species).name}</span>

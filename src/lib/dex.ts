@@ -9,6 +9,7 @@ export interface SpeciesData {
   baseStats: { hp: number; atk: number; def: number; spa: number; spd: number; spe: number }
   evos: { to: string; level: number }[]
   learnset: [number, string][]   // [level, moveId]; level 0 = learned on evolution
+  tutor: string[]                // TM, tutor and egg moves offered by the Move Tutor reward
 }
 
 export interface MoveData {

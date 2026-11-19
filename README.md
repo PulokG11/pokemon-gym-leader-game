@@ -12,13 +12,17 @@ Works on desktop and mobile, and can be installed as an app (PWA) for offline pl
 
 | Mode | Rules |
 |---|---|
-| **Daily Challenge** | The same Gym type, five starters and challengers for every player, chosen by the UTC date. Challengers never stop and gain 3 levels per round. One try per day; your score is how many battles you win. |
-| **Gym Quest** | Pick any of the 18 types and defend against 15 challengers: Rookie → Trainer → Ace Trainer → Rival → Rival Gym Leader → Elite Trainer → Elite Four Member → Champion. Beat all 15 to win. |
+| **Daily Challenge** | Singles only. The same Gym type, six starters and challengers for every player, chosen by the UTC date. Challengers never stop and gain 3 levels per round. One try per day; your score is how many battles you win. |
+| **Gym Quest** | Pick any of the 18 types, choose **Singles** or **Doubles**, and defend against 15 challengers: Rookie → Trainer → Ace Trainer → Rival → Rival Gym Leader → Elite Trainer → Elite Four Member → Champion. Beat all 15 to win. |
 | **Regional Quest** | Coming soon. |
 
 **Battles** run on the real Pokémon Showdown engine: Speed decides who moves first, and priority moves (e.g. Quick Attack +1) go before that. Each turn plays out move by move with animated sprites.
 
-**Your team grows.** Choose 3 of 5 starters of your Gym's type. After each win every team member gains XP, learns Gen 9 level-up moves and evolves at the right level into a stronger form.
+**Singles or Doubles.** In Singles one Pokémon is out on each side and you pick 3 of 6 starters. In Doubles two are out on each side and you pick 4: for each of your Pokémon you choose a move and, for single-target moves, which foe it goes for (spread moves like Surf hit both). Doubles challengers bring 2 Pokémon early on, then 3, then 4.
+
+**Your team grows.** After each win every team member gains XP and learns Gen 9 level-up moves. When its moves are full, a new move is offered instead of replacing one: swap it in from the Team screen whenever you like. Once a Pokémon reaches its evolution level an **Evolve** button appears (in the battle report, the Team screen and the Gym hub); evolving is your choice. Rewards include recruits (up to 6), training, Rare Candies, Evolution Stones, held items and the **Move Tutor**, which teaches one of 3 TM, tutor or egg moves.
+
+**Scouting.** Before each battle, Scout team marks the challenger's Pokémon that are a **⚠ THREAT** to your type and those **✓ WEAK TO YOU**.
 
 **Leaderboards.** Join with an anonymous nickname (no account or email). The **Today** board ranks everyone on today's Daily; the **All time** board shows each player's best Daily run and the Gym type it was on.
 
@@ -57,7 +61,7 @@ npm run build        # type-check + production build → dist/
 npm run preview      # serve the production build
 npm test             # Vitest in watch mode
 npm run test:run     # Vitest single run (CI)
-npm run typecheck    # TypeScript only
+npm run typecheck    # TypeScript only (tsc -b, checks the app and tooling configs)
 npm run data         # regenerate src/data/dex.json from @pkmn/sim
 ```
 
@@ -65,12 +69,12 @@ npm run data         # regenerate src/data/dex.json from @pkmn/sim
 
 ```
 src/
-├── screens/         # Home, type select, team select, battle, rewards, ranking, how to play
-├── components/      # Sprites, HP bars, move info, type badges…
+├── screens/         # Home, Gym picker, starter select, Gym hub, battle, rewards, events, ranking, how to play
+├── components/      # Sprites, HP bars, move info, type badges, battle report, evolution cutscene…
 ├── store/           # Zustand: run, battle, records, player, settings, ui
-├── workers/         # battle.worker.ts — @pkmn/sim in a Web Worker
-├── lib/             # dex, progression, daily seeding, neon.ts client, leaderboard API, sync
-├── data/dex.json    # generated Pokédex (species, learnsets, evolutions, moves)
+├── workers/         # battle.worker.ts — @pkmn/sim in a Web Worker (Singles and Doubles, challenger AI)
+├── lib/             # dex, progression, battle requests, economy, upgrades, daily seeding, neon.ts client, leaderboard API
+├── data/dex.json    # generated Pokédex (species, learnsets, Move Tutor pools, evolutions, moves)
 └── types/game.ts    # shared domain types
 scripts/build-dex.mjs   # generates src/data/dex.json
 db/migrations/          # leaderboard schema (+ .down.sql rollback)

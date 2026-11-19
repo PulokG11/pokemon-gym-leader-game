@@ -1,16 +1,16 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { Bag, EventKind, GymType, ProgressReport, RosterMember, RunState } from '../types/game'
+import type { Bag, BattleFormat, EventKind, GymType, ProgressReport, RosterMember, RunState } from '../types/game'
 import {
-  GYM_QUEST_LENGTH, buildChallenger, buildDailyChallenger, evolveNow, gainXp, levelUp,
-  starterCandidates, xpReward, type Rng,
+  GYM_QUEST_LENGTH, buildChallenger, challengerSize, teamSizeFor, buildDailyChallenger, evolveInto, evolveNow, gainXp, levelUp,
+  replaceMove, starterCandidates, teachMove, xpReward, type Rng,
 } from '../lib/progression'
 import {
   BAG_INFO, MAX_TEAM, POST_WIN_RECOVERY, POTION_HEAL, REVIVE_HP, START_FUNDS, START_REROLLS,
   GENERIC_ITEMS, fundsForWin, merchantStock, rewardOffer, skipBonus, typeItemFor, type BagItem, type Reward,
 } from '../lib/economy'
 import { upgradesFor, type UpgradeId } from '../lib/upgrades'
-import { species } from '../lib/dex'
+import { move as moveData, species } from '../lib/dex'
 import { dailyRng, dailyType, utcDate } from '../lib/daily'
 import { useRecordsStore } from './recordsStore'
 
@@ -22,6 +22,8 @@ interface RunStore {
   /** Starts today's Daily Challenge; returns false if today's try is already used. */
   startDaily: () => boolean
   confirmTeam: (uids: string[]) => void
+  /** Singles or Doubles; only while choosing starters in a Gym Quest. */
+  setFormat: (format: BattleFormat) => void
   /** `finalHp` maps each Pokémon's display name to its HP fraction when the battle ended. */
   winBattle: (finalHp?: Record<string, number>) => void
   loseBattle: (forfeited?: boolean) => void
@@ -29,7 +31,7 @@ interface RunStore {
   // Rewards
   rerollReward: () => void
   skipReward: () => void
-  takeReward: (reward: Reward, opts?: { targetUid?: string; recruit?: RosterMember; replaceUid?: string }) => ActionResult
+  takeReward: (reward: Reward, opts?: { targetUid?: string; recruit?: RosterMember; replaceUid?: string; move?: string; forget?: string }) => ActionResult
   // What's next?
   chooseEvent: (kind: EventKind) => void
   campTrain: (target: string | 'team') => ActionResult
@@ -41,6 +43,10 @@ interface RunStore {
   giveHeldItem: (item: string, uid: string) => void
   takeHeldItem: (uid: string) => void
   moveMember: (uid: string, dir: -1 | 1) => void
+  /** Evolves a Pokémon that has reached its evolution level into `to`. */
+  evolveMember: (uid: string, to: string) => ActionResult & { report?: ProgressReport }
+  /** Swaps a known move for one it has learned before (level-up or taught). */
+  swapMove: (uid: string, oldMove: string, newMove: string) => ActionResult
   continueRun: () => void
   startBattle: () => void
   clearRun: () => void
@@ -53,6 +59,7 @@ function baseRun(gymType: GymType): RunState {
     id: crypto.randomUUID(),
     mode: 'quest',
     gymType,
+    format: 'singles',
     dailyDate: null,
     challengerIndex: 0,
     totalChallengers: GYM_QUEST_LENGTH,
@@ -80,9 +87,10 @@ export function runRng(run: RunState, salt: string): Rng {
 }
 
 function nextChallenger(run: RunState, roster: RosterMember[], index: number): RosterMember[] {
+  const size = challengerSize(run.format ?? 'singles', index)
   return run.mode === 'daily' && run.dailyDate
-    ? buildDailyChallenger(index, dailyRng(run.dailyDate, `challenger:${index}`))
-    : buildChallenger(roster, index)
+    ? buildDailyChallenger(index, dailyRng(run.dailyDate, `challenger:${index}`), size)
+    : buildChallenger(roster, index, Math.random, size)
 }
 
 function recordResult(run: RunState, wins: number, finished: boolean, cleared: boolean) {
@@ -95,6 +103,7 @@ function recordResult(run: RunState, wins: number, finished: boolean, cleared: b
 }
 
 const nameOf = (m: RosterMember) => species(m.species).name
+const moveName = (id: string) => moveData(id)?.name ?? id
 const hpOf = (m: RosterMember) => m.hp ?? 1
 
 function describe(r: ProgressReport): string[] {
@@ -103,7 +112,10 @@ function describe(r: ProgressReport): string[] {
   if (r.after.level !== r.before.level) out.push(`${name} grew to Lv ${r.after.level}!`)
   for (const e of r.events) {
     if (e.kind === 'evolve') out.push(`${species(e.from).name} evolved into ${species(e.to).name}!`)
-    if (e.kind === 'learn') out.push(`${species(r.after.species).name} learned ${e.move}${e.forgot ? ` (forgot ${e.forgot})` : ''}.`)
+    if (e.kind === 'learn') {
+      const mv = moveName(e.move)
+      out.push(e.offered ? `${species(r.after.species).name} can learn ${mv}: swap it in from Team.` : `${species(r.after.species).name} learned ${mv}${e.forgot ? ` (forgot ${moveName(e.forgot)})` : ''}.`)
+    }
   }
   return out.length ? out : [`${name} is unchanged.`]
 }
@@ -153,8 +165,12 @@ export const useRunStore = create<RunStore>()(
           set(({ run }) => {
             if (!run) return {}
             const roster = uids.map(u => run.candidates.find(c => c.uid === u)!).filter(Boolean).map(m => ({ ...m, hp: 1, item: null }))
+            if (roster.length !== teamSizeFor(run.format ?? 'singles')) return {}
             return { run: { ...run, roster, challenger: nextChallenger(run, roster, 0), phase: 'gym' } }
           }),
+
+        setFormat: (format) =>
+          set(({ run }) => (run && run.phase === 'team_select' && run.mode !== 'daily' ? { run: { ...run, format } } : {})),
 
         winBattle: (finalHp = {}) => {
           const run = get().run
@@ -259,6 +275,15 @@ export const useRunStore = create<RunStore>()(
               case 'potion_supply': bag.potion += 2; return { run: { ...run, bag }, message: 'Got 2 Hyper Potions.' }
               case 'rare_candy': bag.candy += 2; return { run: { ...run, bag }, message: 'Got 2 Rare Candies.' }
               case 'evo_stone': bag.stone += 1; return { run: { ...run, bag }, message: 'Got an Evolution Stone.' }
+              case 'move_tutor': {
+                if (!target || !opts.move) return 'Choose a Pokémon and a move.'
+                const taught = teachMove(target, opts.move, opts.forget)
+                if (!taught) return 'Choose a move to forget.'
+                return {
+                  run: replaceMember(run, taught),
+                  message: `${nameOf(target)} learned ${moveName(opts.move)}${opts.forget ? ` (forgot ${moveName(opts.forget)})` : ''}.`,
+                }
+              }
               case 'league_favour': return { run: { ...run, rerolls: (run.rerolls ?? 0) + 2 }, message: 'Gained 2 reward rerolls.' }
               case 'held_item': {
                 if (!reward.item) return 'Unknown item.'
@@ -398,6 +423,28 @@ export const useRunStore = create<RunStore>()(
             const roster = [...run.roster]
             ;[roster[i], roster[j]] = [roster[j], roster[i]]
             return { run: { ...run, roster } }
+          }),
+
+        evolveMember: (uid, to) => {
+          let report: ProgressReport | undefined
+          const res = apply(run => {
+            const m = run.roster.find(x => x.uid === uid)
+            if (!m) return 'Choose a Pokémon.'
+            const r = evolveInto(m, to)
+            if (!r) return `${nameOf(m)} can’t evolve into ${species(to).name} yet.`
+            report = r
+            return { run: replaceMember(run, r.after), message: describe(r).join(' ') }
+          })
+          return { ...res, report }
+        },
+
+        swapMove: (uid, oldMove, newMove) =>
+          apply(run => {
+            const m = run.roster.find(x => x.uid === uid)
+            if (!m) return 'Choose a Pokémon.'
+            const after = replaceMove(m, oldMove, newMove)
+            if (!after) return `${nameOf(m)} can’t learn that move.`
+            return { run: replaceMember(run, after), message: `${nameOf(m)} forgot ${moveName(oldMove)} and learned ${moveName(newMove)}.` }
           }),
 
         continueRun: () => set(({ run }) => (run ? { run: { ...run, phase: 'battle' } } : {})),

@@ -71,10 +71,10 @@ describe('recruits', () => {
 })
 
 describe('training and stones', () => {
-  it('training adds levels and can evolve', () => {
+  it('training adds levels; evolving is then up to the player', () => {
     const r = levelUp(createMon('charmander', 14), 3)
     expect(r.after.level).toBe(17)
-    expect(r.after.species).toBe('charmeleon')
+    expect(r.after.species).toBe('charmander')
   })
 
   it('an Evolution Stone evolves at any level, even stone evolutions', () => {

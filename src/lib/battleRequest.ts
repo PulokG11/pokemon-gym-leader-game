@@ -1,3 +1,5 @@
+import type { BattleAction, SlotRequest } from '../types/game'
+
 // Helpers for Showdown `|request|` payloads. The engine reorders `side.pokemon`
 // on every switch (the active Pokémon is always first), so slots must be looked
 // up from the latest request — never cached.
@@ -20,6 +22,44 @@ const isFainted = (p: any) => String(p.condition).startsWith('0')
 export function switchTargets(req: any): string[] {
   if (!req?.side?.pokemon) return []
   return (req.side.pokemon as any[]).filter(p => !p.active && !isFainted(p)).map(p => nameOf(p.ident))
+}
+
+/** Move targets that need the player to pick a Pokémon in Doubles. */
+const PICK_TARGET = new Set(['normal', 'any', 'adjacentFoe', 'adjacentAlly', 'adjacentAllyOrSelf'])
+export const needsTarget = (target: string) => PICK_TARGET.has(target)
+
+/** Per active slot: what must be decided. Active Pokémon are listed first in side.pokemon. */
+export function slotRequests(req: any, moveTargets: (id: string) => string): SlotRequest[] {
+  const team = (req?.side?.pokemon ?? []) as any[]
+  const forced = (req?.forceSwitch ?? []) as boolean[]
+  const count = Math.max(req?.active?.length ?? 0, forced.length)
+  const benched = switchTargets(req).length
+  let forcedLeft = benched
+  return Array.from({ length: count }, (_, pos) => {
+    const p = team[pos]
+    const name = p ? nameOf(p.ident) : ''
+    if (forced.length) {
+      const must = !!forced[pos] && forcedLeft > 0
+      if (must) forcedLeft--
+      return { pos, name, moves: [], forced: must, pass: !must }
+    }
+    const fainted = !p || isFainted(p)
+    const moves = ((req.active?.[pos]?.moves ?? []) as any[]).map((m, i) => ({
+      slot: i + 1, id: m.id, name: m.move, pp: m.pp, maxPp: m.maxpp, disabled: !!m.disabled, target: m.target ?? moveTargets(m.id),
+    }))
+    return { pos, name, moves, forced: false, pass: fainted }
+  })
+}
+
+/** Showdown choice string, e.g. "move 1 2, switch 3" — switches resolved by name to the current slot. */
+export function buildChoice(req: any, actions: BattleAction[]): string {
+  return actions
+    .map(a => {
+      if (a.kind === 'pass') return 'pass'
+      if (a.kind === 'switch') return `switch ${slotOf(req, a.name)}`
+      return a.target === undefined ? `move ${a.move}` : `move ${a.move} ${a.target}`
+    })
+    .join(', ')
 }
 
 /** 1-based slot of `name` in this request, or 0 if absent. */

@@ -10,8 +10,9 @@ import { RewardScreen } from './screens/RewardScreen'
 import { RunEndedScreen } from './screens/RunEndedScreen'
 import { EventScreen } from './screens/EventScreen'
 import { GymScreen } from './screens/GymScreen'
+import { EvolutionCutscene } from './components/Evolution'
 
-function App() {
+function Screen() {
   const run = useRunStore(s => s.run)
   const screen = useUiStore(s => s.screen)
 
@@ -33,6 +34,15 @@ function App() {
     default:
       return <HomeScreen />
   }
+}
+
+function App() {
+  return (
+    <>
+      <Screen />
+      <EvolutionCutscene />
+    </>
+  )
 }
 
 export default App

@@ -6,7 +6,10 @@ import { MAX_TEAM, recruitOptions, skipBonus, type Reward } from '../lib/economy
 import { TeamStrip } from '../components/TeamStrip'
 import { TeamModal } from '../components/TeamModal'
 import { Modal } from '../components/Modal'
-import { ProgressCard } from '../components/ProgressCard'
+import { BattleReport } from '../components/BattleReport'
+import { MoveInfo } from '../components/MoveInfo'
+import { tutorOptions } from '../lib/progression'
+import { move as moveData } from '../lib/dex'
 import { StatBars } from '../components/StatBars'
 import { TypeBadge } from '../components/TypeBadge'
 import type { RosterMember } from '../types/game'
@@ -72,11 +75,73 @@ function RecruitPicker({ onDone }: { onDone: (recruit: RosterMember, replaceUid?
   )
 }
 
+function TutorPicker({ onDone }: { onDone: (targetUid: string, move: string, forget?: string) => void }) {
+  const run = useRunStore(s => s.run)!
+  const [uid, setUid] = useState<string | null>(null)
+  const [chosen, setChosen] = useState<string | null>(null)
+  const [forget, setForget] = useState<string | null>(null)
+  const mon = run.roster.find(m => m.uid === uid)
+  const options = useMemo(() => (mon ? tutorOptions(mon, runRng(run, `tutor:${mon.species}`)) : []), [mon?.uid, run.challengerIndex])
+
+  if (!mon) {
+    return (
+      <>
+        <p className="text-sm text-white/70 mb-3">Choose a Pokémon to teach.</p>
+        <PickMember roster={run.roster} onPick={setUid} />
+      </>
+    )
+  }
+  const full = mon.moves.length >= 4
+  const ready = chosen && (!full || forget)
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex items-center gap-3">
+        <img src={artworkUrl(mon.species)} alt="" className="w-12 h-12 object-contain" />
+        <p className="flex-1"><b>{species(mon.species).name}</b> <span className="text-xs text-white/60">Lv {mon.level}</span></p>
+        <button onClick={() => { setUid(null); setChosen(null); setForget(null) }} className="text-xs font-bold text-white/70 hover:text-white">◀ Other Pokémon</button>
+      </div>
+      {options.length === 0 ? (
+        <p className="text-sm text-white/60">The tutor has nothing new for {species(mon.species).name}. Choose another Pokémon.</p>
+      ) : (
+        <>
+          <p className="text-[11px] font-bold uppercase tracking-wider text-white/50">1. Pick a move</p>
+          <div className="grid sm:grid-cols-3 gap-2" role="radiogroup" aria-label="Move to teach">
+            {options.map(id => (
+              <button key={id} role="radio" aria-checked={chosen === id} onClick={() => setChosen(id)}
+                className={`text-left rounded-lg border-2 ${chosen === id ? 'border-gold-400' : 'border-transparent hover:border-white/20'}`}>
+                <MoveInfo id={id} />
+              </button>
+            ))}
+          </div>
+          {full && (
+            <>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-white/50">2. Forget which move?</p>
+              <div className="grid grid-cols-2 gap-1.5" role="radiogroup" aria-label="Move to forget">
+                {mon.moves.map(id => (
+                  <button key={id} role="radio" aria-checked={forget === id} onClick={() => setForget(id)}
+                    className={`rounded-lg border-2 px-2.5 py-1.5 text-sm font-bold text-left ${forget === id ? 'border-red-400 bg-red-900/30' : 'border-white/10 hover:bg-white/5'}`}>
+                    {moveData(id)?.name ?? id}
+                  </button>
+                ))}
+              </div>
+              <p className="text-[11px] text-white/50">A forgotten move can be swapped back in later from Team.</p>
+            </>
+          )}
+          <button disabled={!ready} onClick={() => chosen && onDone(mon.uid, chosen, forget ?? undefined)}
+            className="rounded-lg bg-gold-400 text-ink-900 font-black py-2.5 border-2 border-black disabled:opacity-40 hover:bg-gold-300">
+            {ready ? `Teach ${moveData(chosen!)?.name}${forget ? ` · forget ${moveData(forget)?.name}` : ''}` : 'Confirm'}
+          </button>
+        </>
+      )}
+    </div>
+  )
+}
+
 export function RewardScreen() {
   const run = useRunStore(s => s.run)!
   const { rerollReward, skipReward, takeReward } = useRunStore()
   const [pending, setPending] = useState<Reward | null>(null)
-  const [report, setReport] = useState(false)
+  const [report, setReport] = useState(true)
   const [teamUid, setTeamUid] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -84,7 +149,7 @@ export function RewardScreen() {
 
   function choose(r: Reward) {
     setError(null)
-    if (r.kind === 'recruit' || r.kind === 'training' || r.kind === 'held_item') return setPending(r)
+    if (r.kind === 'recruit' || r.kind === 'training' || r.kind === 'held_item' || r.kind === 'move_tutor') return setPending(r)
     const res = takeReward(r)
     if (!res.ok) setError(res.message)
   }
@@ -148,11 +213,13 @@ export function RewardScreen() {
 
       {pending && (
         <Modal
-          title={pending.kind === 'recruit' ? 'Recruit a Pokémon' : pending.kind === 'training' ? 'Who trains?' : `Give ${pending.item}`}
+          title={pending.kind === 'recruit' ? 'Recruit a Pokémon' : pending.kind === 'training' ? 'Who trains?' : pending.kind === 'move_tutor' ? 'Move Tutor' : `Give ${pending.item}`}
           onClose={() => setPending(null)}
-          wide={pending.kind === 'recruit'}
+          wide={pending.kind === 'recruit' || pending.kind === 'move_tutor'}
         >
-          {pending.kind === 'recruit' ? (
+          {pending.kind === 'move_tutor' ? (
+            <TutorPicker onDone={(targetUid, move, forget) => finish({ targetUid, move, forget })} />
+          ) : pending.kind === 'recruit' ? (
             <RecruitPicker onDone={(recruit, replaceUid) => finish({ recruit, replaceUid })} />
           ) : pending.kind === 'training' ? (
             <PickMember roster={run.roster} onPick={uid => finish({ targetUid: uid })} />
@@ -170,13 +237,7 @@ export function RewardScreen() {
         </Modal>
       )}
 
-      {report && (
-        <Modal title="Battle report" onClose={() => setReport(false)} wide>
-          <p className="text-gold-300 font-extrabold mb-3"><ItemIcon src={itemSprite({ held: 'Amulet Coin' })} className="w-5 h-5 inline-block align-[-4px]" alt="" /> +₽{run.lastFunds ?? 0}</p>
-          <div className="flex flex-col gap-3">{run.lastProgress.map((r, i) => <ProgressCard key={r.uid} report={r} delay={i * 120} />)}</div>
-          <p className="text-xs text-white/50 mt-3">Conscious Pokémon recover 10% HP after every win. Fainted ones need a Revive.</p>
-        </Modal>
-      )}
+      {report && <BattleReport run={run} onClose={() => setReport(false)} onOpenTeam={setTeamUid} />}
 
       {teamUid && <TeamModal uid={teamUid} onClose={() => setTeamUid(null)} />}
     </div>

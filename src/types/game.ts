@@ -21,6 +21,7 @@ export interface RosterMember {
   moves: string[]   // move ids, max 4
   hp?: number       // fraction of max HP carried between battles (missing = full); 0 = fainted
   item?: string | null
+  taught?: string[] // moves taught by the Move Tutor; can be swapped back in later
 }
 
 export interface Bag { potion: number; revive: number; candy: number; stone: number }
@@ -29,7 +30,7 @@ export type EventKind = 'camp' | 'merchant'
 
 export type ProgressEvent =
   | { kind: 'levelup'; level: number }
-  | { kind: 'learn'; move: string; forgot?: string }
+  | { kind: 'learn'; move: string; forgot?: string; offered?: boolean } // offered: moves were full, swap it in from Team
   | { kind: 'evolve'; from: string; to: string }
 
 export interface ProgressReport {
@@ -44,6 +45,7 @@ export interface RunState {
   id: string
   mode: RunMode
   gymType: GymType
+  format?: BattleFormat           // missing = singles (older saves)
   dailyDate: string | null        // UTC date for Daily Challenge runs
   challengerIndex: number         // challengers beaten so far
   totalChallengers: number | null // null = endless (Daily Challenge)
@@ -109,6 +111,7 @@ export interface BattleMonState {
 export interface BattleEvent {
   kind: 'move' | 'damage' | 'heal' | 'faint' | 'switch' | 'status' | 'miss' | 'info'
   side: 'p1' | 'p2'
+  pos?: number      // 0 = left/first active slot, 1 = second slot in Doubles
 }
 
 export interface MoveChoice {
@@ -118,28 +121,50 @@ export interface MoveChoice {
   pp: number
   maxPp: number
   disabled: boolean
+  target: string    // Showdown move target, e.g. 'normal', 'allAdjacentFoes', 'self'
 }
+
+/** What one of your active Pokémon must decide this turn. */
+export interface SlotRequest {
+  pos: number         // active position, 0 or 1
+  name: string
+  moves: MoveChoice[]
+  forced: boolean     // must switch in a replacement
+  pass: boolean       // nothing to decide (fainted with no replacement, or not forced)
+}
+
+export type BattleFormat = 'singles' | 'doubles'
+
+/** One slot's choice, sent to the engine. Targets: 1/2 = foe slots, -1/-2 = your slots. */
+export type BattleAction =
+  | { kind: 'move'; move: number; target?: number }
+  | { kind: 'switch'; name: string }
+  | { kind: 'pass' }
 
 export interface BattleState {
   turn: number
-  p1Active: BattleMonState
+  format: BattleFormat
+  p1Active: BattleMonState      // first slot, kept for Singles convenience
   p2Active: BattleMonState
+  p1Actives: BattleMonState[]   // one per active slot
+  p2Actives: BattleMonState[]
   p1Team: BattleMonState[]
   p2Team: BattleMonState[]
   log: string[]
   winner: 'p1' | 'p2' | null
   phase: 'processing' | 'waiting' | 'ended'
-  availableMoves: MoveChoice[]
-  forcedSwitch: boolean
-  availableSwitches: string[]  // names of Pokémon that can be switched in
-  seq: number                  // increments on every snapshot
-  event: BattleEvent | null    // what changed in this snapshot, for animation
+  availableMoves: MoveChoice[]  // first slot's moves
+  forcedSwitch: boolean         // any slot must switch
+  availableSwitches: string[]   // names of benched Pokémon that can come in
+  slots: SlotRequest[]
+  requestId: number             // changes with every new decision the player must make
+  seq: number                   // increments on every snapshot
+  event: BattleEvent | null     // what changed in this snapshot, for animation
 }
 
 export type WorkerInbound =
   | { type: 'INIT'; payload: { format: string; p1Team: string; p2Team: string; p1Hp?: number[]; extras?: import('../lib/upgrades').BattleExtras; seed?: number[] } }
-  | { type: 'MOVE'; payload: { choice: string } }
-  | { type: 'SWITCH'; payload: { name: string } }
+  | { type: 'CHOOSE'; payload: { actions: BattleAction[] } }
 
 export type WorkerOutbound =
   | { type: 'STATE'; state: BattleState }

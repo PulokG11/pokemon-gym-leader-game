@@ -52,7 +52,7 @@ export function heldItemDesc(item: string): string {
 
 export type RewardKind =
   | 'recruit' | 'training' | 'team_training' | 'revive_pack' | 'potion_supply'
-  | 'rare_candy' | 'evo_stone' | 'held_item' | 'league_favour'
+  | 'rare_candy' | 'evo_stone' | 'held_item' | 'league_favour' | 'move_tutor'
 export type Rarity = 'common' | 'rare' | 'epic'
 
 export interface Reward { id: string; kind: RewardKind; rarity: Rarity; title: string; desc: string; icon: string; item?: string }
@@ -67,6 +67,7 @@ const CATALOG: Record<RewardKind, { rarity: Rarity; weight: number; title: strin
   evo_stone:     { rarity: 'epic',   weight: 1, title: 'Evolution Stone',   icon: '💎', desc: 'Evolve a Pokémon at any level, including stone and trade evolutions.' },
   held_item:     { rarity: 'common', weight: 3, title: 'Held item',         icon: '🎁', desc: '' },
   league_favour: { rarity: 'rare',   weight: 1, title: 'League Favour',     icon: '🥚', desc: 'Gain 2 reward rerolls.' },
+  move_tutor:    { rarity: 'rare',   weight: 3, title: 'Move Tutor',        icon: '📀', desc: 'Teach one Pokémon 1 of 3 TM, tutor or egg moves it can’t learn by levelling up.' },
 }
 
 function weightedPick<T>(items: T[], weight: (t: T) => number, rng: Rng): T {

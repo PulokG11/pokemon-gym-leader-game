@@ -1,7 +1,7 @@
 import { useEffect, useRef, useCallback } from 'react'
 import { useBattleStore } from '../store/battleStore'
 import { useSettingsStore } from '../store/settingsStore'
-import type { BattleState, WorkerOutbound } from '../types/game'
+import type { BattleAction, BattleFormat, BattleState, WorkerInbound, WorkerOutbound } from '../types/game'
 import type { BattleExtras } from '../lib/upgrades'
 
 // How long each kind of event stays on screen before the next one plays.
@@ -9,7 +9,9 @@ const EVENT_MS: Record<string, number> = {
   move: 750, damage: 850, heal: 700, faint: 1000, switch: 800, status: 650, miss: 650, info: 600,
 }
 
-export function useBattle(p1Team: string, p2Team: string, p1Hp: number[] = [], extras?: BattleExtras, seed?: number[]) {
+export function useBattle(
+  p1Team: string, p2Team: string, p1Hp: number[] = [], extras?: BattleExtras, format: BattleFormat = 'singles', seed?: number[],
+) {
   const workerRef = useRef<Worker | null>(null)
   const setBattleState = useBattleStore(s => s.setBattleState)
   const setAnimating = useBattleStore(s => s.setAnimating)
@@ -50,7 +52,7 @@ export function useBattle(p1Team: string, p2Team: string, p1Hp: number[] = [], e
     worker.onerror = e => console.error('[battle worker]', e.message)
     worker.postMessage({
       type: 'INIT',
-      payload: { format: 'gen9customgame', p1Team, p2Team, p1Hp, extras, seed },
+      payload: { format: format === 'doubles' ? 'gen9doublescustomgame' : 'gen9customgame', p1Team, p2Team, p1Hp, extras, seed },
     })
     workerRef.current = worker
     return () => {
@@ -61,13 +63,11 @@ export function useBattle(p1Team: string, p2Team: string, p1Hp: number[] = [], e
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [p1Team, p2Team])
 
-  const sendMove = useCallback((choice: string) => {
-    workerRef.current?.postMessage({ type: 'MOVE', payload: { choice } })
+  /** One action per active slot, sent together as this turn's choice. */
+  const choose = useCallback((actions: BattleAction[]) => {
+    const msg: WorkerInbound = { type: 'CHOOSE', payload: { actions } }
+    workerRef.current?.postMessage(msg)
   }, [])
 
-  const sendSwitch = useCallback((name: string) => {
-    workerRef.current?.postMessage({ type: 'SWITCH', payload: { name } })
-  }, [])
-
-  return { sendMove, sendSwitch }
+  return { choose }
 }

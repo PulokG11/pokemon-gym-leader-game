@@ -64,6 +64,8 @@ export function upgradesFor(type: GymType): Upgrade[] {
 /** Effects the battle worker applies at the start of turn 1. */
 export interface BattleExtras {
   aiLevel: 0 | 1 | 2
+  /** Regional Quest: the player is the challenger, and the opponent has a name. */
+  foeName?: string
   crowd?: boolean
   arena?: { kind: 'weather' | 'terrain'; field: string } | { kind: 'boost' }
   forge?: { kind: 'status'; status: 'brn' | 'par' | 'psn' } | { kind: 'slow' }

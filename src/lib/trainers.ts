@@ -1,6 +1,7 @@
 import type { GymType, RunState } from '../types/game'
 import { questChallengerTitle } from './progression'
 import { seededRng } from './daily'
+import { regionOf, type Tier } from './regions'
 
 export const trainerSprite = (name: string) => `https://play.pokemonshowdown.com/sprites/trainers/${name}.png`
 
@@ -63,7 +64,23 @@ const FIRST_NAMES = ['Perry', 'Gina', 'Wade', 'Rowan', 'Tess', 'Milo', 'Ivy', 'J
 export interface Trainer { name: string; title: string; sprite: string; quote: string; style: string; defeat: string }
 
 /** The trainer behind challenger `index`: stable for a run, identical for everyone on a Daily. */
+const TIER_STYLE: Record<Tier, string> = {
+  regular: 'Gym Leader: favours strong attacks',
+  strong: 'Gym Leader: knows type matchups and switches out of bad ones',
+  elite: 'Elite Four: trained team with items and its best moves',
+  champion: 'Champion: fully trained, items, a Mega Evolution and a legendary',
+}
+
+/** A Regional Quest opponent as a Trainer, e.g. "Leader Brock". */
+export function regionalTrainer(run: RunState, index = run.challengerIndex): Trainer {
+  const region = regionOf(run.region)
+  const t = region.trainers[Math.min(index, region.trainers.length - 1)]
+  const prefix = t.title === 'Gym Leader' ? 'Leader' : t.title === 'Elite Four' ? 'Elite Four' : 'Champion'
+  return { name: `${prefix} ${t.name}`, title: t.title, sprite: t.sprite, quote: t.quote, style: TIER_STYLE[t.tier], defeat: t.defeat }
+}
+
 export function challengerTrainer(run: RunState, index = run.challengerIndex): Trainer {
+  if (run.mode === 'regional') return regionalTrainer(run, index)
   const rng = seededRng(`trainer:${run.dailyDate ?? run.id}:${index}`)
   const pick = <T,>(xs: T[]) => xs[Math.floor(rng() * xs.length)]
   const cls = run.totalChallengers === null ? (index < 3 ? 'Rookie' : index < 8 ? 'Trainer' : index < 15 ? 'Ace Trainer' : 'Elite Trainer') : questChallengerTitle(index)

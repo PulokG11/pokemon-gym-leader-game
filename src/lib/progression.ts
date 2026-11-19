@@ -202,7 +202,7 @@ export function packTeam(mons: RosterMember[]): string {
   return mons
     .map(m => {
       const s = species(m.species)
-      return `|${s.name}|${m.item ?? ''}|${s.ability}|${m.moves.join(',')}|Hardy|||||${m.level}|`
+      return `|${s.name}|${m.item ?? ''}|${s.ability}|${m.moves.join(',')}|Hardy|${m.evs?.join(',') ?? ''}||||${m.level}|`
     })
     .join(']')
 }

@@ -29,6 +29,8 @@ interface DexFile {
   starters: Record<string, string[]>
   challengers: string[]
   typeChart: Record<string, Record<string, number>>
+  regions: Record<string, { pool: string[] }>
+  megas: Record<string, { name: string; types: string[]; base: string; stone: string }>
 }
 
 export const DEX = data as unknown as DexFile
@@ -55,7 +57,19 @@ export function artworkUrl(id: string): string {
   return `${SPRITES}/other/official-artwork/${species(id).num}.png`
 }
 
+/** Types of a species or of a Mega Evolution seen in battle (e.g. "Charizard-Mega-X"). */
+export function typesOf(name: string): string[] {
+  const id = toID(name)
+  return DEX.species[id]?.types ?? DEX.megas[id]?.types ?? []
+}
+
 export function battleSpriteUrl(id: string, back: boolean): string {
+  const mega = DEX.megas[toID(id)]
+  if (mega) {
+    // PokeAPI has no animated Mega sprites; Showdown names them "charizard-megax".
+    const [base, ...forme] = mega.name.toLowerCase().split('-')
+    return `https://play.pokemonshowdown.com/sprites/${back ? 'ani-back' : 'ani'}/${base}-${forme.join('')}.gif`
+  }
   const num = DEX.species[toID(id)]?.num
   if (!num) return ''
   if (num <= LAST_ANIMATED) {

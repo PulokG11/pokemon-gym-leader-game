@@ -45,14 +45,31 @@ export const GENERIC_ITEMS = Object.keys(HELD_ITEM_DESC)
 export const typeItemFor = (gymType: GymType) => TYPE_ITEMS[gymType]
 export function heldItemDesc(item: string): string {
   const t = Object.entries(TYPE_ITEMS).find(([, i]) => i === item)?.[0]
-  return t ? `${t[0].toUpperCase()}${t.slice(1)}-type moves deal 20% more damage.` : HELD_ITEM_DESC[item] ?? ''
+  if (t) return `${t[0].toUpperCase()}${t.slice(1)}-type moves deal 20% more damage.`
+  const megas = Object.values(DEX.megas).filter(m => m.stone === item)
+  if (megas.length) return `Lets ${[...new Set(megas.map(m => DEX.species[m.base]?.name))].join(' or ')} Mega Evolve once per battle.`
+  return HELD_ITEM_DESC[item] ?? ''
+}
+
+/** Regional Quest rewards: 3 of Move Tutor, held item, Rare Candy, Evolution Stone and (when one of yours can use it) a Mega Stone. */
+export function regionalRewardOffer(gymType: GymType, megaStones: string[], rng: Rng): Reward[] {
+  const kinds: RewardKind[] = ['move_tutor', 'held_item', 'rare_candy', 'evo_stone']
+  if (megaStones.length) kinds.push('mega_stone')
+  const picked: RewardKind[] = megaStones.length && rng() < 0.6 ? ['mega_stone'] : []
+  const rest = kinds.filter(k => !picked.includes(k))
+  while (picked.length < 3 && rest.length) picked.push(rest.splice(Math.floor(rng() * rest.length), 1)[0])
+  return picked.map((k, i) => {
+    if (k !== 'mega_stone') return makeReward(k, gymType, rng, i)
+    const stone = megaStones[Math.floor(rng() * megaStones.length)]
+    return { id: `${k}-${i}`, kind: k, rarity: 'epic', title: stone, icon: '🔮', desc: heldItemDesc(stone), item: stone }
+  })
 }
 
 // ─── Rewards ─────────────────────────────────────────────────────────────────
 
 export type RewardKind =
   | 'recruit' | 'training' | 'team_training' | 'revive_pack' | 'potion_supply'
-  | 'rare_candy' | 'evo_stone' | 'held_item' | 'league_favour' | 'move_tutor'
+  | 'rare_candy' | 'evo_stone' | 'held_item' | 'league_favour' | 'move_tutor' | 'mega_stone'
 export type Rarity = 'common' | 'rare' | 'epic'
 
 export interface Reward { id: string; kind: RewardKind; rarity: Rarity; title: string; desc: string; icon: string; item?: string }
@@ -67,6 +84,7 @@ const CATALOG: Record<RewardKind, { rarity: Rarity; weight: number; title: strin
   evo_stone:     { rarity: 'epic',   weight: 1, title: 'Evolution Stone',   icon: '💎', desc: 'Evolve a Pokémon at any level, including stone and trade evolutions.' },
   held_item:     { rarity: 'common', weight: 3, title: 'Held item',         icon: '🎁', desc: '' },
   league_favour: { rarity: 'rare',   weight: 1, title: 'League Favour',     icon: '🥚', desc: 'Gain 2 reward rerolls.' },
+  mega_stone:    { rarity: 'epic',   weight: 0, title: 'Mega Stone',        icon: '🔮', desc: '' },
   move_tutor:    { rarity: 'rare',   weight: 3, title: 'Move Tutor',        icon: '📀', desc: 'Teach one Pokémon 1 of 3 TM, tutor or egg moves it can’t learn by levelling up.' },
 }
 
@@ -91,7 +109,7 @@ export function rewardOffer(
   gymType: GymType, rosterSize: number, rng: Rng, boost: { training?: boolean; workshop?: boolean } = {},
 ): Reward[] {
   const kinds: RewardKind[] = rosterSize < MAX_TEAM ? ['recruit'] : []
-  const pool = (Object.keys(CATALOG) as RewardKind[]).filter(k => k !== 'recruit' || rosterSize < MAX_TEAM)
+  const pool = (Object.keys(CATALOG) as RewardKind[]).filter(k => k !== 'mega_stone' && (k !== 'recruit' || rosterSize < MAX_TEAM))
   const weight = (k: RewardKind) =>
     CATALOG[k].weight * ((boost.training && (k === 'training' || k === 'team_training')) || (boost.workshop && k === 'held_item') ? 3 : 1)
   while (kinds.length < 3) {

@@ -108,3 +108,31 @@ describe('switching by name', () => {
     expect(slotOf(req, 'Missingno')).toBe(0)
   })
 })
+
+describe('Mega Evolution', () => {
+  it('offers Mega Evolution to a holder of the right stone and sends "mega" with the move', async () => {
+    const { packTeam, createMon } = await import('./progression')
+    const zard = { ...createMon('charizard', 50), item: 'Charizardite X' }
+    const onix = createMon('onix', 50) // not in Gen 9: comes from older games' data
+    const stream = new BattleStreams.BattleStream()
+    const { p1, p2, omniscient } = BattleStreams.getPlayerStreams(stream)
+    const log: string[] = []
+    ;(async () => { for await (const c of omniscient) log.push(...c.split('\n')) })()
+    const p1It = p1[Symbol.asyncIterator]()
+    const p2It = p2[Symbol.asyncIterator]()
+    stream.write(`>start {"formatid":"gen9customgame"}`)
+    stream.write(`>player p1 ${JSON.stringify({ name: 'You', team: packTeam([zard]) })}`)
+    stream.write(`>player p2 ${JSON.stringify({ name: 'Brock', team: packTeam([onix]) })}`)
+    await nextRequest(p1It); await nextRequest(p2It)
+    stream.write('>p1 team 1'); stream.write('>p2 team 1')
+    const req = await nextRequest(p1It)
+    await nextRequest(p2It)
+    const [slot] = slotRequests(req, () => 'normal')
+    expect(slot.canMega).toBe(true)
+    const choice = buildChoice(req, [{ kind: 'move', move: 1, mega: true }])
+    expect(choice).toBe('move 1 mega')
+    stream.write(`>p1 ${choice}`); stream.write('>p2 move 1')
+    await nextRequest(p1It)
+    expect(log.some(l => l.startsWith('|detailschange|p1a: Charizard|Charizard-Mega-X'))).toBe(true)
+  })
+})

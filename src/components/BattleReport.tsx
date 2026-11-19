@@ -12,9 +12,13 @@ const hpColor = (f: number) => (f > 0.5 ? 'bg-emerald-400' : f > 0.25 ? 'bg-yell
 export function BattleReport({ run, onClose, onOpenTeam }: { run: RunState; onClose: () => void; onOpenTeam: (uid: string) => void }) {
   return (
     <Modal title="Battle report" onClose={onClose} wide>
-      <p className="text-gold-300 font-extrabold mb-3">
-        <ItemIcon src={itemSprite({ held: 'Amulet Coin' })} className="w-5 h-5 inline-block align-[-4px]" alt="" /> +₽{run.lastFunds ?? 0} Gym Funds
-      </p>
+      {run.mode === 'regional' ? (
+        <p className="text-emerald-300 font-extrabold mb-3">Everyone is back to full health. Only team members earned XP.</p>
+      ) : (
+        <p className="text-gold-300 font-extrabold mb-3">
+          <ItemIcon src={itemSprite({ held: 'Amulet Coin' })} className="w-5 h-5 inline-block align-[-4px]" alt="" /> +₽{run.lastFunds ?? 0} Gym Funds
+        </p>
+      )}
       <ul className="flex flex-col gap-2 max-h-[60vh] overflow-y-auto pr-1">
         {run.roster.map(m => {
           const r = run.lastProgress.find(p => p.uid === m.uid)
@@ -61,7 +65,7 @@ export function BattleReport({ run, onClose, onOpenTeam }: { run: RunState; onCl
           )
         })}
       </ul>
-      <p className="text-xs text-white/50 mt-3">Conscious Pokémon recover 10% HP after every win. Fainted ones need a Revive.</p>
+      {run.mode !== 'regional' && <p className="text-xs text-white/50 mt-3">Conscious Pokémon recover 10% HP after every win. Fainted ones need a Revive.</p>}
       <button autoFocus onClick={onClose} className="w-full mt-3 rounded-lg bg-gold-400 text-ink-900 font-black py-2.5 border-2 border-black shadow-[0_4px_0_#b8431a] hover:bg-gold-300">
         Continue
       </button>

@@ -13,6 +13,10 @@ import { upgradesFor, type UpgradeId } from '../lib/upgrades'
 import { move as moveData, species } from '../lib/dex'
 import { dailyRng, dailyType, utcDate } from '../lib/daily'
 import { useRecordsStore } from './recordsStore'
+import { REGIONS, levelCapFor, regionOf, type RegionId } from '../lib/regions'
+import { buildTrainerTeam, regionalPicks, usableMegaStones } from '../lib/regional'
+import { regionalRewardOffer } from '../lib/economy'
+import { createMon, xpForLevel } from '../lib/progression'
 
 export type ActionResult = { ok: true; message: string } | { ok: false; message: string }
 
@@ -24,6 +28,15 @@ interface RunStore {
   confirmTeam: (uids: string[]) => void
   /** Singles or Doubles; only while choosing starters in a Gym Quest. */
   setFormat: (format: BattleFormat) => void
+  // Regional Quest
+  startRegional: (region: RegionId) => void
+  /** Starter plus as many picks as the first Gym Leader has Pokémon, minus one. */
+  confirmRegionalTeam: (starterUid: string, pickUids: string[]) => ActionResult
+  /** Adds the chosen Pokémon after a win: to the team, or the box if the team is full. */
+  takeRegionalPick: (uid: string) => ActionResult
+  /** Moves a boxed Pokémon onto the team, swapping out `teamUid` when the team is full. */
+  swapFromBox: (boxUid: string, teamUid?: string) => ActionResult
+  sendToBox: (teamUid: string) => ActionResult
   /** `finalHp` maps each Pokémon's display name to its HP fraction when the battle ended. */
   winBattle: (finalHp?: Record<string, number>) => void
   loseBattle: (forfeited?: boolean) => void
@@ -98,8 +111,62 @@ function recordResult(run: RunState, wins: number, finished: boolean, cleared: b
   if (run.mode === 'daily' && run.dailyDate) {
     records.recordDaily({ date: run.dailyDate, gymType: run.gymType, wins, finished })
   } else if (finished) {
-    records.recordQuest({ gymType: run.gymType, wins, cleared, finishedAt: new Date().toISOString() })
+    records.recordQuest({
+      gymType: run.gymType, wins, cleared, finishedAt: new Date().toISOString(),
+      ...(run.mode === 'regional' ? { region: run.region } : {}),
+    })
   }
+}
+
+// ─── Regional Quest ──────────────────────────────────────────────────────────
+
+export const REGIONAL_RETRIES = 3
+/** Team members earn this many times the usual XP, up to the next opponent's top level. */
+const REGIONAL_XP_MULT = 3
+const REGIONAL_PICKS = 3
+const DRAFT_POOL = 8
+
+/** New Pokémon join a couple of levels under the next opponent's weakest Pokémon. */
+export function regionalJoinLevel(regionId: RegionId | undefined, index: number): number {
+  const region = regionOf(regionId)
+  const t = region.trainers[Math.min(index, region.trainers.length - 1)]
+  return Math.max(region.startLevel, Math.min(...t.team.map(m => m.level)) - 2)
+}
+
+const fullHeal = (mons: RosterMember[] = []) => mons.map(m => ({ ...m, hp: 1 }))
+const heldBy = (run: RunState) => [...(run.heldItems ?? []), ...[...run.roster, ...(run.box ?? [])].map(m => m.item ?? '')]
+
+function regionalWin(run: RunState): RunState {
+  const region = regionOf(run.region)
+  const beaten = region.trainers[run.challengerIndex]
+  const wins = run.challengerIndex + 1
+  const cap = levelCapFor(region, wins)
+  const xp = xpReward(run.challenger) * REGIONAL_XP_MULT
+  const lastProgress = run.roster.map(m => gainXp(m, Math.max(0, Math.min(xp, xpForLevel(cap) - m.xp))))
+  const roster = fullHeal(lastProgress.map(r => r.after))
+  const box = fullHeal(run.box)
+  const lines = [
+    `Defeated ${beaten.title === 'Gym Leader' ? 'Leader ' : ''}${beaten.name}!${beaten.badge ? ` Got the ${beaten.badge}.` : ''}`,
+    ...lastProgress.flatMap(r => (r.events.length ? describe(r) : [])),
+  ]
+  const done: RunState = { ...run, roster, box, lastProgress, challengerIndex: wins, battleKey: null, lastFunds: 0 }
+  if (wins >= region.trainers.length) {
+    recordResult(run, wins, true, true)
+    return withLog({ ...done, won: true, phase: 'run_ended' }, [...lines, `You are the new ${region.name} Champion!`])
+  }
+  const next = region.trainers[wins]
+  const owned = [...roster, ...box]
+  const stones = usableMegaStones(region, owned).filter(s => !heldBy(run).includes(s))
+  return withLog({
+    ...done,
+    gymType: next.type,
+    challenger: buildTrainerTeam(region, wins, run.starter),
+    picks: regionalPicks(region.id, regionalJoinLevel(region.id, wins), owned, Math.random, REGIONAL_PICKS),
+    pickTaken: false,
+    rewardOffer: regionalRewardOffer(next.type, stones, Math.random),
+    rewardTaken: false,
+    phase: 'reward_pending',
+  }, lines)
 }
 
 const nameOf = (m: RosterMember) => species(m.species).name
@@ -172,9 +239,90 @@ export const useRunStore = create<RunStore>()(
         setFormat: (format) =>
           set(({ run }) => (run && run.phase === 'team_select' && run.mode !== 'daily' ? { run: { ...run, format } } : {})),
 
+        startRegional: (regionId) => {
+          const region = REGIONS[regionId]
+          const starters = region.starters.map(id => createMon(id, region.startLevel))
+          const pool = regionalPicks(regionId, region.startLevel, starters, Math.random, DRAFT_POOL)
+          set({
+            run: {
+              ...baseRun(region.trainers[0].type),
+              mode: 'regional',
+              region: regionId,
+              totalChallengers: region.trainers.length,
+              candidates: [...starters, ...pool],
+              funds: 0,
+              rerolls: 0,
+              retries: REGIONAL_RETRIES,
+              box: [],
+            },
+          })
+        },
+
+        confirmRegionalTeam: (starterUid, pickUids) =>
+          apply(run => {
+            if (run.mode !== 'regional' || run.phase !== 'team_select') return 'No Regional Quest to start.'
+            const region = regionOf(run.region)
+            const starter = run.candidates.find(c => c.uid === starterUid && region.starters.includes(c.species))
+            if (!starter) return 'Choose a starter.'
+            const need = region.trainers[0].team.length - 1
+            const picks = pickUids
+              .map(u => run.candidates.find(c => c.uid === u && !region.starters.includes(c.species)))
+              .filter((m): m is RosterMember => !!m)
+            if (new Set(picks.map(p => p.uid)).size !== need) return `Choose ${need} Pokémon to travel with ${nameOf(starter)}.`
+            const roster = [starter, ...picks].map(m => ({ ...m, hp: 1, item: null }))
+            return {
+              run: { ...run, roster, starter: starter.species, candidates: [], challenger: buildTrainerTeam(region, 0, starter.species), phase: 'gym' },
+              message: `${roster.map(nameOf).join(', ')} set out across ${region.name}!`,
+            }
+          }),
+
+        takeRegionalPick: (uid) =>
+          apply(run => {
+            if (run.mode !== 'regional' || run.pickTaken) return 'You already chose a Pokémon for this win.'
+            const p = run.picks?.find(x => x.uid === uid)
+            if (!p) return 'Choose a Pokémon.'
+            const joined = { ...p, hp: 1, item: null }
+            const toTeam = run.roster.length < MAX_TEAM
+            return {
+              run: {
+                ...run,
+                pickTaken: true,
+                roster: toTeam ? [...run.roster, joined] : run.roster,
+                box: toTeam ? run.box : [...(run.box ?? []), joined],
+                phase: run.rewardTaken ? 'gym' : 'reward_pending',
+              },
+              message: `${nameOf(p)} joined ${toTeam ? 'your team' : 'your box'}!`,
+            }
+          }),
+
+        swapFromBox: (boxUid, teamUid) =>
+          apply(run => {
+            const box = run.box ?? []
+            const b = box.find(x => x.uid === boxUid)
+            if (!b) return 'Choose a Pokémon from the box.'
+            if (!teamUid && run.roster.length < MAX_TEAM) {
+              return { run: { ...run, roster: [...run.roster, b], box: box.filter(x => x !== b) }, message: `${nameOf(b)} joined the team.` }
+            }
+            const t = run.roster.find(x => x.uid === teamUid)
+            if (!t) return 'Your team is full: choose who goes to the box.'
+            return {
+              run: { ...run, roster: run.roster.map(x => (x === t ? b : x)), box: box.map(x => (x === b ? t : x)) },
+              message: `${nameOf(b)} swapped in for ${nameOf(t)}.`,
+            }
+          }),
+
+        sendToBox: (teamUid) =>
+          apply(run => {
+            const t = run.roster.find(x => x.uid === teamUid)
+            if (!t) return 'Choose a team member.'
+            if (run.roster.length <= 1) return 'Keep at least one Pokémon on the team.'
+            return { run: { ...run, roster: run.roster.filter(x => x !== t), box: [...(run.box ?? []), t] }, message: `${nameOf(t)} went to the box.` }
+          }),
+
         winBattle: (finalHp = {}) => {
           const run = get().run
           if (!run) return
+          if (run.mode === 'regional') { set({ run: regionalWin(run) }); return }
           // HP after the battle, then the post-win recovery for everyone still standing.
           const has = (u: UpgradeId) => (run.upgrades ?? []).includes(u)
           const recovery = has('center') ? 0.2 : POST_WIN_RECOVERY
@@ -220,6 +368,17 @@ export const useRunStore = create<RunStore>()(
         loseBattle: (forfeited = false) => {
           const run = get().run
           if (!run) return
+          if (run.mode === 'regional' && (run.retries ?? 0) > 0) {
+            const left = (run.retries ?? 0) - 1
+            const t = regionOf(run.region).trainers[run.challengerIndex]
+            set({
+              run: withLog(
+                { ...run, retries: left, battleKey: null, roster: fullHeal(run.roster), box: fullHeal(run.box), phase: 'gym' },
+                [`Lost to ${t.name}. Your team was healed: ${left} ${left === 1 ? 'retry' : 'retries'} left.`],
+              ),
+            })
+            return
+          }
           recordResult(run, run.challengerIndex, true, false)
           set({ run: { ...run, won: false, forfeited, battleKey: null, phase: 'run_ended' } })
         },
@@ -284,6 +443,17 @@ export const useRunStore = create<RunStore>()(
                   message: `${nameOf(target)} learned ${moveName(opts.move)}${opts.forget ? ` (forgot ${moveName(opts.forget)})` : ''}.`,
                 }
               }
+              case 'mega_stone': {
+                if (!reward.item) return 'Unknown item.'
+                if (target) {
+                  const heldItems = target.item ? [...(run.heldItems ?? []), target.item] : run.heldItems
+                  return {
+                    run: { ...run, heldItems, roster: run.roster.map(m => (m.uid === target.uid ? { ...m, item: reward.item } : m)) },
+                    message: `${nameOf(target)} is now holding the ${reward.item}.`,
+                  }
+                }
+                return { run: { ...run, heldItems: [...(run.heldItems ?? []), reward.item] }, message: `Put the ${reward.item} in the bag.` }
+              }
               case 'league_favour': return { run: { ...run, rerolls: (run.rerolls ?? 0) + 2 }, message: 'Gained 2 reward rerolls.' }
               case 'held_item': {
                 if (!reward.item) return 'Unknown item.'
@@ -302,7 +472,14 @@ export const useRunStore = create<RunStore>()(
               }
             }
           })
-          if (res.ok) set(({ run }) => (run ? { run: { ...run, rewardTaken: true, phase: 'event' } } : {}))
+          if (res.ok) {
+            set(({ run }) => {
+              if (!run) return {}
+              // Regional Quest: back to the map once the new Pokémon is chosen too; no events.
+              const phase = run.mode === 'regional' ? (run.pickTaken ? 'gym' : 'reward_pending') : 'event'
+              return { run: { ...run, rewardTaken: true, phase } }
+            })
+          }
           return res
         },
 

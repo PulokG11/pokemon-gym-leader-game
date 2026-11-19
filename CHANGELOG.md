@@ -14,6 +14,22 @@ git push origin main
 
 ---
 
+## v0.12.0 — Regional Quest: Kanto (2026-11-19)
+
+- **Regional Quest** is playable, starting with **Kanto** (other regions are listed as coming soon). You play the challenger:
+  - choose Bulbasaur, Charmander or Squirtle, then 2 of 8 unevolved Kanto Pokémon (your team matches Brock's 3)
+  - 13 battles: Brock, Misty, Lt. Surge, Erika, Koga, Sabrina, Blaine, Giovanni, then Lorelei, Bruno, Agatha, Lance and Champion Blue
+  - difficulty rises: Gyms grow from 3 to 6 Pokémon; early Leaders use normal level-up moves, later ones their best moves; the Elite Four bring 6 trained Pokémon with held items; Blue brings a trained team with Dragonite, Zapdos and the Mega-Evolving starter that beats yours
+  - **3 retries** per quest; a loss heals the team and repeats the battle
+  - after every win: the whole team (and box) is healed, team members earn XP up to the next opponent's top level, you **catch 1 of 3** unevolved Kanto Pokémon, and pick **1 of 3 rewards** (Move Tutor, held item, Rare Candy, Evolution Stone, or a Mega Stone one of your Pokémon can use)
+  - team of up to 6; extra catches go to the **box**, which you can swap from on the map before any battle; boxed Pokémon earn no XP
+  - Champion / Hall of Fame ending
+- **Mega Evolution in battle:** a **Mega Evolve** toggle for your fully evolved holder of the right stone; trainers Mega Evolve too, with Mega sprites and log lines
+- **Pokédex:** all 151 Kanto Pokémon (legendaries included) and their later evolutions; Pokémon not in Scarlet/Violet use the newest game's learnset. Gym Quest and Daily pools are unchanged
+- Shared Pokémon card and Details window, now used by both starter screens
+
+Rollback: `git checkout v0.11.1 -- .`
+
 ## v0.11.1 — Starter cards and Details (2026-11-19)
 
 - **Starter cards** now show just the essentials: image, name, level, type, base stat total, ability and what it evolves into (with the level), plus a separate **Details** button. Tap the card to pick or remove it

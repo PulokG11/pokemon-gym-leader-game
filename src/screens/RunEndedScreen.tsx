@@ -5,6 +5,7 @@ import { TYPE_COLORS } from '../lib/typeColors'
 import { LEADER_SPRITE, gymName, trainerSprite } from '../lib/trainers'
 import { artworkUrl, species } from '../lib/dex'
 import { modeName } from '../lib/runLabels'
+import { regionOf } from '../lib/regions'
 import { ProgressCard } from '../components/ProgressCard'
 
 export function RunEndedScreen() {
@@ -16,8 +17,11 @@ export function RunEndedScreen() {
   const { won } = run
   const wins = run.challengerIndex
   const isDaily = run.mode === 'daily'
+  const regional = run.mode === 'regional'
+  const region = regionOf(run.region)
+  const badges = region.trainers.slice(0, wins).filter(t => t.badge).length
 
-  function leave(to: 'home' | 'type_select' | 'ranking') {
+  function leave(to: 'home' | 'type_select' | 'region_select' | 'ranking') {
     clearBattle()
     clearRun()
     go(to)
@@ -26,12 +30,16 @@ export function RunEndedScreen() {
   return (
     <div className="home-bg min-h-screen text-white px-4 py-10">
       <div className="max-w-2xl mx-auto flex flex-col items-center text-center gap-4">
-        <img src={trainerSprite(LEADER_SPRITE[run.gymType])} alt="" className={`h-36 [image-rendering:pixelated] ${won || isDaily ? '' : 'grayscale opacity-70'}`} />
+        <img src={trainerSprite(regional ? region.playerSprite : LEADER_SPRITE[run.gymType])} alt="" className={`h-36 [image-rendering:pixelated] ${won || isDaily ? '' : 'grayscale opacity-70'}`} />
         <h2 className="screen-title text-3xl">
-          {won ? 'Quest complete!' : isDaily ? `${wins} ${wins === 1 ? 'win' : 'wins'} today` : 'Gym fallen…'}
+          {regional ? (won ? `${region.name} Champion!` : 'Quest over') : won ? 'Quest complete!' : isDaily ? `${wins} ${wins === 1 ? 'win' : 'wins'} today` : 'Gym fallen…'}
         </h2>
         <p className="text-white/65">
-          {won
+          {regional
+            ? won
+              ? `You earned all 8 badges, beat the Elite Four and Champion ${region.trainers.at(-1)!.name}. Your team enters the Hall of Fame.`
+              : `Out of retries against ${region.trainers[wins]?.name}. You earned ${badges} ${badges === 1 ? 'badge' : 'badges'} and won ${wins} of ${region.trainers.length} battles.`
+            : won
             ? `You defended your Gym against all ${run.totalChallengers} challengers, Champion included.`
             : isDaily
               ? `Your Gym held for ${wins} ${wins === 1 ? 'battle' : 'battles'}. Today's try is used; a new Daily Gym opens at midnight UTC.`
@@ -43,15 +51,28 @@ export function RunEndedScreen() {
           </p>
         )}
         <p className={`text-sm font-semibold uppercase tracking-widest ${color.text}`}>
-          {modeName(run)} · {gymName(run.gymType)}
+          {modeName(run)} · {regional ? region.name : gymName(run.gymType)}
         </p>
 
-        {won && run.lastProgress.length > 0 ? (
+        {regional && won ? (
+          <div className="w-full">
+            <p className="font-ui font-bold text-gold-300 mb-2">Hall of Fame</p>
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+              {run.roster.map(m => (
+                <div key={m.uid} className="rounded-xl bg-ink-900 border-2 border-gold-400/60 p-2 flex flex-col items-center">
+                  <img src={artworkUrl(m.species)} alt="" className="w-16 h-16 object-contain" />
+                  <span className="text-sm font-semibold">{species(m.species).name}</span>
+                  <span className="text-xs text-white/65">Lv {m.level}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : won && run.lastProgress.length > 0 ? (
           <div className="w-full flex flex-col gap-3 text-left">
             {run.lastProgress.map((r, i) => <ProgressCard key={r.uid} report={r} delay={i * 250} />)}
           </div>
         ) : (
-          <div className="flex gap-4">
+          <div className="flex flex-wrap justify-center gap-4">
             {run.roster.map(m => (
               <div key={m.uid} className="flex flex-col items-center">
                 <img src={artworkUrl(m.species)} alt="" className="w-20 h-20 object-contain" />
@@ -66,6 +87,10 @@ export function RunEndedScreen() {
           {isDaily ? (
             <button onClick={() => leave('ranking')} className="px-6 py-3 bg-gold-400 hover:bg-gold-300 text-ink-900 border-2 border-black shadow-[0_4px_0_#b8431a] rounded-xl font-semibold">
               See ranking
+            </button>
+          ) : regional ? (
+            <button onClick={() => leave('region_select')} className="px-6 py-3 bg-gold-400 hover:bg-gold-300 text-ink-900 border-2 border-black shadow-[0_4px_0_#b8431a] rounded-xl font-semibold">
+              New Regional Quest
             </button>
           ) : (
             <button onClick={() => leave('type_select')} className="px-6 py-3 bg-gold-400 hover:bg-gold-300 text-ink-900 border-2 border-black shadow-[0_4px_0_#b8431a] rounded-xl font-semibold">

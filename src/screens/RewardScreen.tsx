@@ -20,7 +20,7 @@ const RARITY_STYLE = {
   epic: { ring: 'border-fuchsia-400', badge: 'bg-fuchsia-500 text-white' },
 } as const
 
-function PickMember({ roster, onPick, extra }: { roster: RosterMember[]; onPick: (uid: string) => void; extra?: React.ReactNode }) {
+export function PickMember({ roster, onPick, extra }: { roster: RosterMember[]; onPick: (uid: string) => void; extra?: React.ReactNode }) {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
       {roster.map(m => (
@@ -75,7 +75,7 @@ function RecruitPicker({ onDone }: { onDone: (recruit: RosterMember, replaceUid?
   )
 }
 
-function TutorPicker({ onDone }: { onDone: (targetUid: string, move: string, forget?: string) => void }) {
+export function TutorPicker({ onDone }: { onDone: (targetUid: string, move: string, forget?: string) => void }) {
   const run = useRunStore(s => s.run)!
   const [uid, setUid] = useState<string | null>(null)
   const [chosen, setChosen] = useState<string | null>(null)

@@ -12,17 +12,51 @@ const MAX_BASE_BST = 540
 const available = s =>
   s.exists && !s.isNonstandard && !s.forme && s.tags.length === 0 && s.num > 0
 
+/** Newest generation in which this learnset has a source matching `kinds` (e.g. 'L' or 'MTE'). */
+function newestGen(learnset, kinds) {
+  let gen = 0
+  const re = new RegExp(`^(\\d)[${kinds}]`)
+  for (const sources of Object.values(learnset)) {
+    for (const src of sources) {
+      const m = re.exec(src)
+      if (m) gen = Math.max(gen, Number(m[1]))
+    }
+  }
+  return gen
+}
+
+// Level-up moves from the newest game that has them: Gen 9 for Scarlet/Violet Pokémon,
+// earlier games for Pokémon that aren't in Gen 9 (e.g. Onix, Kabuto in the Regional Quest).
 function levelUpMoves(id) {
   const learnset = Dex.species.getLearnsetData(id)?.learnset ?? {}
+  const gen = newestGen(learnset, 'L')
   const entries = []
   for (const [move, sources] of Object.entries(learnset)) {
     for (const src of sources) {
-      const m = /^9L(\d+)$/.exec(src)
+      const m = new RegExp(`^${gen}L(\\d+)$`).exec(src)
       if (m && Dex.moves.get(move).exists) entries.push([Number(m[1]), move])
     }
   }
   return entries.sort((a, b) => a[0] - b[0])
 }
+
+// Regional Quest: every Pokémon of the region's original Pokédex, legendaries included,
+// plus anything they evolve into in later games.
+const REGIONS = { kanto: { first: 1, last: 151 } }
+const regional = new Set()
+for (const { first, last } of Object.values(REGIONS)) {
+  const queue = Dex.species.all().filter(s => s.exists && !s.forme && s.num >= first && s.num <= last)
+  while (queue.length) {
+    const s = queue.pop()
+    if (regional.has(s.id)) continue
+    regional.add(s.id)
+    for (const e of s.evos) {
+      const next = Dex.species.get(e)
+      if (next.exists && !next.forme) queue.push(next)
+    }
+  }
+}
+const included = s => available(s) || regional.has(s.id)
 
 function movesAt(learnset, level) {
   const known = []
@@ -46,8 +80,10 @@ function tutorMoves(id, levelUp) {
   // Include what earlier stages could learn, as the games do.
   for (let s = Dex.species.get(id); s?.exists; s = s.prevo ? Dex.species.get(s.prevo) : null) {
     const learnset = Dex.species.getLearnsetData(s.id)?.learnset ?? {}
+    const gen = newestGen(learnset, 'MTE')
+    const re = new RegExp(`^${gen}[MTE]`)
     for (const [move, sources] of Object.entries(learnset)) {
-      if (own.has(move) || !sources.some(src => /^9[MTE]/.test(src))) continue
+      if (own.has(move) || !sources.some(src => re.test(src))) continue
       const m = Dex.moves.get(move)
       if (!m.exists || m.isNonstandard || m.isZ || m.isMax || m.priority < 0 || m.selfdestruct || TUTOR_SKIP.has(move)) continue
       if (m.category === 'Status' ? TUTOR_STATUS.has(move) : m.basePower >= 50 && !m.flags.charge && !m.flags.recharge) pool.add(move)
@@ -64,14 +100,14 @@ function tutorMoves(id, levelUp) {
 const hasDamagingMove = (learnset, level) =>
   movesAt(learnset, level).some(m => Dex.moves.get(m).category !== 'Status')
 
-const candidates = Dex.species.all().filter(available)
+const candidates = Dex.species.all().filter(included)
 const learnsets = new Map()
 for (const s of candidates) {
   const ls = levelUpMoves(s.id)
   if (ls.length) learnsets.set(s.id, ls)
 }
 
-const out = { species: {}, moves: {}, starters: {}, challengers: [], typeChart: {} }
+const out = { species: {}, moves: {}, starters: {}, challengers: [], typeChart: {}, regions: {}, megas: {} }
 
 // typeChart[defending][attacking] = damage multiplier (Showdown damageTaken: 1 weak, 2 resist, 3 immune)
 const TYPE_MULT = { 0: 1, 1: 2, 2: 0.5, 3: 0 }
@@ -89,7 +125,7 @@ for (const s of candidates) {
   const ownLevel = s.prevo ? (s.evoLevel ?? FALLBACK_EVO_LEVEL) : 0
   const evos = s.evos
     .map(name => Dex.species.get(name))
-    .filter(e => learnsets.has(e.id) && available(e))
+    .filter(e => learnsets.has(e.id) && included(e))
     .map(e => ({
       to: e.id,
       level: e.evoLevel ?? Math.max(FALLBACK_EVO_LEVEL, ownLevel + 10),
@@ -108,9 +144,32 @@ for (const s of candidates) {
   for (const [, m] of learnset) usedMoves.add(m)
   for (const m of out.species[s.id].tutor) usedMoves.add(m)
 
-  if (!s.prevo && s.bst <= MAX_BASE_BST && hasDamagingMove(learnset, START_LEVEL_MIN)) {
+  // Gym Quest and Daily pools stay Scarlet/Violet-only so Daily seeds don't change.
+  if (available(s) && !s.prevo && s.bst <= MAX_BASE_BST && hasDamagingMove(learnset, START_LEVEL_MIN)) {
     out.challengers.push(s.id)
     for (const t of s.types) (out.starters[t.toLowerCase()] ??= []).push(s.id)
+  }
+}
+
+// Regional pools: the region's unevolved, non-legendary Pokémon (a baby from a later
+// generation doesn't count, so Pikachu and Jynx are unevolved in Kanto).
+for (const [id, { first, last }] of Object.entries(REGIONS)) {
+  const inRegion = s => s.num >= first && s.num <= last
+  out.regions[id] = {
+    pool: candidates
+      .filter(s => inRegion(s) && out.species[s.id] && s.tags.length === 0 && s.id !== 'ditto')
+      .filter(s => !s.prevo || !inRegion(Dex.species.get(s.prevo)))
+      .map(s => s.id),
+  }
+}
+
+// Mega Evolutions that can appear in battle: names and types for the battle screen.
+for (const item of Dex.items.all()) {
+  if (!item.megaStone) continue
+  for (const [base, forme] of Object.entries(item.megaStone)) {
+    if (!out.species[Dex.species.get(base).id]) continue
+    const f = Dex.species.get(forme)
+    out.megas[f.id] = { name: f.name, types: f.types, base: Dex.species.get(base).id, stone: item.name }
   }
 }
 

@@ -118,7 +118,7 @@ function processLine(line: string) {
       }
       activesOf(side)[posOf(a)] = mon
       updateMon(side, name, { hp, maxHp, fainted: false })
-      addLog(side === 'p1' ? `Go! ${name}!` : `The challenger sent out ${name}!`)
+      addLog(side === 'p1' ? `Go! ${name}!` : `${extras.foeName ?? 'The challenger'} sent out ${name}!`)
       emit(ev('switch'))
       break
     }
@@ -168,6 +168,20 @@ function processLine(line: string) {
       emit(ev('info'))
       break
 
+    case 'detailschange': {
+      // Mega Evolution changes the species shown in battle (e.g. "Charizard-Mega-X").
+      const side = sideOf(a)
+      const actives = activesOf(side)
+      actives.forEach((m, p) => { if (m.name === nameOf(a)) actives[p] = { ...m, species: speciesOf(b) } })
+      emit(ev('switch'))
+      break
+    }
+
+    case '-mega':
+      addLog(`${label(a)}'s ${c || 'Mega Stone'} is reacting… ${nameOf(a)} has Mega Evolved!`)
+      emit(ev('info'))
+      break
+
     case '-supereffective': addLog("It's super effective!"); emit(ev('info')); break
     case '-resisted': addLog("It's not very effective..."); emit(ev('info')); break
     case '-crit': addLog('A critical hit!'); emit(ev('info')); break
@@ -188,7 +202,9 @@ function processLine(line: string) {
     case 'win':
       state.winner = a === 'Gym Leader' ? 'p1' : 'p2'
       state.phase = 'ended'
-      addLog(state.winner === 'p1' ? 'The challenger was defeated! 🏅' : 'Your gym has fallen...')
+      addLog(extras.foeName
+        ? (state.winner === 'p1' ? `${extras.foeName} was defeated! 🏅` : 'Your team was defeated...')
+        : (state.winner === 'p1' ? 'The challenger was defeated! 🏅' : 'Your gym has fallen...'))
       emit({ kind: 'info', side: state.winner })
       break
   }
@@ -326,7 +342,9 @@ function aiChoice(req: any): string {
       taken.add(name)
       return { kind: 'switch', name }
     }
-    return pickSlot(req, s.pos)
+    const action = pickSlot(req, s.pos)
+    // Trainers always Mega Evolve when they can.
+    return action.kind === 'move' && s.canMega ? { ...action, mega: true } : action
   })
   return buildChoice(req, actions)
 }
@@ -396,6 +414,7 @@ function invalidReason(actions: BattleAction[]): string | null {
     const m = s.moves[a.move - 1]
     if (s.pass || s.forced || !m || m.disabled || m.pp <= 0) return `slot ${i} cannot use move ${a.move}`
     if (a.target !== undefined && ![1, 2, -1, -2].includes(a.target)) return `bad target ${a.target}`
+    if (a.mega && !s.canMega) return `slot ${i} cannot Mega Evolve`
   }
   return null
 }

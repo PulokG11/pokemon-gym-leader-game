@@ -5,9 +5,10 @@ import { useSettingsStore } from '../store/settingsStore'
 import { useUiStore } from '../store/uiStore'
 import { useBattle } from '../hooks/useBattle'
 import { packTeam } from '../lib/progression'
-import { battleSpriteUrl, effectiveness, move as moveData, species as speciesData, toID } from '../lib/dex'
+import { battleSpriteUrl, effectiveness, move as moveData, typesOf as dexTypesOf } from '../lib/dex'
 import { ArenaBackdrop, Platform } from '../components/ArenaBackdrop'
 import { LEADER_SPRITE, challengerTrainer, gymName, trainerSprite } from '../lib/trainers'
+import { regionOf } from '../lib/regions'
 import { openBattle } from '../lib/battleGuard'
 import { needsTarget } from '../lib/battleRequest'
 import { battleExtras } from '../lib/upgrades'
@@ -24,9 +25,7 @@ const STATUS_STYLE: Record<string, string> = {
   slp: 'bg-stone-500', frz: 'bg-cyan-500 text-black',
 }
 
-const typesOf = (name: string) => {
-  try { return speciesData(toID(name)).types } catch { return [] }
-}
+const typesOf = dexTypesOf
 
 const fmtMult = (x: number) => (x === 0 ? '×0' : x === 0.5 ? '×½' : x === 0.25 ? '×¼' : `×${x}`)
 
@@ -95,6 +94,7 @@ export function BattleScreen() {
   // This turn's choices so far, one per active slot, and a move waiting for its target.
   const [picks, setPicks] = useState<(BattleAction | null)[]>([])
   const [targeting, setTargeting] = useState<MoveChoice | null>(null)
+  const [megaOn, setMegaOn] = useState(false)
 
   const format = run.format ?? 'singles'
   const doubles = format === 'doubles'
@@ -104,6 +104,10 @@ export function BattleScreen() {
   const p1Team = useMemo(() => packTeam(fighters), [fighters])
   const p2Team = useMemo(() => packTeam(run.challenger), [run.challenger])
   const extras = useMemo(() => {
+    if (run.mode === 'regional') {
+      const tier = regionOf(run.region).trainers[run.challengerIndex]?.tier
+      return { ...battleExtras(run.gymType, [], tier === 'regular' ? 1 : 2), foeName: trainer.name }
+    }
     const aiLevel = trainer.title === 'Promising Trainer' ? 0 : trainer.title === 'Trainer' ? 1 : 2
     return battleExtras(run.gymType, run.mode === 'daily' ? [] : run.upgrades ?? [], aiLevel)
   }, [trainer, run.gymType, run.mode, run.upgrades])
@@ -129,6 +133,7 @@ export function BattleScreen() {
   useEffect(() => {
     setPicks(slots.map(s => (s.pass ? { kind: 'pass' } : null)))
     setTargeting(null)
+    setMegaOn(false)
     setView('moves')
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [requestKey])
@@ -143,6 +148,8 @@ export function BattleScreen() {
 
   function decide(action: BattleAction) {
     if (cursor < 0) return
+    if (action.kind === 'move' && megaOn && slot?.canMega) action = { ...action, mega: true }
+    setMegaOn(false)
     const next = [...picks]
     next[cursor] = action
     setPicks(next)
@@ -200,14 +207,16 @@ export function BattleScreen() {
     else loseBattle()
   }
 
-  const leaderSprite = trainerSprite(LEADER_SPRITE[run.gymType])
+  const regional = run.mode === 'regional'
+  const leaderSprite = trainerSprite(regional ? regionOf(run.region).playerSprite : LEADER_SPRITE[run.gymType])
+  const placeName = regional ? regionOf(run.region).trainers[run.challengerIndex]?.place ?? regionOf(run.region).name : gymName(run.gymType)
 
   const toolbar = (
     <div className="flex items-center justify-between gap-2">
       <div className="flex items-center gap-2 min-w-0">
         <img src={leaderSprite} alt="" className="w-9 h-9 rounded-md bg-ink-900 border-2 border-black object-cover object-top [image-rendering:pixelated]" />
         <div className="min-w-0">
-          <p className="text-[11px] font-black truncate">{gymName(run.gymType)}{doubles && <span className="ml-1 text-gold-300">· Doubles</span>}</p>
+          <p className="text-[11px] font-black truncate">{placeName}{doubles && <span className="ml-1 text-gold-300">· Doubles</span>}</p>
           {battle && <BallCount team={battle.p1Team} />}
         </div>
       </div>
@@ -234,7 +243,7 @@ export function BattleScreen() {
           <div className="relative h-80 sm:h-96 rounded-2xl overflow-hidden border-2 border-black">
             <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-r from-ember-500 to-ember-700 flex items-center gap-6 px-[8%]">
               <img src={leaderSprite} alt="" className="h-28 sm:h-36 [image-rendering:pixelated]" />
-              <span className="font-ui font-bold text-white text-xl sm:text-3xl [text-shadow:2px_2px_0_#1c1613]">{gymName(run.gymType)}</span>
+              <span className="font-ui font-bold text-white text-xl sm:text-3xl [text-shadow:2px_2px_0_#1c1613]">{regional ? 'You' : placeName}</span>
             </div>
             <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-r from-red-950 to-red-700 flex items-center justify-end gap-6 px-[8%]">
               <span className="font-ui font-bold text-white text-xl sm:text-3xl [text-shadow:2px_2px_0_#1c1613]">{trainer.name}</span>
@@ -334,6 +343,16 @@ export function BattleScreen() {
             >
               <span aria-hidden="true">●</span>{showParty ? 'Moves' : 'Pokémon'}<span className="text-[10px] font-bold text-white/60">(S)</span>
             </button>
+            {canAct && slot?.canMega && !slot.forced && (
+              <button
+                onClick={() => setMegaOn(v => !v)}
+                aria-pressed={megaOn}
+                title="Mega Evolve before using the next move you pick"
+                className={`rounded-lg border-2 py-1.5 text-xs font-black ${megaOn ? 'bg-fuchsia-500 border-white text-white shadow-[0_0_12px_rgba(217,70,239,0.8)]' : 'bg-fuchsia-900/70 border-black text-fuchsia-100 hover:bg-fuchsia-800'}`}
+              >
+                {megaOn ? '✦ Mega: on' : '✦ Mega Evolve'}
+              </button>
+            )}
             <button onClick={() => setModal('details')} className="rounded-lg bg-white/10 hover:bg-white/15 border-2 border-black py-1.5 text-xs font-black">Details</button>
           </div>
 
@@ -457,7 +476,7 @@ export function BattleScreen() {
         </Modal>
       )}
 
-      {ended && <BattleEndModal won={b.winner === 'p1'} trainer={trainer} onContinue={finish} />}
+      {ended && <BattleEndModal won={b.winner === 'p1'} trainer={trainer} onContinue={finish} regional={regional} retries={run.retries ?? 0} />}
     </div>
   )
 }

@@ -3,7 +3,7 @@ export type GymType =
   | 'normal' | 'ice' | 'fighting' | 'poison' | 'ground' | 'flying'
   | 'psychic' | 'bug' | 'rock' | 'dark' | 'steel' | 'fairy'
 
-export type RunMode = 'quest' | 'daily'
+export type RunMode = 'quest' | 'daily' | 'regional'
 
 export type RunPhase =
   | 'team_select'
@@ -22,6 +22,7 @@ export interface RosterMember {
   hp?: number       // fraction of max HP carried between battles (missing = full); 0 = fainted
   item?: string | null
   taught?: string[] // moves taught by the Move Tutor; can be swapped back in later
+  evs?: number[]    // HP/Atk/Def/SpA/SpD/Spe effort values (Elite Four and Champion teams)
 }
 
 export interface Bag { potion: number; revive: number; candy: number; stone: number }
@@ -67,6 +68,13 @@ export interface RunState {
   log?: string[]             // newest first
   battleKey?: string | null  // set while a battle is open; survives a reload
   forfeited?: boolean        // Daily battle abandoned by leaving or reloading the page
+  // Regional Quest
+  region?: import('../lib/regions').RegionId
+  starter?: string           // species id of the starter chosen (the Champion counters it)
+  box?: RosterMember[]       // caught Pokémon not on the team (no XP)
+  retries?: number           // losses left before the quest ends
+  picks?: RosterMember[]     // Pokémon offered after the last win
+  pickTaken?: boolean
   funds: number
   phase: RunPhase
   rank: number
@@ -131,13 +139,14 @@ export interface SlotRequest {
   moves: MoveChoice[]
   forced: boolean     // must switch in a replacement
   pass: boolean       // nothing to decide (fainted with no replacement, or not forced)
+  canMega: boolean    // holds a usable Mega Stone and hasn't Mega Evolved yet
 }
 
 export type BattleFormat = 'singles' | 'doubles'
 
 /** One slot's choice, sent to the engine. Targets: 1/2 = foe slots, -1/-2 = your slots. */
 export type BattleAction =
-  | { kind: 'move'; move: number; target?: number }
+  | { kind: 'move'; move: number; target?: number; mega?: boolean }
   | { kind: 'switch'; name: string }
   | { kind: 'pass' }
 

@@ -14,6 +14,7 @@ export interface QuestResult {
   wins: number
   cleared: boolean
   finishedAt: string
+  region?: string // set for Regional Quest results
 }
 
 interface RecordsStore {

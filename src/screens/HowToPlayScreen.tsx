@@ -25,7 +25,9 @@ export function HowToPlayScreen() {
           <p>Beat all 15 to win the quest. Lose one battle and the quest ends.</p>
         </Section>
         <Section title="Regional Quest">
-          <p>Coming soon.</p>
+          <p>This time you are the challenger. In Kanto, pick a starter and 2 unevolved Kanto Pokémon, then beat the 8 Gym Leaders, the Elite Four and the Champion. Each opponent is tougher than the last; the Champion picks the starter that beats yours and can Mega Evolve.</p>
+          <p>After every win your whole team is healed and you catch 1 of 3 new Pokémon. Six can be on the team; the rest wait in the box, and you can swap them in before any battle. Boxed Pokémon don’t earn XP.</p>
+          <p>Rewards are Move Tutors, held items, Rare Candies, Evolution Stones and Mega Stones. You have 3 retries: lose a fourth time and the quest ends. More regions are coming.</p>
         </Section>
         <Section title="Battles">
           <p>Pick a move each turn. The faster Pokémon (higher Speed) acts first, unless a move has priority: Quick Attack (+1) goes before normal moves even from a slower Pokémon.</p>

@@ -8,7 +8,7 @@ import { useInstallPrompt } from '../hooks/useInstallPrompt'
 import { dailyRng, dailyType, formatCountdown, msUntilUtcMidnight, utcDate } from '../lib/daily'
 import { starterCandidates } from '../lib/progression'
 import { battleSpriteUrl, species } from '../lib/dex'
-import { challengerLabel, modeName } from '../lib/runLabels'
+import { challengerLabel, modeName, runPlace } from '../lib/runLabels'
 import { TYPE_COLORS } from '../lib/typeColors'
 import { PokeBall } from '../components/PokeBall'
 import { NicknameDialog } from '../components/NicknameDialog'
@@ -106,6 +106,11 @@ export function HomeScreen() {
     beginDaily()
   }
 
+  function newRegional() {
+    if (activeRun && !confirm(`Start a new Regional Quest? Your current ${modeName(activeRun)} run will be abandoned.`)) return
+    go('region_select')
+  }
+
   function newQuest() {
     if (activeRun && !confirm(`Start a new Gym Quest? Your current ${modeName(activeRun)} run will be abandoned.`)) return
     go('type_select')
@@ -169,7 +174,7 @@ export function HomeScreen() {
               <span className="flex-1 min-w-0">
                 <span className="block text-[10px] font-black tracking-[0.18em] uppercase text-gold-300">Continue</span>
                 <span className="block font-extrabold truncate capitalize">
-                  {modeName(activeRun)} · {activeRun.gymType} Gym
+                  {modeName(activeRun)} · {runPlace(activeRun)}
                 </span>
                 <span className="block text-xs text-white/60 truncate">
                   {activeRun.phase === 'team_select' ? 'Choosing your team' : challengerLabel(activeRun)}
@@ -221,18 +226,19 @@ export function HomeScreen() {
             <span className="text-xl group-hover:translate-x-0.5 transition-transform" aria-hidden="true">▶</span>
           </button>
 
-          {/* Regional Quest (later) */}
-          <div
-            aria-disabled="true"
-            className="flex items-center gap-3 rounded-xl bg-ink-900/70 border border-dashed border-white/20 px-4 py-3 text-white/60"
+          {/* Regional Quest */}
+          <button
+            onClick={newRegional}
+            className="group flex items-center gap-3 rounded-xl bg-ink-900 border-2 border-black px-4 py-3 text-left shadow-[0_4px_0_rgba(0,0,0,0.35)] hover:bg-ink-800 transition-colors"
           >
-            <ItemIcon src={itemSprite({ held: 'Town Map' })} className="w-9 h-9 opacity-70" />
+            <ItemIcon src={itemSprite({ held: 'Town Map' })} className="w-9 h-9" />
             <span className="flex-1">
-              <span className="block font-extrabold text-white/80">Regional Quest</span>
-              <span className="block text-xs">Take on a whole region</span>
+              <span className="block font-extrabold text-lg leading-tight">Regional Quest</span>
+              <span className="block text-xs text-white/65">Pick a starter, earn 8 badges, beat the Elite Four and the Champion</span>
             </span>
-            <span className="text-[10px] font-black uppercase tracking-wider bg-white/10 rounded px-2 py-1">Coming soon</span>
-          </div>
+            <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-200 rounded px-2 py-1">Kanto</span>
+            <span className="text-gold-400 text-xl group-hover:translate-x-0.5 transition-transform" aria-hidden="true">▶</span>
+          </button>
 
           <div className="grid grid-cols-2 gap-3 mt-1">
             <Tile icon={<ItemIcon src={itemSprite({ held: 'Shiny Charm' })} className="w-9 h-9" />} title="Ranking" sub="Daily results" onClick={() => go('ranking')} />

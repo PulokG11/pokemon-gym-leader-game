@@ -41,13 +41,13 @@ export function slotRequests(req: any, moveTargets: (id: string) => string): Slo
     if (forced.length) {
       const must = !!forced[pos] && forcedLeft > 0
       if (must) forcedLeft--
-      return { pos, name, moves: [], forced: must, pass: !must }
+      return { pos, name, moves: [], forced: must, pass: !must, canMega: false }
     }
     const fainted = !p || isFainted(p)
     const moves = ((req.active?.[pos]?.moves ?? []) as any[]).map((m, i) => ({
       slot: i + 1, id: m.id, name: m.move, pp: m.pp, maxPp: m.maxpp, disabled: !!m.disabled, target: m.target ?? moveTargets(m.id),
     }))
-    return { pos, name, moves, forced: false, pass: fainted }
+    return { pos, name, moves, forced: false, pass: fainted, canMega: !fainted && !!req.active?.[pos]?.canMegaEvo }
   })
 }
 
@@ -57,7 +57,8 @@ export function buildChoice(req: any, actions: BattleAction[]): string {
     .map(a => {
       if (a.kind === 'pass') return 'pass'
       if (a.kind === 'switch') return `switch ${slotOf(req, a.name)}`
-      return a.target === undefined ? `move ${a.move}` : `move ${a.move} ${a.target}`
+      const mega = a.mega ? ' mega' : ''
+      return a.target === undefined ? `move ${a.move}${mega}` : `move ${a.move} ${a.target}${mega}`
     })
     .join(', ')
 }

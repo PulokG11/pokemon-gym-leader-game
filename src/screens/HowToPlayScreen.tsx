@@ -37,7 +37,7 @@ export function HowToPlayScreen() {
         <Section title="Growing your team">
           <p>After every win, each team member gains XP and learns new moves. Once it knows four, new moves are offered instead: open the Pokémon in Team and tap a move to swap one in.</p>
           <p>When a Pokémon reaches its evolution level, an Evolve button appears in the battle report, the Team screen and the Gym hub. Evolving is up to you.</p>
-          <p>Before each battle, Scout team shows which challengers are a threat to your type and which are weak to it.</p>
+          <p>Before each battle, Scout team shows which challengers are a threat to your type and which are weak to it. In Gym Quest, build the Scouting Room to also see their exact moves, ability and held item.</p>
         </Section>
         <Section title="Settings">
           <p>Battle speed plays turns at 1×, 2× or 3×. Simple effects turns off sprite and evolution animations.</p>

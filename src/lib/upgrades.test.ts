@@ -1,16 +1,17 @@
 import { describe, it, expect } from 'vitest'
 import { Dex } from '@pkmn/sim'
 import { GYM_TYPES } from './daily'
-import { arenaEffect, battleExtras, upgradesFor } from './upgrades'
+import { arenaEffect, battleExtras, scoutReport, upgradesFor } from './upgrades'
+import { createMon } from './progression'
 import { rewardOffer } from './economy'
 import { seededRng } from './daily'
 
 describe('Gym upgrades', () => {
-  it('every type has the 8 common upgrades plus its own Arena and Forge', () => {
+  it('every type has the 9 common upgrades plus its own Arena and Forge', () => {
     for (const t of GYM_TYPES) {
       const list = upgradesFor(t)
-      expect(list).toHaveLength(10)
-      expect(new Set(list.map(u => u.id)).size).toBe(10)
+      expect(list).toHaveLength(11)
+      expect(new Set(list.map(u => u.id)).size).toBe(11)
       expect(list.filter(u => u.typed)).toHaveLength(2)
     }
     expect(upgradesFor('fire').map(u => u.name)).toContain('Burning Arena')
@@ -40,5 +41,16 @@ describe('Gym upgrades', () => {
     }
     expect(count({ training: true }, ['training', 'team_training'])).toBeGreaterThan(count({}, ['training', 'team_training']))
     expect(count({ workshop: true }, ['held_item'])).toBeGreaterThan(count({}, ['held_item']))
+  })
+})
+
+describe('Scouting Room', () => {
+  it('reveals ability, item and moves, flagging attacks super effective on the Gym type', () => {
+    const mon = { ...createMon('squirtle', 20), moves: ['watergun', 'tackle', 'tailwhip'], item: 'Mystic Water' }
+    const r = scoutReport(mon, 'fire')
+    expect(r.ability).toBeTruthy()
+    expect(r.item).toBe('Mystic Water')
+    expect(r.moves.map(m => [m.id, m.superEffective])).toEqual([['watergun', true], ['tackle', false], ['tailwhip', false]])
+    expect(scoutReport(mon, 'grass').moves[0].superEffective).toBe(false)
   })
 })

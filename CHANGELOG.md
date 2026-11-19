@@ -14,6 +14,14 @@ git push origin main
 
 ---
 
+## v0.15.0 — Scouting Room upgrade (2026-11-20)
+
+- **New Gym upgrade, Scouting Room** (Intel, ₽200, Gym Quest): Scout team shows each challenger's exact ability, held item and four moves; attacks super effective on your Gym type are marked red with ⚠
+- Without it, Scout shows a hint pointing to the Upgrades tab (not in the Daily Challenge, which has no upgrades)
+- README and How to play updated
+
+Rollback: `git checkout v0.14.0 -- .`
+
 ## v0.14.0 — Regional Quest: catch 2 of 5 (2026-11-20)
 
 - **Easier Regional Quest:** after every win you now catch **2 of 5** Pokémon (was 1 of 3)

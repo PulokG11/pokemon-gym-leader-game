@@ -7,7 +7,7 @@ import { artworkUrl, battleSpriteUrl, effectiveness, species } from '../lib/dex'
 import { BAG_INFO, heldItemDesc, type BagItem } from '../lib/economy'
 import { BOSS_NODES, LEADER_SPRITE, challengerTrainer, gymName, trainerSprite } from '../lib/trainers'
 import { WEAK_TO, threatsTo } from '../lib/typechart'
-import { upgradesFor } from '../lib/upgrades'
+import { scoutReport, upgradesFor } from '../lib/upgrades'
 import { readyEvolutions } from '../lib/progression'
 import { TypeBadge } from '../components/TypeBadge'
 import { TeamModal } from '../components/TeamModal'
@@ -53,8 +53,28 @@ function ProgressTrack({ run }: { run: RunState }) {
   )
 }
 
+function ScoutDetails({ report }: { report: ReturnType<typeof scoutReport> }) {
+  return (
+    <div className="flex flex-col gap-1 text-[11px]">
+      <p className="text-white/70"><span className="text-white/45">Ability</span> <b className="text-white">{report.ability}</b></p>
+      <p className="text-white/70 flex items-center gap-1">
+        <span className="text-white/45">Item</span>
+        {report.item ? <><ItemIcon src={itemSprite({ held: report.item })} className="w-5 h-5" /><b className="text-white" title={heldItemDesc(report.item)}>{report.item}</b></> : <span>none</span>}
+      </p>
+      <ul className="grid grid-cols-2 gap-1 mt-0.5" aria-label="Moves">
+        {report.moves.map(mv => (
+          <li key={mv.id} className={`rounded px-1.5 py-0.5 font-bold ${mv.superEffective ? 'bg-red-900/70 text-red-100' : 'bg-white/5 text-white/85'}`} title={`${mv.type}${mv.power ? ` · ${mv.power}` : ''}${mv.superEffective ? ' · super effective on your type' : ''}`}>
+            {mv.superEffective && <span aria-label="super effective on your type">⚠ </span>}{mv.name}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
 function ScoutModal({ run, onClose, onBattle }: { run: RunState; onClose: () => void; onBattle: () => void }) {
   const t = challengerTrainer(run)
+  const scouted = (run.upgrades ?? []).includes('scouting')
   return (
     <Modal title={t.name} onClose={onClose} wide>
       <div className="flex gap-4 items-start">
@@ -78,12 +98,21 @@ function ScoutModal({ run, onClose, onBattle }: { run: RunState; onClose: () => 
                   {isWeakToYou(run, s.types) && <span className="text-[10px] font-black rounded px-1.5 py-0.5 bg-emerald-900/70 text-emerald-200">✓ WEAK TO YOU</span>}
                 </div>
                 <div className="flex gap-1 my-1">{s.types.map(x => <TypeBadge key={x} type={x} small />)}</div>
-                <p className="text-[11px] text-white/60">Possible abilities: {s.abilities.join(', ')}</p>
+                {scouted ? (
+                  <ScoutDetails report={scoutReport(m, run.gymType)} />
+                ) : (
+                  <p className="text-[11px] text-white/60">Possible abilities: {s.abilities.join(', ')}</p>
+                )}
               </div>
             </div>
           )
         })}
       </div>
+      {!scouted && run.mode !== 'daily' && (
+        <p className="text-xs text-white/60 mt-3 rounded-lg border border-dashed border-white/20 px-3 py-2">
+          ⌕ Build the <b className="text-white">Scouting Room</b> (Upgrades tab) to see each challenger’s exact moves, ability and held item.
+        </p>
+      )}
       <p className="text-sm text-white/70 mt-3 flex flex-wrap items-center gap-1.5">
         Your type <TypeBadge type={run.gymType} small /> is weak to {WEAK_TO[run.gymType].map(w => <TypeBadge key={w} type={w} small />)}
       </p>

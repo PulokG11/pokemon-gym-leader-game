@@ -1,9 +1,10 @@
-import type { GymType } from '../types/game'
+import type { GymType, RosterMember } from '../types/game'
 import { typeItemFor } from './economy'
+import { effectiveness, move, species } from './dex'
 
 export type UpgradeId =
   | 'center' | 'training' | 'workshop' | 'office' | 'reputation'
-  | 'crowd' | 'analysis' | 'infirmary' | 'arena' | 'forge'
+  | 'crowd' | 'analysis' | 'scouting' | 'infirmary' | 'arena' | 'forge'
 
 export interface Upgrade { id: UpgradeId; name: string; category: string; desc: string; price: number; icon: string; typed?: boolean }
 
@@ -47,6 +48,7 @@ export function upgradesFor(type: GymType): Upgrade[] {
     { id: 'reputation', name: 'Gym Reputation', category: 'Economy', icon: '★', price: 250, desc: '+25% Gym Funds from challengers.' },
     { id: 'crowd', name: 'Home Crowd', category: 'Arena', icon: '♪', price: 300, desc: 'The crowd is behind you: your lead starts every battle with +1 Speed.' },
     { id: 'analysis', name: 'Analysis Desk', category: 'Intel', icon: '◎', price: 250, desc: 'Every second victory gives you an extra reward reroll.' },
+    { id: 'scouting', name: 'Scouting Room', category: 'Intel', icon: '⌕', price: 200, desc: 'Scout team reveals each challenger’s exact moves, ability and held item, and flags moves that hit your type super-effectively.' },
     { id: 'infirmary', name: 'Infirmary', category: 'Recovery', icon: '♥', price: 250, desc: 'Every second victory leaves a Hyper Potion in your bag.' },
     {
       id: 'arena', typed: true, price: 350, icon: '☀', category: `Arena · ${cap(type)} only`,
@@ -79,5 +81,23 @@ export function battleExtras(type: GymType, owned: UpgradeId[], aiLevel: 0 | 1 |
     crowd: owned.includes('crowd'),
     arena: owned.includes('arena') ? (a ? { kind: a.kind, field: a.field } : { kind: 'boost' }) : undefined,
     forge: owned.includes('forge') ? (f ? { kind: 'status', status: f.status } : { kind: 'slow' }) : undefined,
+  }
+}
+
+export interface ScoutMove { id: string; name: string; type: string; power: number; superEffective: boolean }
+export interface ScoutReport { ability: string; item: string | null; moves: ScoutMove[] }
+
+/** What the Scouting Room reveals about one challenger Pokémon. A move is flagged when it is an attack that
+ * hits the Gym's type super-effectively. */
+export function scoutReport(mon: RosterMember, gymType: GymType): ScoutReport {
+  const gym = gymType[0].toUpperCase() + gymType.slice(1)
+  return {
+    ability: species(mon.species).ability,
+    item: mon.item ?? null,
+    moves: mon.moves.map(id => {
+      const d = move(id)
+      const attack = !!d && d.category !== 'Status'
+      return { id, name: d?.name ?? id, type: d?.type ?? 'Normal', power: d?.power ?? 0, superEffective: attack && effectiveness(d!.type, [gym]) >= 2 }
+    }),
   }
 }

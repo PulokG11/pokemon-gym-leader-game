@@ -4,7 +4,7 @@ A browser roguelike with two sides of the Pokémon League: **defend your own Gym
 
 **Play it: https://pulokg11.github.io/pokemon-gym-leader-game/**
 
-Works on desktop and mobile, and can be installed as an app (PWA) for offline play. Current release: **v0.14.0** ([changelog](CHANGELOG.md)).
+Works on desktop and mobile, and can be installed as an app (PWA) for offline play. Current release: **v0.15.0** ([changelog](CHANGELOG.md)).
 
 ---
 
@@ -21,7 +21,7 @@ Works on desktop and mobile, and can be installed as an app (PWA) for offline pl
 - **Draft.** Choose 3 of 6 starters of your Gym's type (4 in Doubles). Each card shows level, type, base stat total, ability and evolution; **Details** opens the full stats, moveset and type matchups.
 - **Gym hub.** See the next challenger, **Scout** their team (each Pokémon tagged **⚠ THREAT** or **✓ WEAK TO YOU**), and manage your team, bag and log.
 - **Economy.** Wins pay Gym Funds and offer 1 of 3 rewards: recruits (team up to 6), training, Rare Candies, Evolution Stones, potions, revives, held items, League Favour rerolls and the **Move Tutor**. After each reward, visit the **Training Camp** (free levels) or the **Visiting Merchant**.
-- **Gym upgrades** (Gym Quest only): Pokémon Center, Training Room, Item Workshop, Recruitment Office, Gym Reputation, Home Crowd, Analysis Desk and Infirmary, plus a type **Arena** (weather or terrain at the start of battle) and a type **Forge**.
+- **Gym upgrades** (Gym Quest only): Pokémon Center, Training Room, Item Workshop, Recruitment Office, Gym Reputation, Home Crowd, Analysis Desk, Scouting Room (Scout shows exact moves, ability and held item) and Infirmary, plus a type **Arena** (weather or terrain at the start of battle) and a type **Forge**.
 - **HP carries over** between battles: conscious Pokémon recover 10% after a win; fainted ones need a Revive.
 - **Doubles.** Two Pokémon out on each side; for each of yours you pick a move and, for single-target moves, which foe to hit (spread moves like Surf hit both). Doubles challengers bring 2, then 3, then 4 Pokémon.
 - **Challenger AI** grows with each class: Rookies pick at random, Trainers favour strong attacks, Ace Trainers and up play type matchups, use status moves and switch out of bad matchups.
@@ -137,11 +137,11 @@ Every push to `main` runs the type-check and tests, then builds and deploys to G
 
 ## Versioning and rollback
 
-Each release is a git tag (latest `v0.14.0`) with an entry in [CHANGELOG.md](CHANGELOG.md), including its rollback command. To roll back, e.g. to v0.12.0:
+Each release is a git tag (latest `v0.15.0`) with an entry in [CHANGELOG.md](CHANGELOG.md), including its rollback command. To roll back, e.g. to v0.14.0:
 
 ```bash
-git checkout v0.12.0 -- .
-git commit -m "rollback: to v0.12.0"
+git checkout v0.14.0 -- .
+git commit -m "rollback: to v0.14.0"
 git push origin main
 ```
 

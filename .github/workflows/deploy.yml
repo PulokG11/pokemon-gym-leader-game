@@ -29,14 +29,11 @@ jobs:
       - run: npm run typecheck
       - run: npm run test:run
 
-  deploy:
-    name: Deploy to GitHub Pages
+  build:
+    name: Build
     needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -51,5 +48,17 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
+
+  # Deploying in its own job means the artifact is finalised before deploy-pages looks it up
+  # (in one job it sometimes found "0 artifacts"), and a failed deploy can be re-run alone.
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - id: deployment
         uses: actions/deploy-pages@v4

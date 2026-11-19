@@ -1,5 +1,6 @@
 import type { GymType } from '../types/game'
 import { WEAK_TO } from './typechart'
+import { DEX, effectiveness } from './dex'
 
 /** One line on what each Gym type is good at, shown when choosing starters. */
 export const GYM_STRENGTH: Record<GymType, string> = {
@@ -28,3 +29,13 @@ const list = (xs: string[]) => (xs.length > 1 ? `${xs.slice(0, -1).join(', ')} a
 
 /** e.g. "Fire, Flying, Ice, Poison and Bug challengers." */
 export const gymWeakness = (type: GymType) => `${list(WEAK_TO[type].map(cap))} challengers.`
+
+const ALL_TYPES = Object.keys(DEX.typeChart).filter(t => t !== 'Stellar')
+
+/** Types this Pokémon's own-type (STAB) attacks hit super-effectively. */
+export const strongAgainst = (types: string[]) =>
+  ALL_TYPES.filter(t => types.some(own => effectiveness(own, [t]) >= 2))
+
+/** Attack types that hit this Pokémon super-effectively, with the multiplier (2 or 4). */
+export const weakTo = (types: string[]) =>
+  ALL_TYPES.map(t => ({ type: t, mult: effectiveness(t, types) })).filter(x => x.mult >= 2)

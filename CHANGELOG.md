@@ -14,6 +14,13 @@ git push origin main
 
 ---
 
+## v0.11.1 — Starter cards and Details (2026-11-19)
+
+- **Starter cards** now show just the essentials: image, name, level, type, base stat total, ability and what it evolves into (with the level), plus a separate **Details** button. Tap the card to pick or remove it
+- **Details** opens a full breakdown: all six base stats with bars and the total, the moveset at its current level (type, category, power, accuracy, PP, effect), **Strong against** (types its own-type moves hit for double damage) and **Weak to** (attack types that deal it double damage, ×4 marked)
+
+Rollback: `git checkout v0.11.0 -- .`
+
 ## v0.11.0 — Doubles battles, evolution on demand, Move Tutor (2026-11-19)
 
 - **Doubles battles** (Gym Quest): choose Singles or Doubles when picking starters. Doubles puts two Pokémon out on each side; you pick 4 starters, challengers bring 2 early on, then 3, then 4. Each turn you choose for each of your Pokémon in turn (▼ marks who is choosing, their card is highlighted), and single-target moves ask "Who should X go for?" with name tags over the foes; spread moves hit both. Forced replacements, fainted slots and the challenger AI (per-foe targeting, no ally-only moves) all handle two slots. Runs on Showdown's `gen9doublescustomgame`

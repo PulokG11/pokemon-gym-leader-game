@@ -3,6 +3,9 @@
 @theme {
   --font-sans: "Nunito", ui-sans-serif, system-ui, sans-serif;
   --font-pixel: "Press Start 2P", ui-monospace, monospace;
+  /* Readable pixel face for names, buttons and card titles; Press Start is kept for the logo and screen titles. */
+  --font-ui: "Pixelify Sans", "Nunito", ui-sans-serif, sans-serif;
+  --color-parchment: #fdf6e6;
   --color-ember-500: #ef6a2f;
   --color-ember-600: #d9531c;
   --color-ember-700: #b8431a;
@@ -30,6 +33,25 @@
     0 -4px 0 #1c1613, 0 4px 0 #1c1613, -4px 0 0 #1c1613, 4px 0 0 #1c1613,
     0 10px 0 rgba(28, 22, 19, 0.45);
 }
+
+/* Screen titles: the pixel face, gold, outlined so it sits on the orange stage */
+.screen-title {
+  font-family: var(--font-pixel);
+  line-height: 1.15;
+  color: var(--color-gold-400);
+  text-shadow:
+    -3px -3px 0 #1c1613, 3px -3px 0 #1c1613, -3px 3px 0 #1c1613, 3px 3px 0 #1c1613,
+    0 -3px 0 #1c1613, 0 3px 0 #1c1613, -3px 0 0 #1c1613, 3px 0 0 #1c1613,
+    0 7px 0 rgba(28, 22, 19, 0.45);
+}
+
+/* One visible focus ring everywhere: gold on dark, ink on gold and parchment */
+:focus-visible {
+  outline: 3px solid var(--color-gold-300);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+.bg-gold-400:focus-visible, .bg-parchment:focus-visible { outline-color: #1c1613; }
 
 @keyframes rise {
   from { opacity: 0; transform: translateY(12px); }

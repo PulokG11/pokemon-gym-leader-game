@@ -136,7 +136,7 @@ export function RankingScreen() {
   const current = tab === 'today' ? daily : allTime
 
   return (
-    <div className="min-h-screen bg-ink-950 text-white">
+    <div className="home-bg min-h-screen text-white">
       <ScreenHeader
         title="Ranking"
         sub={tab === 'today' ? 'Most wins in today’s Daily Challenge.' : 'Best single Daily run of every player, across all days.'}

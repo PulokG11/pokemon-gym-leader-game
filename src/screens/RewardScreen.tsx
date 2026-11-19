@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { ItemIcon, itemSprite } from '../components/ItemIcon'
 import { runRng, useRunStore } from '../store/runStore'
 import { artworkUrl, species } from '../lib/dex'
 import { MAX_TEAM, recruitOptions, skipBonus, type Reward } from '../lib/economy'
@@ -98,14 +99,14 @@ export function RewardScreen() {
   return (
     <div className="home-bg min-h-screen text-white font-sans px-4 py-8">
       <div className="max-w-4xl mx-auto flex flex-col gap-4">
-        <h1 className="pixel-title text-gold-400 text-3xl sm:text-4xl text-center [text-shadow:-3px_-3px_0_#1c1613,3px_-3px_0_#1c1613,-3px_3px_0_#1c1613,3px_3px_0_#1c1613,0_6px_0_rgba(28,22,19,0.45)]">
+        <h1 className="screen-title text-3xl sm:text-4xl text-center">
           Choose a reward
         </h1>
 
         <TeamStrip roster={run.roster} onSelect={setTeamUid} levelUps={levelUps} />
 
         <div className="flex items-center justify-between rounded-xl bg-ink-900 border-2 border-black/50 px-4 py-2.5">
-          <span className="font-extrabold text-gold-300">💰 +₽{run.lastFunds ?? 0} <span className="text-white/50 font-semibold text-sm">· ₽{run.funds} total</span></span>
+          <span className="font-extrabold text-gold-300"><ItemIcon src={itemSprite({ held: 'Amulet Coin' })} className="w-5 h-5 inline-block align-[-4px]" alt="" /> +₽{run.lastFunds ?? 0} <span className="text-white/50 font-semibold text-sm">· ₽{run.funds} total</span></span>
           <button onClick={() => setReport(true)} className="rounded-lg border border-white/20 hover:bg-white/10 px-3 py-1 text-xs font-bold">Details</button>
         </div>
 
@@ -132,7 +133,7 @@ export function RewardScreen() {
               className={`text-left rounded-xl bg-gradient-to-b from-ink-800 to-ink-950 border-2 ${RARITY_STYLE[r.rarity].ring} p-4 flex flex-col gap-2 hover:-translate-y-1 transition-transform shadow-[0_5px_0_rgba(0,0,0,0.35)]`}
             >
               <span className="flex items-center gap-2">
-                <span className="w-12 h-12 rounded-lg bg-black/50 grid place-items-center text-2xl" aria-hidden="true">{r.icon}</span>
+                <span className="w-12 h-12 rounded-lg bg-black/50 grid place-items-center" aria-hidden="true"><ItemIcon src={itemSprite({ reward: r.kind, held: r.item, gymType: run.gymType })} className="w-9 h-9" /></span>
                 <span className={`text-[10px] font-black uppercase rounded px-1.5 ${RARITY_STYLE[r.rarity].badge}`}>{r.rarity}</span>
               </span>
               <span className="font-black text-lg">{r.title}</span>
@@ -171,7 +172,7 @@ export function RewardScreen() {
 
       {report && (
         <Modal title="Battle report" onClose={() => setReport(false)} wide>
-          <p className="text-gold-300 font-extrabold mb-3">💰 +₽{run.lastFunds ?? 0}</p>
+          <p className="text-gold-300 font-extrabold mb-3"><ItemIcon src={itemSprite({ held: 'Amulet Coin' })} className="w-5 h-5 inline-block align-[-4px]" alt="" /> +₽{run.lastFunds ?? 0}</p>
           <div className="flex flex-col gap-3">{run.lastProgress.map((r, i) => <ProgressCard key={r.uid} report={r} delay={i * 120} />)}</div>
           <p className="text-xs text-white/50 mt-3">Conscious Pokémon recover 10% HP after every win. Fainted ones need a Revive.</p>
         </Modal>

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { ItemIcon, itemSprite } from '../components/ItemIcon'
 import { useRunStore } from '../store/runStore'
 import { useRecordsStore } from '../store/recordsStore'
 import { useSettingsStore, type BattleSpeed } from '../store/settingsStore'
@@ -203,7 +204,7 @@ export function HomeScreen() {
               </span>
             </span>
             <span className="text-gold-400 text-xl group-hover:translate-x-0.5 transition-transform" aria-hidden="true">
-              {todayResult && !dailyInProgress ? '🏆' : '▶'}
+              {todayResult && !dailyInProgress ? <ItemIcon src={itemSprite({ held: 'Shiny Charm' })} className="w-7 h-7" alt="Ranking" /> : '▶'}
             </span>
           </button>
 
@@ -225,7 +226,7 @@ export function HomeScreen() {
             aria-disabled="true"
             className="flex items-center gap-3 rounded-xl bg-ink-900/70 border border-dashed border-white/20 px-4 py-3 text-white/60"
           >
-            <span className="text-2xl" aria-hidden="true">🗺️</span>
+            <ItemIcon src={itemSprite({ held: 'Town Map' })} className="w-9 h-9 opacity-70" />
             <span className="flex-1">
               <span className="block font-extrabold text-white/80">Regional Quest</span>
               <span className="block text-xs">Take on a whole region</span>
@@ -234,8 +235,8 @@ export function HomeScreen() {
           </div>
 
           <div className="grid grid-cols-2 gap-3 mt-1">
-            <Tile icon="🏆" title="Ranking" sub="Daily results" onClick={() => go('ranking')} />
-            <Tile icon="📖" title="How to play" sub="Modes and rules" onClick={() => go('how_to_play')} />
+            <Tile icon={<ItemIcon src={itemSprite({ held: 'Shiny Charm' })} className="w-9 h-9" />} title="Ranking" sub="Daily results" onClick={() => go('ranking')} />
+            <Tile icon={<ItemIcon src={itemSprite({ held: 'Teachy TV' })} className="w-9 h-9" />} title="How to play" sub="Modes and rules" onClick={() => go('how_to_play')} />
           </div>
 
           <section aria-label="Settings" className="rounded-xl bg-ink-900/90 border border-black/40 px-4 py-2 mt-1">

@@ -1,7 +1,8 @@
 import { useRunStore } from '../store/runStore'
 import { useBattleStore } from '../store/battleStore'
 import { useUiStore } from '../store/uiStore'
-import { TYPE_COLORS, TYPE_EMOJI } from '../lib/typeColors'
+import { TYPE_COLORS } from '../lib/typeColors'
+import { LEADER_SPRITE, gymName, trainerSprite } from '../lib/trainers'
 import { artworkUrl, species } from '../lib/dex'
 import { modeName } from '../lib/runLabels'
 import { ProgressCard } from '../components/ProgressCard'
@@ -23,13 +24,13 @@ export function RunEndedScreen() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white px-4 py-10">
+    <div className="home-bg min-h-screen text-white px-4 py-10">
       <div className="max-w-2xl mx-auto flex flex-col items-center text-center gap-4">
-        <div className="text-6xl">{won ? '🏆' : isDaily ? '🏅' : '💀'}</div>
-        <h2 className="text-3xl font-bold">
+        <img src={trainerSprite(LEADER_SPRITE[run.gymType])} alt="" className={`h-36 [image-rendering:pixelated] ${won || isDaily ? '' : 'grayscale opacity-70'}`} />
+        <h2 className="screen-title text-3xl">
           {won ? 'Quest complete!' : isDaily ? `${wins} ${wins === 1 ? 'win' : 'wins'} today` : 'Gym fallen…'}
         </h2>
-        <p className="text-slate-400">
+        <p className="text-white/65">
           {won
             ? `You defended your Gym against all ${run.totalChallengers} challengers, Champion included.`
             : isDaily
@@ -42,7 +43,7 @@ export function RunEndedScreen() {
           </p>
         )}
         <p className={`text-sm font-semibold uppercase tracking-widest ${color.text}`}>
-          {modeName(run)} · {TYPE_EMOJI[run.gymType]} {run.gymType} Gym
+          {modeName(run)} · {gymName(run.gymType)}
         </p>
 
         {won && run.lastProgress.length > 0 ? (
@@ -55,7 +56,7 @@ export function RunEndedScreen() {
               <div key={m.uid} className="flex flex-col items-center">
                 <img src={artworkUrl(m.species)} alt="" className="w-20 h-20 object-contain" />
                 <span className="text-sm font-semibold">{species(m.species).name}</span>
-                <span className="text-xs text-slate-400">Lv {m.level}</span>
+                <span className="text-xs text-white/65">Lv {m.level}</span>
               </div>
             ))}
           </div>
@@ -63,15 +64,15 @@ export function RunEndedScreen() {
 
         <div className="flex flex-wrap justify-center gap-3 mt-4">
           {isDaily ? (
-            <button onClick={() => leave('ranking')} className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-xl font-semibold">
+            <button onClick={() => leave('ranking')} className="px-6 py-3 bg-gold-400 hover:bg-gold-300 text-ink-900 border-2 border-black shadow-[0_4px_0_#b8431a] rounded-xl font-semibold">
               See ranking
             </button>
           ) : (
-            <button onClick={() => leave('type_select')} className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-xl font-semibold">
+            <button onClick={() => leave('type_select')} className="px-6 py-3 bg-gold-400 hover:bg-gold-300 text-ink-900 border-2 border-black shadow-[0_4px_0_#b8431a] rounded-xl font-semibold">
               New Gym Quest
             </button>
           )}
-          <button onClick={() => leave('home')} className="px-6 py-3 bg-slate-800 hover:bg-slate-700 rounded-xl font-semibold">
+          <button onClick={() => leave('home')} className="px-6 py-3 bg-ink-900 hover:bg-ink-800 border-2 border-black rounded-xl font-semibold">
             Home
           </button>
         </div>

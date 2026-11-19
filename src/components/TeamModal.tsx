@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { ItemIcon, itemSprite } from './ItemIcon'
 import { useRunStore } from '../store/runStore'
 import { artworkUrl, species } from '../lib/dex'
 import { BAG_INFO, heldItemDesc, type BagItem } from '../lib/economy'
@@ -56,7 +57,7 @@ export function TeamModal({ uid, onClose }: { uid: string; onClose: () => void }
                 title={BAG_INFO[item].desc}
                 className="rounded-lg bg-white/5 hover:bg-white/10 disabled:opacity-35 disabled:cursor-not-allowed px-2 py-1.5 text-left text-xs font-bold"
               >
-                {BAG_INFO[item].icon} {BAG_INFO[item].name} <span className="text-gold-300">×{bag[item]}</span>
+                <span className="flex items-center gap-1.5"><ItemIcon src={itemSprite({ bag: item })} className="w-6 h-6" />{BAG_INFO[item].name} <span className="text-gold-300">×{bag[item]}</span></span>
               </button>
             ))}
           </div>

@@ -7,13 +7,13 @@ export function BattleLog({ lines }: { lines: string[] }) {
   }, [lines.length])
 
   return (
-    <div ref={ref} className="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 h-32 overflow-y-auto" aria-live="polite">
+    <div ref={ref} className="bg-ink-900 border border-black rounded-xl px-3 py-2 h-32 overflow-y-auto" aria-live="polite">
       {lines.map((line, i) => (
         <p
           key={i}
           className={`text-sm leading-relaxed ${
-            line.startsWith('—') ? 'text-slate-500 text-xs mt-1' :
-            i === lines.length - 1 ? 'text-white font-medium' : 'text-slate-400'
+            line.startsWith('—') ? 'text-white/50 text-xs mt-1' :
+            i === lines.length - 1 ? 'text-white font-medium' : 'text-white/65'
           }`}
         >
           {line}

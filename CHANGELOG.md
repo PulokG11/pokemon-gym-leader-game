@@ -14,6 +14,18 @@ git push origin main
 
 ---
 
+## v0.10.0 — Design pass (2026-11-19)
+
+- **One visual language:** team select, end-of-run, Ranking, How to play, the Gym picker and the error screen moved from the old slate/indigo look onto the orange stage, coal panels and gold main action used everywhere else
+- **Pixel arenas:** every Gym type has its own pixel-art arena (sky, stepped ridge, dithered ground and a type motif such as lava pools, waves, tufts, fog and candles), used in the Gym hub, the Gym picker and battle, with raised battle platforms in the arena's colours
+- **Gym picker** shows each Gym as a card: its Leader on their arena, the Gym name, type and weaknesses
+- **Pixel item sprites** (PokeAPI) replace emoji for bag items, rewards, the merchant, hub tabs, Gym Funds and home tiles; move categories show PHY/SPE/STA tags
+- **Type:** Press Start 2P only for the logo and screen titles; Pixelify Sans for names, buttons and card titles; Nunito for body text
+- **Accessibility:** type badges and move buttons now meet WCAG AA contrast on every type (was as low as ~1.5:1 on Electric); visible gold keyboard focus ring; no horizontal scroll at 375px
+- Fixed a stray scrollbar on the Gym progress track
+
+Rollback: `git checkout v0.8.0 -- .`
+
 ## v0.8.0 — Gym upgrades and smarter challengers (2026-11-15)
 
 Built from the mockup and Product Guide; detailed v0.8 instructions can refine it.

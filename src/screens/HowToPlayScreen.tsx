@@ -4,7 +4,7 @@ import { ScreenHeader } from '../components/ScreenHeader'
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="rounded-xl bg-ink-900 border border-white/10 p-5">
-      <h2 className="font-extrabold text-lg text-gold-300">{title}</h2>
+      <h2 className="font-ui font-bold text-xl text-gold-300">{title}</h2>
       <div className="mt-2 text-sm text-white/80 leading-relaxed space-y-2">{children}</div>
     </section>
   )
@@ -12,7 +12,7 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 
 export function HowToPlayScreen() {
   return (
-    <div className="min-h-screen bg-ink-950 text-white">
+    <div className="home-bg min-h-screen text-white">
       <ScreenHeader title="How to play" sub="You’re the Gym Leader. Challengers come to you." />
       <div className="max-w-3xl mx-auto px-4 py-6 flex flex-col gap-4">
         <Section title="Daily Challenge">

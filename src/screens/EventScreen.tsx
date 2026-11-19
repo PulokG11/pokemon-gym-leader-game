@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { ItemIcon, itemSprite } from '../components/ItemIcon'
 import { useRunStore } from '../store/runStore'
 import { artworkUrl, species } from '../lib/dex'
 import { BAG_INFO, heldItemDesc, type BagItem } from '../lib/economy'
@@ -11,7 +12,7 @@ function EventCard({ sprite, title, desc, onClick }: { sprite: string; title: st
   return (
     <button onClick={onClick} className="rounded-xl bg-ink-900 border-2 border-black/50 p-5 flex flex-col items-center gap-2 hover:-translate-y-1 hover:bg-ink-800 transition-all shadow-[0_5px_0_rgba(0,0,0,0.35)]">
       <img src={TRAINER(sprite)} alt="" className="h-28 [image-rendering:pixelated]" />
-      <span className="pixel-title text-sm [text-shadow:none]">{title}</span>
+      <span className="font-ui font-bold text-xl">{title}</span>
       <span className="text-sm text-white/70 text-center">{desc}</span>
     </button>
   )
@@ -28,14 +29,14 @@ export function EventScreen() {
   return (
     <div className="home-bg min-h-screen text-white font-sans px-4 py-8">
       <div className="max-w-4xl mx-auto flex flex-col gap-4">
-        <h1 className="pixel-title text-gold-400 text-3xl sm:text-4xl text-center [text-shadow:-3px_-3px_0_#1c1613,3px_-3px_0_#1c1613,-3px_3px_0_#1c1613,3px_3px_0_#1c1613,0_6px_0_rgba(28,22,19,0.45)]">
+        <h1 className="screen-title text-3xl sm:text-4xl text-center">
           What’s next?
         </h1>
         <TeamStrip roster={run.roster} onSelect={setTeamUid} />
         <div className="flex flex-wrap items-center justify-center gap-2 text-sm">
-          <span className="rounded-lg bg-ink-900 border-2 border-black/50 px-3 py-1 font-extrabold text-gold-300">💰 ₽{run.funds}</span>
+          <span className="rounded-lg bg-ink-900 border-2 border-black/50 px-3 py-1 font-extrabold text-gold-300"><ItemIcon src={itemSprite({ held: 'Amulet Coin' })} className="w-5 h-5 inline-block align-[-4px]" alt="" /> ₽{run.funds}</span>
           {(Object.keys(BAG_INFO) as BagItem[]).map(b => (
-            <span key={b} className="rounded-lg bg-ink-900/80 px-2 py-1 text-xs font-bold">{BAG_INFO[b].icon} ×{bag[b]}</span>
+            <span key={b} title={BAG_INFO[b].name} className="flex items-center gap-1 rounded-lg bg-ink-900/80 pl-1 pr-2 py-0.5 text-xs font-bold"><ItemIcon src={itemSprite({ bag: b })} className="w-6 h-6" alt={BAG_INFO[b].name} />×{bag[b]}</span>
           ))}
         </div>
         {fainted > 0 && (
@@ -83,10 +84,12 @@ export function EventScreen() {
             <p className="text-sm text-white/70 mt-1 mb-3">Bought items go to your bag. Use them from the team above.</p>
             <div className="grid sm:grid-cols-2 gap-2">
               {(run.stock ?? []).map(s => {
-                const name = s.kind === 'bag' ? `${BAG_INFO[s.item as BagItem].icon} ${BAG_INFO[s.item as BagItem].name}` : `🎁 ${s.item}`
+                const name = s.kind === 'bag' ? BAG_INFO[s.item as BagItem].name : s.item
+                const icon = s.kind === 'bag' ? itemSprite({ bag: s.item as BagItem }) : itemSprite({ held: s.item })
                 const desc = s.kind === 'bag' ? BAG_INFO[s.item as BagItem].desc : heldItemDesc(s.item)
                 return (
                   <div key={s.id} className="flex items-center gap-3 rounded-lg bg-white/5 px-3 py-2">
+                    <ItemIcon src={icon} className="w-8 h-8 shrink-0" />
                     <div className="flex-1 min-w-0">
                       <p className="font-bold text-sm">{name}</p>
                       <p className="text-xs text-white/60">{desc}</p>

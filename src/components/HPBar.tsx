@@ -11,14 +11,14 @@ export function HPBar({ hp, maxHp, size = 'lg' }: HPBarProps) {
 
   return (
     <div className="w-full">
-      <div className={`w-full ${h} bg-slate-700 rounded-full overflow-hidden`}>
+      <div className={`w-full ${h} bg-ink-800 rounded-full overflow-hidden`}>
         <div
           className={`${h} ${color} rounded-full transition-[width,background-color] duration-700 ease-out`}
           style={{ width: `${pct * 100}%` }}
         />
       </div>
       {size === 'lg' && (
-        <p className="text-xs text-slate-400 mt-0.5 text-right tabular-nums">
+        <p className="text-xs text-white/65 mt-0.5 text-right tabular-nums">
           {hp} / {maxHp}
         </p>
       )}

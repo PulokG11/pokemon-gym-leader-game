@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { ItemIcon, itemSprite } from '../components/ItemIcon'
 import { useRunStore } from '../store/runStore'
 import { useUiStore } from '../store/uiStore'
 import { artworkUrl, battleSpriteUrl, species } from '../lib/dex'
@@ -10,7 +11,7 @@ import { TypeBadge } from '../components/TypeBadge'
 import { TeamModal } from '../components/TeamModal'
 import { Modal } from '../components/Modal'
 import type { RunState } from '../types/game'
-import { ARENA } from '../lib/arena'
+import { ArenaBackdrop } from '../components/ArenaBackdrop'
 
 
 const panel = 'rounded-xl bg-ink-900 border-2 border-black shadow-[0_5px_0_rgba(0,0,0,0.35)]'
@@ -21,7 +22,7 @@ function ProgressTrack({ run }: { run: RunState }) {
     return <p className="text-sm text-white/70">Daily Challenge · <b className="text-gold-300">{run.challengerIndex}</b> {run.challengerIndex === 1 ? 'win' : 'wins'} so far · endless</p>
   }
   return (
-    <ol className="flex items-center overflow-x-auto pb-1" aria-label={`Challenger ${run.challengerIndex + 1} of ${total}`}>
+    <ol className="flex items-center overflow-x-auto overflow-y-hidden [scrollbar-width:none] py-1" aria-label={`Challenger ${run.challengerIndex + 1} of ${total}`}>
       {Array.from({ length: total }, (_, i) => {
         const done = i < run.challengerIndex
         const current = i === run.challengerIndex
@@ -121,6 +122,8 @@ function UpgradesTab() {
 }
 
 type Tab = 'team' | 'upgrades' | 'bag' | 'log'
+const TAB_LABEL: Record<Tab, string> = { team: 'Team', upgrades: 'Upgrades', bag: 'Bag', log: 'Log' }
+const TAB_ICON: Record<Tab, string> = { team: 'Poke Ball', upgrades: 'Up-Grade', bag: 'Explorer Kit', log: 'Town Map' }
 
 export function GymScreen() {
   const run = useRunStore(s => s.run)!
@@ -145,12 +148,12 @@ export function GymScreen() {
           <div className="flex items-center gap-3">
             <button onClick={() => go('home')} aria-label="Home" className="w-10 h-10 rounded-lg bg-white/10 hover:bg-white/15 text-lg">☰</button>
             <div className="flex-1 min-w-0">
-              <h1 className="pixel-title text-base sm:text-lg [text-shadow:none] truncate">{gymName(run.gymType)}</h1>
+              <h1 className="font-ui font-bold text-xl sm:text-2xl truncate">{gymName(run.gymType)}</h1>
               <p className="text-xs text-white/60">
                 {run.totalChallengers === null ? 'Daily Challenge' : <>Challenger <b className="text-white">{run.challengerIndex + 1}</b>/{run.totalChallengers}</>}
               </p>
             </div>
-            <span className="rounded-full bg-black/40 px-3 py-1 font-black text-gold-300 tabular-nums">💰 {run.funds ?? 0}</span>
+            <span className="rounded-full bg-black/40 px-3 py-1 font-black text-gold-300 tabular-nums"><ItemIcon src={itemSprite({ held: 'Amulet Coin' })} className="w-5 h-5 inline-block align-[-4px]" alt="" /> ₽{run.funds ?? 0}</span>
           </div>
           <ProgressTrack run={run} />
         </header>
@@ -158,17 +161,17 @@ export function GymScreen() {
         <div className="grid lg:grid-cols-[1.4fr_1fr] gap-4 items-start">
           {/* Challenger */}
           <section className={`${panel} overflow-hidden`}>
-            <div className={`relative h-56 sm:h-64 bg-gradient-to-br ${ARENA[run.gymType]}`}>
+            <ArenaBackdrop type={run.gymType} className="h-56 sm:h-64">
               <img src={trainerSprite(LEADER_SPRITE[run.gymType])} alt="" className="absolute left-[6%] bottom-4 h-32 sm:h-40 [image-rendering:pixelated] drop-shadow-[0_4px_0_rgba(0,0,0,0.3)]" />
               {lead && <img src={battleSpriteUrl(lead.species, false)} alt="" className="absolute left-[30%] bottom-4 h-20 sm:h-24 [image-rendering:pixelated] -scale-x-100" />}
-              <span className="pixel-title absolute left-1/2 top-1/3 -translate-x-1/2 text-gold-400 text-3xl">VS</span>
+              <span className="pixel-title absolute left-1/2 top-[30%] -translate-x-1/2 text-gold-400 text-3xl">VS</span>
               <img src={trainerSprite(trainer.sprite)} alt="" className="absolute right-[6%] bottom-4 h-32 sm:h-40 [image-rendering:pixelated] -scale-x-100 drop-shadow-[0_4px_0_rgba(0,0,0,0.3)]" />
-            </div>
+            </ArenaBackdrop>
             <div className="p-4 flex flex-col gap-3 border-t-2 border-black">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="text-[11px] uppercase tracking-wider text-white/60">{trainer.title}</p>
-                  <h2 className="pixel-title text-lg [text-shadow:none]">{trainer.name}</h2>
+                  <h2 className="font-ui font-bold text-2xl leading-tight">{trainer.name}</h2>
                   <div className="flex flex-wrap gap-1 mt-1.5">
                     {challengerTypes.map(t => <TypeBadge key={t} type={t} small />)}
                     {threats > 0 && <span className="text-[10px] font-bold rounded px-1.5 bg-red-900/60 text-red-200">⚠ {threats} strong vs you</span>}
@@ -194,7 +197,7 @@ export function GymScreen() {
               {(['team', 'upgrades', 'bag', 'log'] as Tab[]).map(t => (
                 <button key={t} role="tab" aria-selected={tab === t} onClick={() => setTab(t)}
                   className={`flex-1 rounded-lg border-2 py-1.5 text-sm font-bold capitalize ${tab === t ? 'border-gold-400 bg-gold-400/10 text-gold-300' : 'border-white/10 hover:bg-white/5'}`}>
-                  {t === 'team' ? '🔴 Team' : t === 'upgrades' ? '🏗 Upgrades' : t === 'bag' ? '🎒 Bag' : '📜 Log'}
+                  <span className="flex items-center justify-center gap-1"><ItemIcon src={itemSprite({ held: TAB_ICON[t] })} className="w-5 h-5" />{TAB_LABEL[t]}</span>
                 </button>
               ))}
             </div>
@@ -226,7 +229,7 @@ export function GymScreen() {
                 <div className="grid grid-cols-2 gap-2">
                   {(Object.keys(BAG_INFO) as BagItem[]).map(b => (
                     <div key={b} className={`rounded-lg border-2 border-black bg-black/25 px-3 py-2 ${bag[b] ? '' : 'opacity-45'}`} title={BAG_INFO[b].desc}>
-                      <p className="font-bold text-sm">{BAG_INFO[b].icon} {BAG_INFO[b].name}</p>
+                      <p className="font-bold text-sm flex items-center gap-1.5"><ItemIcon src={itemSprite({ bag: b })} className="w-7 h-7" />{BAG_INFO[b].name}</p>
                       <p className="text-xs text-gold-300">×{bag[b]}</p>
                     </div>
                   ))}

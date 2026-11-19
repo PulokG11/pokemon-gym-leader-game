@@ -21,8 +21,7 @@ export const TYPE_COLORS: Record<GymType, { bg: string; text: string; border: st
   fairy:    { bg: 'bg-rose-400',    text: 'text-rose-400',    border: 'border-rose-400' },
 }
 
-export const TYPE_EMOJI: Record<GymType, string> = {
-  fire: '🔥', water: '💧', grass: '🌿', electric: '⚡', ghost: '👻', dragon: '🐉',
-  normal: '⭐', ice: '❄️', fighting: '👊', poison: '☠️', ground: '🌍', flying: '🌬️',
-  psychic: '🔮', bug: '🐛', rock: '🪨', dark: '🌑', steel: '⚙️', fairy: '✨',
-}
+/** Text colour that meets WCAG AA on each type's background colour. */
+const LIGHT_ON_TYPE = new Set<GymType>(['ghost', 'dragon', 'fighting', 'poison', 'dark', 'rock', 'steel', 'normal'])
+export const typeTextClass = (type: string) =>
+  LIGHT_ON_TYPE.has(type.toLowerCase() as GymType) ? 'text-white' : 'text-ink-900'

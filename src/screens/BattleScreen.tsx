@@ -6,11 +6,11 @@ import { useUiStore } from '../store/uiStore'
 import { useBattle } from '../hooks/useBattle'
 import { packTeam } from '../lib/progression'
 import { battleSpriteUrl, effectiveness, move as moveData, species as speciesData, toID } from '../lib/dex'
-import { ARENA } from '../lib/arena'
+import { ArenaBackdrop, Platform } from '../components/ArenaBackdrop'
 import { LEADER_SPRITE, challengerTrainer, gymName, trainerSprite } from '../lib/trainers'
 import { openBattle } from '../lib/battleGuard'
 import { battleExtras } from '../lib/upgrades'
-import { TYPE_COLORS } from '../lib/typeColors'
+import { TYPE_COLORS, typeTextClass } from '../lib/typeColors'
 import { Sprite } from '../components/Sprite'
 import { Modal } from '../components/Modal'
 import { MoveInfo } from '../components/MoveInfo'
@@ -20,7 +20,7 @@ import type { BattleMonState, GymType } from '../types/game'
 
 const STATUS_STYLE: Record<string, string> = {
   brn: 'bg-orange-600', par: 'bg-yellow-500 text-black', psn: 'bg-fuchsia-600', tox: 'bg-fuchsia-800',
-  slp: 'bg-slate-500', frz: 'bg-cyan-500 text-black',
+  slp: 'bg-stone-500', frz: 'bg-cyan-500 text-black',
 }
 
 const typesOf = (name: string) => {
@@ -46,7 +46,7 @@ function InfoCard({ mon, mine }: { mon: BattleMonState; mine: boolean }) {
       </div>
       <div className="flex items-center justify-between mt-0.5 text-[11px] font-bold">
         <span>
-          {mon.status && <span className={`uppercase rounded px-1 text-white ${STATUS_STYLE[mon.status] ?? 'bg-slate-600'}`}>{mon.status}</span>}
+          {mon.status && <span className={`uppercase rounded px-1 text-white ${STATUS_STYLE[mon.status] ?? 'bg-ink-800'}`}>{mon.status}</span>}
           {mon.speed > 0 && <span className="ml-1 text-ink-900/50">Spe {mon.speed}</span>}
         </span>
         <span className="tabular-nums text-ink-900/70">{mine ? `${mon.hp}/${mon.maxHp}` : `${Math.round(pct * 100)}%`}</span>
@@ -162,10 +162,10 @@ export function BattleScreen() {
           <div className="relative h-80 sm:h-96 rounded-2xl overflow-hidden border-2 border-black">
             <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-r from-ember-500 to-ember-700 flex items-center gap-6 px-[8%]">
               <img src={leaderSprite} alt="" className="h-28 sm:h-36 [image-rendering:pixelated]" />
-              <span className="pixel-title text-white text-base sm:text-xl [text-shadow:2px_2px_0_#1c1613]">{gymName(run.gymType)}</span>
+              <span className="font-ui font-bold text-white text-xl sm:text-3xl [text-shadow:2px_2px_0_#1c1613]">{gymName(run.gymType)}</span>
             </div>
             <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-r from-red-950 to-red-700 flex items-center justify-end gap-6 px-[8%]">
-              <span className="pixel-title text-white text-base sm:text-xl [text-shadow:2px_2px_0_#1c1613]">{trainer.name}</span>
+              <span className="font-ui font-bold text-white text-xl sm:text-3xl [text-shadow:2px_2px_0_#1c1613]">{trainer.name}</span>
               <img src={trainerSprite(trainer.sprite)} alt="" className="h-28 sm:h-36 [image-rendering:pixelated] -scale-x-100" />
             </div>
             <div className="absolute inset-x-0 top-1/2 h-1.5 -mt-0.5 bg-ink-900" />
@@ -193,19 +193,19 @@ export function BattleScreen() {
         {toolbar}
 
         {/* Arena */}
-        <div className={`relative h-72 sm:h-96 rounded-2xl overflow-hidden border-2 border-black bg-gradient-to-b ${ARENA[run.gymType]}`}>
+        <ArenaBackdrop type={run.gymType} className="h-72 sm:h-96 rounded-2xl border-2 border-black">
           <span className="absolute top-2 right-3 rounded bg-ink-900/80 px-2 py-0.5 text-[10px] font-black">TURN {b.turn}</span>
           <div className="absolute top-3 left-3 z-10"><InfoCard mon={p2Active} mine={false} /></div>
           <div className="absolute right-[8%] top-[22%] flex flex-col items-center">
             <Sprite species={p2Active.species} back={false} fainted={p2Active.fainted} event={eventFor('p2')} seq={seq} className="h-24 sm:h-32 relative z-[1]" />
-            <div className="w-36 sm:w-48 h-8 sm:h-10 -mt-6 rounded-[50%] bg-ink-900/40 border-4 border-ink-900/60" />
+            <Platform className="w-36 sm:w-48 h-8 sm:h-11 -mt-6" />
           </div>
           <div className="absolute left-[4%] sm:left-[8%] bottom-[2%] flex flex-col items-center">
             <Sprite species={p1Active.species} back fainted={p1Active.fainted} event={eventFor('p1')} seq={seq} className="h-32 sm:h-44 relative z-[1]" />
-            <div className="w-44 sm:w-60 h-9 sm:h-12 -mt-8 rounded-[50%] bg-ink-900/40 border-4 border-ink-900/60" />
+            <Platform className="w-44 sm:w-64 h-10 sm:h-14 -mt-8" />
           </div>
           <div className="absolute bottom-3 right-3 z-10"><InfoCard mon={p1Active} mine /></div>
-        </div>
+        </ArenaBackdrop>
 
         {/* Text box */}
         <div className="flex items-center gap-3 rounded-xl bg-[#fdf6e6] text-ink-900 border-2 border-ink-900 px-4 py-3 min-h-14" aria-live="polite">
@@ -259,19 +259,19 @@ export function BattleScreen() {
                     disabled={!canAct || m.disabled || m.pp === 0}
                     onClick={() => sendMove(`move ${m.slot}`)}
                     title={d ? `${d.category} · Pow ${d.power || '—'} · Acc ${d.accuracy === true ? '—' : d.accuracy} · ${d.desc}` : undefined}
-                    className={`relative overflow-hidden rounded-lg border-2 border-black ${TYPE_COLORS[type]?.bg ?? 'bg-slate-500'} px-3 py-2 text-left disabled:opacity-40 hover:brightness-110 shadow-[0_3px_0_rgba(0,0,0,0.4)]`}
+                    className={`relative overflow-hidden rounded-lg border-2 border-black ${TYPE_COLORS[type]?.bg ?? 'bg-stone-500'} ${typeTextClass(type)} px-3 py-2 text-left disabled:opacity-40 hover:brightness-110 shadow-[0_3px_0_rgba(0,0,0,0.4)]`}
                   >
                     <span className="absolute inset-y-0 right-0 w-1/2 bg-white/10 skew-x-[-20deg] translate-x-6" aria-hidden="true" />
                     <span className="relative flex items-center justify-between gap-1">
-                      <span className="font-black text-sm sm:text-base [text-shadow:1px_1px_0_rgba(0,0,0,0.35)]">
-                        <span className="text-white/60 text-[10px] mr-1">{i + 1}</span>{m.name}
+                      <span className="font-ui font-bold text-base sm:text-lg leading-tight">
+                        <span className="opacity-60 text-[11px] mr-1">{i + 1}</span>{m.name}
                       </span>
                       {badge && (
-                        <span className={`text-[10px] font-black rounded px-1 ${mult >= 2 ? 'bg-emerald-600' : 'bg-ink-900/70'}`}>{badge}</span>
+                        <span className={`text-[11px] font-black text-white rounded px-1 ${mult >= 2 ? 'bg-emerald-700' : 'bg-ink-900/80'}`}>{badge}</span>
                       )}
                     </span>
                     <span className="relative block mt-2 h-1.5 rounded-full bg-black/30 overflow-hidden" title={`${m.pp}/${m.maxPp} PP`}>
-                      <span className="block h-full bg-white/90" style={{ width: `${(m.pp / Math.max(1, m.maxPp)) * 100}%` }} />
+                      <span className="block h-full bg-current opacity-80" style={{ width: `${(m.pp / Math.max(1, m.maxPp)) * 100}%` }} />
                     </span>
                   </button>
                 )

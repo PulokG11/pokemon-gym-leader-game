@@ -14,6 +14,15 @@ git push origin main
 
 ---
 
+## v0.17.0 — Legendary Conquerer (2026-11-21)
+
+- **New mode, Legendary Conquerer:** a random legendary, mythical, Ultra Beast or Tapu (base stat total 500+; 97 opponents) appears on the left with its stats and total. On the right, 6 Pokémon roll with hidden stats; keep one stat from each (each stat once), then its stats are revealed. 2 skips per round. Win with a strictly higher total
+- Wins, rounds, streak and best total saved on this device; an unfinished round survives a reload, and giving it up counts as a loss
+- Dex generator adds a `legendaries` list (rest of the dex unchanged)
+- Home tile is live; How to play and README updated. Dream Team Builder stays "Coming soon"
+
+Rollback: `git checkout v0.16.1 -- .`
+
 ## v0.16.1 — Coming soon: two new quests (2026-11-20)
 
 - Home shows **Dream Team Builder** and **Legendary Conquerer** as "Coming soon" tiles (not playable yet)

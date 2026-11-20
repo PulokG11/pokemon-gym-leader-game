@@ -119,7 +119,7 @@ for (const s of candidates) {
   if (ls.length) learnsets.set(s.id, ls)
 }
 
-const out = { species: {}, moves: {}, starters: {}, challengers: [], typeChart: {}, regions: {}, megas: {} }
+const out = { species: {}, moves: {}, starters: {}, challengers: [], typeChart: {}, regions: {}, megas: {}, legendaries: [] }
 
 // typeChart[defending][attacking] = damage multiplier (Showdown damageTaken: 1 weak, 2 resist, 3 immune)
 const TYPE_MULT = { 0: 1, 1: 2, 2: 0.5, 3: 0 }
@@ -200,6 +200,10 @@ for (const id of [...usedMoves].sort()) {
 }
 
 mkdirSync(new URL('../src/data/', import.meta.url), { recursive: true })
+// Legendary Conquerer opponents: legendaries, mythicals and Ultra Beasts (Tapus are Sub-Legendary).
+const LEGEND_TAGS = new Set(['Sub-Legendary', 'Restricted Legendary', 'Mythical', 'Ultra Beast'])
+out.legendaries = Object.keys(out.species).filter(id => Dex.species.get(id).tags.some(t => LEGEND_TAGS.has(t))).sort()
+
 writeFileSync(new URL('../src/data/dex.json', import.meta.url), JSON.stringify(out))
 
 const sizes = Object.entries(out.starters).map(([t, l]) => `${t}:${l.length}`).join(' ')

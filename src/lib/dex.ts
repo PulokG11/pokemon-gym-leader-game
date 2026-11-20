@@ -31,6 +31,7 @@ interface DexFile {
   typeChart: Record<string, Record<string, number>>
   regions: Record<string, { pool: string[] }>
   megas: Record<string, { name: string; types: string[]; base: string; stone: string }>
+  legendaries: string[]      // legendary, mythical and Ultra Beast species ids
 }
 
 export const DEX = data as unknown as DexFile

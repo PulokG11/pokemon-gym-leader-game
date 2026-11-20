@@ -4,7 +4,7 @@ A browser roguelike with two sides of the Pokémon League: **defend your own Gym
 
 **Play it: https://pulokg11.github.io/pokemon-gym-leader-game/**
 
-Works on desktop and mobile, and can be installed as an app (PWA) for offline play. Current release: **v0.16.1** ([changelog](CHANGELOG.md)).
+Works on desktop and mobile, and can be installed as an app (PWA) for offline play. Current release: **v0.17.0** ([changelog](CHANGELOG.md)).
 
 ---
 
@@ -16,7 +16,7 @@ Works on desktop and mobile, and can be installed as an app (PWA) for offline pl
 | **Gym Quest** | A Gym Leader | Pick any of the 18 types, Singles or Doubles, and a mode. **Title Defense:** beat 15 challengers (Rookie → Trainer → Ace Trainer → Rival → Rival Gym Leader → Elite Trainer → Elite Four → Champion); one loss costs you the title. **Endless:** challengers never stop and losses don't end the run; score = wins, Retire to save it. |
 | **Regional Quest** | The challenger | Pick one of 9 regions, earn its 8 badges, beat its Elite Four and its Champion: 13 battles, 3 retries. |
 | *Dream Team Builder* | — | Coming soon |
-| *Legendary Conquerer* | — | Coming soon |
+| **Legendary Conquerer** | A stat builder | Beat a random legendary, mythical or Ultra Beast (base stat total 500+): 6 Pokémon roll with hidden stats, keep one stat from each, 2 skips. Win if your total beats the legendary's. Wins and streaks are kept on your device. |
 
 ### Gym Quest and Daily Challenge
 
@@ -140,11 +140,11 @@ Every push to `main` runs the type-check and tests, then builds and deploys to G
 
 ## Versioning and rollback
 
-Each release is a git tag (latest `v0.16.1`) with an entry in [CHANGELOG.md](CHANGELOG.md), including its rollback command. To roll back, e.g. to v0.16.0:
+Each release is a git tag (latest `v0.17.0`) with an entry in [CHANGELOG.md](CHANGELOG.md), including its rollback command. To roll back, e.g. to v0.16.1:
 
 ```bash
-git checkout v0.16.0 -- .
-git commit -m "rollback: to v0.16.0"
+git checkout v0.16.1 -- .
+git commit -m "rollback: to v0.16.1"
 git push origin main
 ```
 

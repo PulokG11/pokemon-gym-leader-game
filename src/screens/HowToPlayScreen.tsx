@@ -30,6 +30,11 @@ export function HowToPlayScreen() {
           <p>After every win your whole team is healed and you catch 2 of 5 new Pokémon; two of the five are strong against your next two opponents. Six can be on the team; the rest wait in the box, and you can swap them in before any battle. Boxed Pokémon don’t earn XP.</p>
           <p>Rewards are Move Tutors, held items, Rare Candies and Evolution Stones, plus Mega Stones in Kanto, Hoenn and Kalos and Z-Crystals in Alola. Use the Mega Evolve or Z-Move button in battle. You have 3 retries: lose a fourth time and the quest ends.</p>
         </Section>
+        <Section title="Legendary Conquerer">
+          <p>A random legendary, mythical or Ultra Beast appears with all its stats. Build your own Pokémon to beat its base stat total.</p>
+          <p>Six Pokémon roll one after another with their stats hidden. For each, choose one stat to keep (HP, Attack, Defense, Sp. Atk, Sp. Def or Speed); its stats are then revealed. Each stat can be filled once. You have 2 skips per round to throw away a weak roll.</p>
+          <p>If your Pokémon’s total is higher than the legendary’s, you conquer it. A tie isn’t enough, and giving up a round counts as a loss.</p>
+        </Section>
         <Section title="Battles">
           <p>Pick a move each turn. The faster Pokémon (higher Speed) acts first, unless a move has priority: Quick Attack (+1) goes before normal moves even from a slower Pokémon.</p>
           <p>Tap a teammate in your party row to switch. When a Pokémon faints, choose who goes in next.</p>

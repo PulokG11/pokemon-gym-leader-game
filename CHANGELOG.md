@@ -14,6 +14,12 @@ git push origin main
 
 ---
 
+## v0.16.1 — Coming soon: two new quests (2026-11-20)
+
+- Home shows **Dream Team Builder** and **Legendary Conquerer** as "Coming soon" tiles (not playable yet)
+
+Rollback: `git checkout v0.16.0 -- .`
+
 ## v0.16.0 — Gym Quest modes: Title Defense and Endless (2026-11-20)
 
 - **Mode picker** on the Gym Quest starter screen: **Title Defense** (15 challengers; one loss costs the title) or **Endless**

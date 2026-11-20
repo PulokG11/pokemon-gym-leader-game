@@ -1,5 +1,5 @@
 import type { GymType, RunState } from '../types/game'
-import { questChallengerTitle } from './progression'
+import { endlessChallengerTitle, questChallengerTitle } from './progression'
 import { seededRng } from './daily'
 import { regionOf, trainerTitleName, type Tier } from './regions'
 
@@ -82,7 +82,7 @@ export function challengerTrainer(run: RunState, index = run.challengerIndex): T
   if (run.mode === 'regional') return regionalTrainer(run, index)
   const rng = seededRng(`trainer:${run.dailyDate ?? run.id}:${index}`)
   const pick = <T,>(xs: T[]) => xs[Math.floor(rng() * xs.length)]
-  const cls = run.totalChallengers === null ? (index < 3 ? 'Rookie' : index < 8 ? 'Trainer' : index < 15 ? 'Ace Trainer' : 'Elite Trainer') : questChallengerTitle(index)
+  const cls = run.endless ? endlessChallengerTitle(index) : run.totalChallengers === null ? (index < 3 ? 'Rookie' : index < 8 ? 'Trainer' : index < 15 ? 'Ace Trainer' : 'Elite Trainer') : questChallengerTitle(index)
   const info = CLASSES[cls]
   const first = pick(FIRST_NAMES)
   if (cls === 'Rival Gym Leader') {

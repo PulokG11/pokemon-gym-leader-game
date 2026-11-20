@@ -15,6 +15,8 @@ export interface QuestResult {
   cleared: boolean
   finishedAt: string
   region?: string // set for Regional Quest results
+  endless?: boolean // Endless Gym Quest: wins before retiring
+  losses?: number
 }
 
 interface RecordsStore {

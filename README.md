@@ -4,7 +4,7 @@ A browser roguelike with two sides of the Pokémon League: **defend your own Gym
 
 **Play it: https://pulokg11.github.io/pokemon-gym-leader-game/**
 
-Works on desktop and mobile, and can be installed as an app (PWA) for offline play. Current release: **v0.15.0** ([changelog](CHANGELOG.md)).
+Works on desktop and mobile, and can be installed as an app (PWA) for offline play. Current release: **v0.16.0** ([changelog](CHANGELOG.md)).
 
 ---
 
@@ -13,7 +13,7 @@ Works on desktop and mobile, and can be installed as an app (PWA) for offline pl
 | Mode | You are | Goal |
 |---|---|---|
 | **Daily Challenge** | A Gym Leader | Same Gym type, six starters and challengers for every player that UTC day. Challengers never stop; your score is how many you beat. One try per day, Singles only. |
-| **Gym Quest** | A Gym Leader | Pick any of the 18 types and Singles or Doubles, then beat 15 challengers: Rookie → Trainer → Ace Trainer → Rival → Rival Gym Leader → Elite Trainer → Elite Four → Champion. One loss ends the quest. |
+| **Gym Quest** | A Gym Leader | Pick any of the 18 types, Singles or Doubles, and a mode. **Title Defense:** beat 15 challengers (Rookie → Trainer → Ace Trainer → Rival → Rival Gym Leader → Elite Trainer → Elite Four → Champion); one loss costs you the title. **Endless:** challengers never stop and losses don't end the run; score = wins, Retire to save it. |
 | **Regional Quest** | The challenger | Pick one of 9 regions, earn its 8 badges, beat its Elite Four and its Champion: 13 battles, 3 retries. |
 
 ### Gym Quest and Daily Challenge
@@ -23,6 +23,7 @@ Works on desktop and mobile, and can be installed as an app (PWA) for offline pl
 - **Economy.** Wins pay Gym Funds and offer 1 of 3 rewards: recruits (team up to 6), training, Rare Candies, Evolution Stones, potions, revives, held items, League Favour rerolls and the **Move Tutor**. After each reward, visit the **Training Camp** (free levels) or the **Visiting Merchant**.
 - **Gym upgrades** (Gym Quest only): Pokémon Center, Training Room, Item Workshop, Recruitment Office, Gym Reputation, Home Crowd, Analysis Desk, Scouting Room (Scout shows exact moves, ability and held item) and Infirmary, plus a type **Arena** (weather or terrain at the start of battle) and a type **Forge**.
 - **HP carries over** between battles: conscious Pokémon recover 10% after a win; fainted ones need a Revive.
+- **Endless mode.** After a loss the team is fully healed and the next challenger steps in (no reward for that battle). Challengers keep climbing: every 5th is a Rival Gym Leader, every 10th an Elite Four member, every 25th a Champion; past challenger 15 levels rise more slowly but teams grow to 4, 5 and then 6 Pokémon.
 - **Doubles.** Two Pokémon out on each side; for each of yours you pick a move and, for single-target moves, which foe to hit (spread moves like Surf hit both). Doubles challengers bring 2, then 3, then 4 Pokémon.
 - **Challenger AI** grows with each class: Rookies pick at random, Trainers favour strong attacks, Ace Trainers and up play type matchups, use status moves and switch out of bad matchups.
 
@@ -137,11 +138,11 @@ Every push to `main` runs the type-check and tests, then builds and deploys to G
 
 ## Versioning and rollback
 
-Each release is a git tag (latest `v0.15.0`) with an entry in [CHANGELOG.md](CHANGELOG.md), including its rollback command. To roll back, e.g. to v0.14.0:
+Each release is a git tag (latest `v0.16.0`) with an entry in [CHANGELOG.md](CHANGELOG.md), including its rollback command. To roll back, e.g. to v0.15.0:
 
 ```bash
-git checkout v0.14.0 -- .
-git commit -m "rollback: to v0.14.0"
+git checkout v0.15.0 -- .
+git commit -m "rollback: to v0.15.0"
 git push origin main
 ```
 

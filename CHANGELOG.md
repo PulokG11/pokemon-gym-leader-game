@@ -14,6 +14,15 @@ git push origin main
 
 ---
 
+## v0.16.0 — Gym Quest modes: Title Defense and Endless (2026-11-20)
+
+- **Mode picker** on the Gym Quest starter screen: **Title Defense** (15 challengers; one loss costs the title) or **Endless**
+- **Endless:** challengers never stop; a loss heals the team, counts a loss and brings the next challenger (no reward). Every 5th challenger is a Rival Gym Leader, every 10th an Elite Four member, every 25th a Champion; past 15, levels rise one per 2 challengers and teams grow to 4, 5, then 6 Pokémon
+- **Retire** button ends an Endless run and saves wins and losses to your records
+- Hub, battle-end, end screen, Home tile, How to play and README updated. The Daily Challenge is unchanged
+
+Rollback: `git checkout v0.15.0 -- .`
+
 ## v0.15.0 — Scouting Room upgrade (2026-11-20)
 
 - **New Gym upgrade, Scouting Room** (Intel, ₽200, Gym Quest): Scout team shows each challenger's exact ability, held item and four moves; attacks super effective on your Gym type are marked red with ⚠

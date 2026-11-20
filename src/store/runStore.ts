@@ -28,6 +28,10 @@ interface RunStore {
   confirmTeam: (uids: string[]) => void
   /** Singles or Doubles; only while choosing starters in a Gym Quest. */
   setFormat: (format: BattleFormat) => void
+  /** Gym Quest: Title Defense (15 challengers, one loss ends it) or Endless (losses don't end it). */
+  setEndless: (endless: boolean) => void
+  /** Endless: step down as Gym Leader, ending the run and saving its result. */
+  retireRun: () => void
   // Regional Quest
   startRegional: (region: RegionId) => void
   /** Starter plus as many picks as the first Gym Leader has Pokémon, minus one. */
@@ -100,13 +104,17 @@ export function runRng(run: RunState, salt: string): Rng {
 }
 
 function nextChallenger(run: RunState, roster: RosterMember[], index: number): RosterMember[] {
-  const size = challengerSize(run.format ?? 'singles', index)
+  const size = challengerSize(run.format ?? 'singles', index, !!run.endless)
   return run.mode === 'daily' && run.dailyDate
     ? buildDailyChallenger(index, dailyRng(run.dailyDate, `challenger:${index}`), size)
     : buildChallenger(roster, index, Math.random, size)
 }
 
 function recordResult(run: RunState, wins: number, finished: boolean, cleared: boolean) {
+  if (run.endless && finished) {
+    useRecordsStore.getState().recordQuest({ gymType: run.gymType, wins, cleared: false, finishedAt: new Date().toISOString(), endless: true, losses: run.losses ?? 0 })
+    return
+  }
   const records = useRecordsStore.getState()
   if (run.mode === 'daily' && run.dailyDate) {
     records.recordDaily({ date: run.dailyDate, gymType: run.gymType, wins, finished })
@@ -252,6 +260,11 @@ export const useRunStore = create<RunStore>()(
         setFormat: (format) =>
           set(({ run }) => (run && run.phase === 'team_select' && run.mode !== 'daily' ? { run: { ...run, format } } : {})),
 
+        setEndless: (endless) =>
+          set(({ run }) => (run && run.phase === 'team_select' && run.mode === 'quest'
+            ? { run: { ...run, endless, losses: 0, totalChallengers: endless ? null : GYM_QUEST_LENGTH } }
+            : {})),
+
         startRegional: (regionId) => {
           const region = REGIONS[regionId]
           const starters = region.starters.map(id => createMon(id, region.startLevel))
@@ -352,11 +365,12 @@ export const useRunStore = create<RunStore>()(
           const lastProgress = healed.map(m => gainXp(m, xp))
           const roster = lastProgress.map((r, i) => ({ ...r.after, hp: healed[i].hp, item: healed[i].item }))
           const wins = run.challengerIndex + 1
+          const won = wins - (run.losses ?? 0)
           const funds = Math.round(fundsForWin(run.challengerIndex) * (has('reputation') ? 1.25 : 1))
           const cleared = run.totalChallengers !== null && wins >= run.totalChallengers
           recordResult(run, wins, cleared, cleared)
           const lines = [`Victory! +₽${funds} Gym Funds.`, ...lastProgress.flatMap(r => (r.events.length ? describe(r) : []))]
-          const everySecond = wins % 2 === 0
+          const everySecond = won % 2 === 0
           const bag = { ...(run.bag ?? EMPTY_BAG) }
           let rerolls = run.rerolls ?? 0
           if (everySecond && has('analysis')) { rerolls += 1; lines.push('Analysis Desk: +1 reward reroll.') }
@@ -385,6 +399,19 @@ export const useRunStore = create<RunStore>()(
         loseBattle: (forfeited = false) => {
           const run = get().run
           if (!run) return
+          if (run.endless) {
+            // The Gym Leader keeps the title: the team is patched up and the next challenger steps in.
+            const losses = (run.losses ?? 0) + 1
+            const index = run.challengerIndex + 1
+            const roster = fullHeal(run.roster)
+            set({
+              run: withLog(
+                { ...run, losses, challengerIndex: index, roster, challenger: nextChallenger(run, roster, index), battleKey: null, lastProgress: [], phase: 'gym' },
+                [`Lost to challenger #${index}. Your team was healed; the next challenger is waiting.`],
+              ),
+            })
+            return
+          }
           if (run.mode === 'regional' && (run.retries ?? 0) > 0) {
             const left = (run.retries ?? 0) - 1
             const t = regionOf(run.region).trainers[run.challengerIndex]
@@ -398,6 +425,13 @@ export const useRunStore = create<RunStore>()(
           }
           recordResult(run, run.challengerIndex, true, false)
           set({ run: { ...run, won: false, forfeited, battleKey: null, phase: 'run_ended' } })
+        },
+
+        retireRun: () => {
+          const run = get().run
+          if (!run?.endless) return
+          recordResult(run, run.challengerIndex - (run.losses ?? 0), true, false)
+          set({ run: { ...run, won: false, battleKey: null, phase: 'run_ended' } })
         },
 
         markBattleOpen: (key) => set(({ run }) => (run ? { run: { ...run, battleKey: key } } : {})),

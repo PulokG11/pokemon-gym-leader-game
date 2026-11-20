@@ -490,7 +490,7 @@ export function BattleScreen() {
         </Modal>
       )}
 
-      {ended && <BattleEndModal won={b.winner === 'p1'} trainer={trainer} onContinue={finish} regional={regional} retries={run.retries ?? 0} />}
+      {ended && <BattleEndModal won={b.winner === 'p1'} trainer={trainer} onContinue={finish} regional={regional} retries={run.retries ?? 0} endless={run.endless} />}
     </div>
   )
 }

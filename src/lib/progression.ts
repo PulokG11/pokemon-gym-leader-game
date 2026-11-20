@@ -65,12 +65,15 @@ export function starterCandidates(gymType: string, rng: Rng = Math.random): Rost
 /** Challenger levels climb with each challenger, relative to the gym's average level. */
 export function challengerLevel(roster: RosterMember[], index: number): number {
   const avg = roster.reduce((s, m) => s + m.level, 0) / Math.max(roster.length, 1)
-  return Math.max(5, Math.min(MAX_LEVEL, Math.round(avg - 2 + index)))
+  return Math.max(5, Math.min(MAX_LEVEL, Math.round(avg - 2 + endlessStep(index))))
 }
 
+/** Levels above the team's average: +1 per challenger for the first 15, then +1 per 2 (Endless). */
+export const endlessStep = (index: number) => (index < GYM_QUEST_LENGTH ? index : GYM_QUEST_LENGTH - 1 + Math.floor((index - GYM_QUEST_LENGTH + 1) / 2))
+
 /** Challenger team size: 3 in Singles; in Doubles 2 for the first rookies, then 3, then 4. */
-export const challengerSize = (format: BattleFormat, index: number) =>
-  format === 'doubles' ? (index < 2 ? 2 : index < 6 ? 3 : 4) : 3
+export const challengerSize = (format: BattleFormat, index: number, endless = false) =>
+  endless && index >= 40 ? 6 : endless && index >= 25 ? 5 : format === 'doubles' ? (index < 2 ? 2 : index < 6 ? 3 : 4) : endless && index >= 15 ? 4 : 3
 
 export function buildChallenger(roster: RosterMember[], index: number, rng: Rng = Math.random, size = 3): RosterMember[] {
   const level = challengerLevel(roster, index)
@@ -88,6 +91,16 @@ export function buildDailyChallenger(index: number, rng: Rng, size = 3): RosterM
 }
 
 export const GYM_QUEST_LENGTH = 15
+
+/** Endless Gym Quest: classes climb like the quest, then every 10th challenger is an Elite Four Member and
+ * every 25th a Champion. */
+export function endlessChallengerTitle(index: number): string {
+  if (index < GYM_QUEST_LENGTH) return index >= 13 ? 'Elite Trainer' : questChallengerTitle(index)
+  if ((index + 1) % 25 === 0) return 'Champion'
+  if ((index + 1) % 10 === 0) return 'Elite Four Member'
+  if ((index + 1) % 5 === 0) return 'Rival Gym Leader'
+  return 'Elite Trainer'
+}
 
 /** Who the challenger is in a 15-battle Gym Quest, rookies up to the Champion. */
 export function questChallengerTitle(index: number): string {

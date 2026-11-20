@@ -13,7 +13,7 @@ const panel = 'rounded-xl bg-ink-900 border-2 border-black shadow-[0_4px_0_rgba(
 
 export function TeamSelectScreen() {
   const run = useRunStore(s => s.run)!
-  const { confirmTeam, clearRun, setFormat } = useRunStore()
+  const { confirmTeam, clearRun, setFormat, setEndless } = useRunStore()
   const go = useUiStore(s => s.go)
   const [picked, setPicked] = useState<string[]>([])
   const [info, setInfo] = useState<string | null>(null)
@@ -57,6 +57,32 @@ export function TeamSelectScreen() {
           <p className="text-sm mt-1.5"><span className="text-emerald-400" aria-label="Strength">▲</span> {GYM_STRENGTH[run.gymType]}</p>
           <p className="text-sm"><span className="text-red-400" aria-label="Weakness">▼</span> {gymWeakness(run.gymType)}</p>
         </section>
+
+        {run.mode === 'quest' && (
+          <section className={`${panel} px-4 py-3 flex flex-wrap items-center justify-between gap-3`}>
+            <div>
+              <p className="font-ui font-bold">Mode</p>
+              <p className="text-xs text-white/65 mt-0.5">
+                {run.endless
+                  ? 'Endless: challengers never stop. Losing a battle doesn’t cost you the title; your score is how many you beat.'
+                  : 'Title Defense: beat 15 challengers, up to the Champion. Lose one battle and you lose your title.'}
+              </p>
+            </div>
+            <div role="radiogroup" aria-label="Mode" className="flex gap-1.5">
+              {([['Title Defense', false], ['Endless', true]] as const).map(([label, on]) => (
+                <button
+                  key={label}
+                  role="radio"
+                  aria-checked={!!run.endless === on}
+                  onClick={() => setEndless(on)}
+                  className={`rounded-lg border-2 px-3 py-1.5 text-sm font-ui font-bold ${!!run.endless === on ? 'bg-gold-400 text-ink-900 border-black' : 'border-white/20 hover:bg-white/10'}`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
 
         {!daily && (
           <section className={`${panel} px-4 py-3 flex flex-wrap items-center justify-between gap-3`}>

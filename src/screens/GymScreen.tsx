@@ -26,6 +26,14 @@ const isWeakToYou = (run: RunState, types: string[]) => effectiveness(cap(run.gy
 
 function ProgressTrack({ run }: { run: RunState }) {
   const total = run.totalChallengers
+  if (run.endless) {
+    const wins = run.challengerIndex - (run.losses ?? 0)
+    return (
+      <p className="text-sm text-white/70">
+        Endless · <b className="text-emerald-300">{wins}</b> {wins === 1 ? 'win' : 'wins'} · <b className="text-red-300">{run.losses ?? 0}</b> {run.losses === 1 ? 'loss' : 'losses'} · you keep the title whatever happens
+      </p>
+    )
+  }
   if (total === null) {
     return <p className="text-sm text-white/70">Daily Challenge · <b className="text-gold-300">{run.challengerIndex}</b> {run.challengerIndex === 1 ? 'win' : 'wins'} so far · endless</p>
   }
@@ -173,6 +181,8 @@ export function GymScreen() {
   const [tab, setTab] = useState<Tab>('team')
   const [teamUid, setTeamUid] = useState<string | null>(null)
   const [scout, setScout] = useState(false)
+  const [retire, setRetire] = useState(false)
+  const retireRun = useRunStore(s => s.retireRun)
 
   const trainer = challengerTrainer(run)
   const lead = run.roster.find(m => (m.hp ?? 1) > 0)
@@ -199,9 +209,12 @@ export function GymScreen() {
                 {run.format === 'doubles' && <span className="shrink-0 text-[11px] font-black rounded-md bg-sky-500/25 border border-sky-300/50 text-sky-200 px-1.5 py-0.5">Doubles</span>}
               </h1>
               <p className="text-xs text-white/60">
-                {run.totalChallengers === null ? 'Daily Challenge' : <>Challenger <b className="text-white">{run.challengerIndex + 1}</b>/{run.totalChallengers}</>}
+                {run.endless ? <>Endless · challenger <b className="text-white">#{run.challengerIndex + 1}</b></> : run.totalChallengers === null ? 'Daily Challenge' : <>Challenger <b className="text-white">{run.challengerIndex + 1}</b>/{run.totalChallengers}</>}
               </p>
             </div>
+            {run.endless && (
+              <button onClick={() => setRetire(true)} className="shrink-0 rounded-lg bg-white/10 hover:bg-white/15 border-2 border-black px-2.5 py-1 text-xs font-bold">Retire</button>
+            )}
             <span className="rounded-full bg-black/40 px-3 py-1 font-black text-gold-300 tabular-nums"><ItemIcon src={itemSprite({ held: 'Amulet Coin' })} className="w-5 h-5 inline-block align-[-4px]" alt="" /> ₽{run.funds ?? 0}</span>
           </div>
           <ProgressTrack run={run} />
@@ -212,8 +225,10 @@ export function GymScreen() {
             <button onClick={dismissIntro} aria-label="Dismiss tips" className="absolute top-2 right-2 w-8 h-8 rounded-lg hover:bg-white/10 text-white/70">✕</button>
             <h2 className="font-ui font-bold text-lg text-gold-300">First run</h2>
             <ul className="mt-1.5 grid sm:grid-cols-3 gap-3 text-sm text-white/85 pr-6">
-              <li><b className="text-white">Your goal.</b> Defend the Gym against {run.totalChallengers} challengers. Every win pays prize money and offers a reward.</li>
-              <li><b className="text-white">Losing is progress.</b> Every win still counts when the run ends: it is saved to your records and the Ranking. Learn the matchups and go again.</li>
+              <li><b className="text-white">Your goal.</b> {run.endless ? 'Win as many battles as you can. Losing doesn’t end the run: your team is healed and the next challenger steps in. Retire whenever you like.' : `Defend the Gym against ${run.totalChallengers} challengers. Lose once and you lose your title.`} Every win pays prize money and offers a reward.</li>
+              {run.endless
+                ? <li><b className="text-white">Your score.</b> Wins are your score; losses are counted too. Press Retire to end the run and save the result to your records.</li>
+                : <li><b className="text-white">Losing is progress.</b> Every win still counts when the run ends: it is saved to your records and the Ranking. Learn the matchups and go again.</li>}
               <li><b className="text-white">Tip.</b> Press Scout team before each battle: <span className="text-red-200">⚠ THREAT</span> Pokémon hit your type hard, <span className="text-emerald-200">✓ WEAK TO YOU</span> ones are easy targets.</li>
             </ul>
           </section>
@@ -326,6 +341,15 @@ export function GymScreen() {
       </div>
 
       {teamUid && <TeamModal uid={teamUid} onClose={() => setTeamUid(null)} />}
+      {retire && (
+        <Modal title="Retire as Gym Leader?" onClose={() => setRetire(false)}>
+          <p className="text-sm text-white/80">This ends the Endless run and saves <b className="text-white">{run.challengerIndex - (run.losses ?? 0)} wins</b> and {run.losses ?? 0} losses to your records.</p>
+          <div className="flex justify-end gap-2 mt-4">
+            <button onClick={() => setRetire(false)} className="rounded-lg bg-white/10 hover:bg-white/15 px-4 py-2 font-bold text-sm">Keep defending</button>
+            <button onClick={() => { setRetire(false); retireRun() }} className="rounded-lg bg-red-500 hover:bg-red-400 text-white px-4 py-2 font-black text-sm">Retire</button>
+          </div>
+        </Modal>
+      )}
       {scout && <ScoutModal run={run} onClose={() => setScout(false)} onBattle={() => { setScout(false); startBattle() }} />}
     </div>
   )

@@ -221,7 +221,7 @@ export function HomeScreen() {
             <PokeBall className="w-9 h-9 shrink-0" />
             <span className="flex-1">
               <span className="block font-black text-xl leading-tight">Gym Quest</span>
-              <span className="block text-sm font-semibold text-ink-800/80">Pick a type and defend against 15 challengers</span>
+              <span className="block text-sm font-semibold text-ink-800/80">Title Defense (15 challengers) or Endless</span>
             </span>
             <span className="text-xl group-hover:translate-x-0.5 transition-transform" aria-hidden="true">▶</span>
           </button>

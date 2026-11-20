@@ -49,7 +49,9 @@ export interface RunState {
   format?: BattleFormat           // missing = singles (older saves)
   dailyDate: string | null        // UTC date for Daily Challenge runs
   challengerIndex: number         // challengers beaten so far
-  totalChallengers: number | null // null = endless (Daily Challenge)
+  totalChallengers: number | null // null = endless (Daily Challenge, Endless Gym Quest)
+  endless?: boolean               // Gym Quest in Endless mode: losses don't end the run
+  losses?: number                 // Endless: battles lost (challengerIndex counts challengers faced)
   candidates: RosterMember[]
   roster: RosterMember[]
   challenger: RosterMember[]

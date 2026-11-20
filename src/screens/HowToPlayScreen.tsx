@@ -21,8 +21,9 @@ export function HowToPlayScreen() {
           <p>Pick a nickname to appear on the Ranking. Today’s board ranks everyone on today’s Gym; the All time board shows each player’s best Daily run and which Gym it was on. No account or email is needed.</p>
         </Section>
         <Section title="Gym Quest">
-          <p>Pick any of the 18 types and a format: Singles (pick 3 of 6 starters) or Doubles (pick 4). Defend your Gym against 15 challengers, from Rookies through a Rival and the Elite Four to the Champion.</p>
-          <p>Beat all 15 to win the quest. Lose one battle and the quest ends.</p>
+          <p>Pick any of the 18 types, a mode and a format: Singles (pick 3 of 6 starters) or Doubles (pick 4).</p>
+          <p><b>Title Defense:</b> defend your Gym against 15 challengers, from Rookies through a Rival and the Elite Four to the Champion. Beat all 15 to win; lose one battle and you lose your title.</p>
+          <p><b>Endless:</b> challengers never stop, and every 10th is an Elite Four member. Losing a battle doesn’t end the run: your team is healed and the next challenger steps in. Your score is how many you beat; press Retire to end the run and save it.</p>
         </Section>
         <Section title="Regional Quest">
           <p>This time you are the challenger. Choose one of 9 regions, pick one of its starters and 2 unevolved Pokémon from that region, then beat its 8 Gym Leaders (Alola’s trial captains and kahunas), its Elite Four (Galar’s Champion Cup) and its Champion. Each opponent is tougher than the last, and every Champion brings a legendary or pseudo-legendary.</p>

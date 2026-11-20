@@ -3,7 +3,10 @@ import { questChallengerTitle } from './progression'
 import { regionOf } from './regions'
 
 export const modeName = (run: RunState) =>
-  run.mode === 'daily' ? 'Daily Challenge' : run.mode === 'regional' ? 'Regional Quest' : 'Gym Quest'
+  run.mode === 'daily' ? 'Daily Challenge' : run.mode === 'regional' ? 'Regional Quest' : run.endless ? 'Gym Quest · Endless' : 'Gym Quest'
+
+/** Battles won. In Endless, challengerIndex also counts the challengers you lost to. */
+export const winsOf = (run: RunState) => run.challengerIndex - (run.losses ?? 0)
 
 /** "Fire Gym" for Gym Quest and Daily, "Kanto" for a Regional Quest. */
 export const runPlace = (run: RunState) =>
@@ -21,7 +24,8 @@ export function challengerLabel(run: RunState, index = run.challengerIndex): str
 }
 
 export function progressLabel(run: RunState): string {
-  const wins = run.challengerIndex
+  const wins = winsOf(run)
+  if (run.endless) return `${wins} ${wins === 1 ? 'win' : 'wins'}, ${run.losses ?? 0} ${run.losses === 1 ? 'loss' : 'losses'}`
   if (run.mode === 'regional') return `${wins} / ${run.totalChallengers} battles won`
   if (run.totalChallengers === null) return `${wins} ${wins === 1 ? 'win' : 'wins'} so far`
   return `${wins} / ${run.totalChallengers} challengers down`

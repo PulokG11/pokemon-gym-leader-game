@@ -15,7 +15,8 @@ export function RunEndedScreen() {
   const go = useUiStore(s => s.go)
   const color = TYPE_COLORS[run.gymType]
   const { won } = run
-  const wins = run.challengerIndex
+  const wins = run.challengerIndex - (run.losses ?? 0)
+  const endless = !!run.endless
   const isDaily = run.mode === 'daily'
   const regional = run.mode === 'regional'
   const region = regionOf(run.region)
@@ -31,20 +32,22 @@ export function RunEndedScreen() {
   return (
     <div className="home-bg min-h-screen text-white px-4 py-10">
       <div className="max-w-2xl mx-auto flex flex-col items-center text-center gap-4">
-        <img src={trainerSprite(regional ? region.playerSprite : LEADER_SPRITE[run.gymType])} alt="" className={`h-36 [image-rendering:pixelated] ${won || isDaily ? '' : 'grayscale opacity-70'}`} />
+        <img src={trainerSprite(regional ? region.playerSprite : LEADER_SPRITE[run.gymType])} alt="" className={`h-36 [image-rendering:pixelated] ${won || isDaily || endless ? '' : 'grayscale opacity-70'}`} />
         <h2 className="screen-title text-3xl">
-          {regional ? (won ? `${region.name} Champion!` : 'Quest over') : won ? 'Quest complete!' : isDaily ? `${wins} ${wins === 1 ? 'win' : 'wins'} today` : 'Gym fallen…'}
+          {regional ? (won ? `${region.name} Champion!` : 'Quest over') : won ? 'Quest complete!' : endless ? `Retired after ${wins} ${wins === 1 ? 'win' : 'wins'}` : isDaily ? `${wins} ${wins === 1 ? 'win' : 'wins'} today` : 'Gym fallen…'}
         </h2>
         <p className="text-white/65">
           {regional
             ? won
               ? `You completed all 8 ${noun}s, beat the Elite Four and ${trainerTitleName(region.trainers.at(-1)!)}. Your team enters the Hall of Fame.`
               : `Out of retries against ${region.trainers[wins]?.name}. You completed ${badges} ${noun}${badges === 1 ? '' : 's'} and won ${wins} of ${region.trainers.length} battles.`
+            : endless
+            ? `You faced ${run.challengerIndex} challengers in Endless mode: ${wins} ${wins === 1 ? 'win' : 'wins'}, ${run.losses ?? 0} ${run.losses === 1 ? 'loss' : 'losses'}. The result is saved to your records.`
             : won
             ? `You defended your Gym against all ${run.totalChallengers} challengers, Champion included.`
             : isDaily
               ? `Your Gym held for ${wins} ${wins === 1 ? 'battle' : 'battles'}. Today's try is used; a new Daily Gym opens at midnight UTC.`
-              : `You defeated ${wins} of ${run.totalChallengers} challengers before falling.`}
+              : `You defeated ${wins} of ${run.totalChallengers} challengers before losing your title.`}
         </p>
         {run.forfeited && (
           <p className="text-sm text-amber-300">

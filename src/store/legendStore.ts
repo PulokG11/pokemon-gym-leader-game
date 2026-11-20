@@ -12,6 +12,10 @@ interface LegendStore {
   /** Starts a round, or keeps the one in progress (a reload can't swap the legendary). */
   start: () => void
   newGame: () => void
+  /** Same legendary again, with fresh rolls and skips. */
+  retry: () => void
+  /** Leaving for Home: an unfinished round counts as a loss, and the next visit starts with a new legendary. */
+  leave: () => void
   keep: (stat: StatKey) => void
   next: () => void
   skip: () => void
@@ -43,6 +47,17 @@ export const useLegendStore = create<LegendStore>()(
         // Leaving an unfinished round counts as a loss, so a bad legendary can't be dodged for free.
         if (round && !counted) set(s => ({ record: count(s.record, round) }))
         set({ round: newRound(), counted: false })
+      },
+      retry: () => {
+        const { round, counted } = get()
+        if (!round) return
+        if (!counted) set(s => ({ record: count(s.record, round) }))
+        set({ round: newRound(Math.random, round.legend), counted: false })
+      },
+      leave: () => {
+        const { round, counted } = get()
+        if (round && !counted) set(s => ({ record: count(s.record, round) }))
+        set({ round: null, counted: false })
       },
       keep: (stat) => set(s => (s.round ? { round: keepStat(s.round, stat) } : {})),
       next: () => {

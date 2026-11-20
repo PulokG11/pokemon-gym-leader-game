@@ -39,8 +39,8 @@ function rollNext(seen: string[], rng: Rng): string {
   return pickFrom(ROLL_POOL.filter(id => !taken.has(id)), rng)
 }
 
-export function newRound(rng: Rng = Math.random): LegendRound {
-  const legend = pickFrom(OPPONENTS, rng)
+/** A fresh round: a random legendary, or `legend` to reattempt the same one with new rolls. */
+export function newRound(rng: Rng = Math.random, legend: string = pickFrom(OPPONENTS, rng)): LegendRound {
   const roll = rollNext([], rng)
   return { legend, roll, picks: {}, kept: null, skips: LEGEND_SKIPS, seen: [roll] }
 }

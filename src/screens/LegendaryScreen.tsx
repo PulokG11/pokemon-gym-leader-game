@@ -21,7 +21,7 @@ function Total({ label, value, tone = 'text-gold-300' }: { label: string; value:
   return (
     <div className="mt-auto pt-2 border-t-2 border-black/60 flex items-baseline justify-between gap-2">
       <span className="text-xs uppercase tracking-wider text-white/55">{label}</span>
-      <span className={`font-ui font-bold text-2xl sm:text-3xl tabular-nums ${tone}`}>{value}</span>
+      <span className={`font-sans font-black text-3xl sm:text-4xl tabular-nums leading-none ${tone}`}>{value}</span>
     </div>
   )
 }
@@ -43,7 +43,7 @@ function useRolling(target: string | null, animate: boolean) {
 }
 
 export function LegendaryScreen() {
-  const { round, record, start, newGame, keep, next, skip } = useLegendStore()
+  const { round, record, start, newGame, retry, leave, keep, next, skip } = useLegendStore()
   const go = useUiStore(s => s.go)
   const effects = useSettingsStore(s => s.effects)
   useEffect(() => { start() }, [start])
@@ -58,6 +58,17 @@ export function LegendaryScreen() {
   const roll = round.roll ? species(round.roll) : null
   const filled = STAT_KEYS.filter(k => round.picks[k]).length
 
+  function home() {
+    if (round && !done && Object.keys(round.picks).length > 0 && !confirm('Leave this round? An unfinished round counts as a loss.')) return
+    leave()
+    go('home')
+  }
+
+  function again() {
+    if (!done && !confirm(`Start ${legend.name} again with new rolls? This unfinished round counts as a loss.`)) return
+    retry()
+  }
+
   function restart() {
     if (!done && !confirm('Give up this legendary? An unfinished round counts as a loss.')) return
     newGame()
@@ -67,13 +78,14 @@ export function LegendaryScreen() {
     <div className="home-bg min-h-screen text-white font-sans px-3 sm:px-6 py-4">
       <div className="max-w-5xl mx-auto flex flex-col gap-3">
         <header className={`${panel} px-3 sm:px-4 py-3 flex items-center gap-3`}>
-          <button onClick={() => go('home')} aria-label="Home" className="w-10 h-10 shrink-0 rounded-lg bg-white/10 hover:bg-white/15 text-lg">☰</button>
+          <button onClick={home} aria-label="Home" className="w-10 h-10 shrink-0 rounded-lg bg-white/10 hover:bg-white/15 text-lg">☰</button>
           <div className="flex-1 min-w-0">
             <h1 className="font-ui font-bold text-lg sm:text-2xl truncate">Legendary Conquerer</h1>
             <p className="text-[11px] sm:text-xs text-white/60">
               Beat the legendary’s base stat total · {record.wins}/{record.plays} won · streak {record.streak} (best {record.bestStreak})
             </p>
           </div>
+          {!done && <button onClick={again} className="shrink-0 rounded-lg bg-white/10 hover:bg-white/15 border-2 border-black px-2.5 py-1.5 text-xs font-bold" title={`Retry ${legend.name} with new rolls`}>↻ Retry</button>}
           <button onClick={restart} className="shrink-0 rounded-lg bg-white/10 hover:bg-white/15 border-2 border-black px-2.5 py-1.5 text-xs font-bold">New legendary</button>
         </header>
 
@@ -84,8 +96,9 @@ export function LegendaryScreen() {
               Your Pokémon’s total is <b className="text-white">{total}</b> against {legend.name}’s <b className="text-white">{target}</b>
               {won ? ` (+${total - target}).` : total === target ? ': a tie isn’t enough.' : ` (${total - target}).`}
             </p>
-            <div className="flex justify-center gap-2 mt-3">
-              <button onClick={() => go('home')} className="rounded-lg bg-white/10 hover:bg-white/15 px-4 py-2 font-bold text-sm">Home</button>
+            <div className="flex flex-wrap justify-center gap-2 mt-3">
+              <button onClick={home} className="rounded-lg bg-white/10 hover:bg-white/15 px-4 py-2 font-bold text-sm">Home</button>
+              <button onClick={retry} className="rounded-lg bg-white/10 hover:bg-white/15 border-2 border-black px-4 py-2 font-bold text-sm">↻ Retry {legend.name}</button>
               <button onClick={newGame} className="rounded-lg bg-gold-400 text-ink-900 hover:bg-gold-300 border-2 border-black px-4 py-2 font-black text-sm">Next legendary ▶</button>
             </div>
           </section>

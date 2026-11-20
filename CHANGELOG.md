@@ -14,6 +14,14 @@ git push origin main
 
 ---
 
+## v0.17.1 — Legendary Conquerer: retry and fresh starts (2026-11-21)
+
+- Base stat total and your total use a bold, legible font instead of the pixel font
+- **↻ Retry** the same legendary with fresh rolls and skips (result banner; in the header mid-round, counted as a loss)
+- Going Home resets the mode: re-entering starts with a new legendary (leaving a round you've started counts as a loss)
+
+Rollback: `git checkout v0.17.0 -- .`
+
 ## v0.17.0 — Legendary Conquerer (2026-11-21)
 
 - **New mode, Legendary Conquerer:** a random legendary, mythical, Ultra Beast or Tapu (base stat total 500+; 97 opponents) appears on the left with its stats and total. On the right, 6 Pokémon roll with hidden stats; keep one stat from each (each stat once), then its stats are revealed. 2 skips per round. Win with a strictly higher total

@@ -57,4 +57,11 @@ describe('Legendary Conquerer', () => {
     expect(isWin({ ...r, picks, roll: null })).toBe(false)
     expect(isWin({ ...r, picks: { ...picks, hp: { species: 'pikachu', value: target - 499 } }, roll: null })).toBe(true)
   })
+  it('a retry keeps the legendary with fresh rolls and skips', () => {
+    const r = newRound(seededRng('x'))
+    const again = newRound(seededRng('y'), r.legend)
+    expect(again.legend).toBe(r.legend)
+    expect(again.skips).toBe(LEGEND_SKIPS)
+    expect(again.picks).toEqual({})
+  })
 })

@@ -5,6 +5,7 @@ import { SetupScreen } from './screens/SetupScreen'
 import { RankingScreen } from './screens/RankingScreen'
 import { HowToPlayScreen } from './screens/HowToPlayScreen'
 import { LegendaryScreen } from './screens/LegendaryScreen'
+import { DreamTeamScreen } from './screens/DreamTeamScreen'
 import { TeamSelectScreen } from './screens/TeamSelectScreen'
 import { BattleScreen } from './screens/BattleScreen'
 import { RewardScreen } from './screens/RewardScreen'
@@ -27,6 +28,7 @@ function Screen() {
     case 'ranking':     return <RankingScreen />
     case 'how_to_play': return <HowToPlayScreen />
     case 'legendary':   return <LegendaryScreen />
+    case 'dream':       return <DreamTeamScreen />
     case 'run':
       if (!run) return <HomeScreen />
       if (run.mode === 'regional') {

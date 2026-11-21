@@ -254,23 +254,19 @@ export function HomeScreen() {
             <span className="text-gold-400 text-xl group-hover:translate-x-0.5 transition-transform" aria-hidden="true">▶</span>
           </button>
 
-          {/* Upcoming quests */}
-          {([
-            ['Dream Team Builder', 'Build your ideal team of six', 'Master Ball'],
-          ] as const).map(([title, sub, icon]) => (
-            <div
-              key={title}
-              aria-disabled="true"
-              className="flex items-center gap-3 rounded-xl bg-ink-900/70 border-2 border-dashed border-white/20 px-4 py-3 text-left opacity-80"
-            >
-              <ItemIcon src={itemSprite({ held: icon })} className="w-9 h-9 grayscale" />
-              <span className="flex-1">
-                <span className="block font-extrabold text-lg leading-tight text-white/85">{title}</span>
-                <span className="block text-xs text-white/55">{sub}</span>
-              </span>
-              <span className="text-[10px] font-black uppercase tracking-wider bg-gold-400/15 text-gold-300 rounded px-2 py-1">Coming soon</span>
-            </div>
-          ))}
+          {/* Dream Team Builder */}
+          <button
+            onClick={() => go('dream')}
+            className="group flex items-center gap-3 rounded-xl bg-ink-900 border-2 border-black px-4 py-3 text-left shadow-[0_4px_0_rgba(0,0,0,0.35)] hover:bg-ink-800 transition-colors"
+          >
+            <ItemIcon src={itemSprite({ held: 'Master Ball' })} className="w-9 h-9" />
+            <span className="flex-1">
+              <span className="block font-extrabold text-lg leading-tight">Dream Team Builder</span>
+              <span className="block text-xs text-white/65">Draft 6 Pokémon from a region and see how many badges they win</span>
+            </span>
+            <span className="text-[10px] font-black uppercase tracking-wider bg-red-500/20 text-red-200 rounded px-2 py-1">New</span>
+            <span className="text-gold-400 text-xl group-hover:translate-x-0.5 transition-transform" aria-hidden="true">▶</span>
+          </button>
 
           <div className="grid grid-cols-2 gap-3 mt-1">
             <Tile icon={<ItemIcon src={itemSprite({ held: 'Shiny Charm' })} className="w-9 h-9" />} title="Ranking" sub="Daily results" onClick={() => go('ranking')} />

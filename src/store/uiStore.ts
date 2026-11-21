@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import type { ProgressReport } from '../types/game'
 
-export type Screen = 'home' | 'type_select' | 'region_select' | 'run' | 'ranking' | 'how_to_play' | 'legendary'
+export type Screen = 'home' | 'type_select' | 'region_select' | 'run' | 'ranking' | 'how_to_play' | 'legendary' | 'dream'
 
 interface UiStore {
   screen: Screen

@@ -14,6 +14,15 @@ git push origin main
 
 ---
 
+## v0.18.0 — Dream Team Builder (2026-11-21)
+
+- **New mode, Dream Team Builder:** choose a region, then draft 6 of its Pokémon (legendaries included): 6 options per roll, take one, 2 skips, at most 8 rolls, no repeated evolution lines
+- The team is then simulated on the real battle engine (new `dreamteam` worker, same AI on both sides) through the region's 8 Gyms, Elite Four and Champion: final evolutions at each opponent's top level, best of 3, stopping at the first loss. Same team, same result
+- Results: opponent track lights up, per-match scores, **Retry [region]**, **Next region**, Home. Best result per region saved on this device; Home clears the draft
+- Home tile live; How to play and README updated
+
+Rollback: `git checkout v0.17.1 -- .`
+
 ## v0.17.1 — Legendary Conquerer: retry and fresh starts (2026-11-21)
 
 - Base stat total and your total use a bold, legible font instead of the pixel font

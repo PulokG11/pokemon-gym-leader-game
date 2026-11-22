@@ -34,8 +34,9 @@ const STAT_ROWS: [keyof SpeciesData['baseStats'], string][] = [
 const statColor = (v: number) => (v >= 100 ? 'bg-emerald-400' : v >= 70 ? 'bg-sky-400' : v >= 50 ? 'bg-amber-400' : 'bg-red-400')
 
 /** Full breakdown: base stats, moveset, Strong against and Weak to, with Add/Remove. */
-export function PokemonDetails({ mon, picked, canAdd, onToggle, onClose }: {
-  mon: RosterMember; picked: boolean; canAdd: boolean; onToggle: () => void; onClose: () => void
+/** Stats, type matchups and (optionally) moves. Without `onToggle` it's read-only: no Add/Remove button. */
+export function PokemonDetails({ mon, picked = false, canAdd = false, onToggle, onClose, showMoves = true }: {
+  mon: RosterMember; picked?: boolean; canAdd?: boolean; onToggle?: () => void; onClose: () => void; showMoves?: boolean
 }) {
   const s = species(mon.species)
   const chain = evolutionChain(mon.species)
@@ -53,7 +54,7 @@ export function PokemonDetails({ mon, picked, canAdd, onToggle, onClose }: {
         </div>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-5 mt-4">
+      <div className={`grid gap-5 mt-4 ${showMoves ? 'md:grid-cols-2' : ''}`}>
         <section>
           <h3 className={heading}>Base stats</h3>
           <dl className="grid grid-cols-[4.5rem_2.25rem_1fr] gap-x-2 gap-y-1 items-center text-sm">
@@ -91,19 +92,21 @@ export function PokemonDetails({ mon, picked, canAdd, onToggle, onClose }: {
           <p className="text-[11px] text-white/50 mt-1">Attack types that deal it double damage or more.</p>
         </section>
 
-        <section>
-          <h3 className={heading}>Moveset at Lv {mon.level}</h3>
-          <div className="flex flex-col gap-1.5">{mon.moves.map(id => <MoveInfo key={id} id={id} />)}</div>
-        </section>
+        {showMoves && (
+          <section>
+            <h3 className={heading}>Moveset at Lv {mon.level}</h3>
+            <div className="flex flex-col gap-1.5">{mon.moves.map(id => <MoveInfo key={id} id={id} />)}</div>
+          </section>
+        )}
       </div>
 
-      <button
+      {onToggle && <button
         onClick={() => { onToggle(); onClose() }}
         disabled={!picked && !canAdd}
         className={`w-full mt-5 rounded-xl border-2 border-black py-2.5 font-ui font-bold disabled:opacity-40 ${picked ? 'bg-white/10 hover:bg-white/15' : 'bg-gold-400 text-ink-900 hover:bg-gold-300'}`}
       >
         {picked ? 'Remove from team' : canAdd ? 'Add to team' : 'Team is full'}
-      </button>
+      </button>}
     </Modal>
   )
 }

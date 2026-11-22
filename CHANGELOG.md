@@ -14,6 +14,12 @@ git push origin main
 
 ---
 
+## v0.18.1 — Team screen Details (2026-11-22)
+
+- The Team screen has an **ⓘ Details** button: base stats with total, Strong against and Weak to for the selected Pokémon (Gym Quest, Daily and Regional Quest)
+
+Rollback: `git checkout v0.18.0 -- .`
+
 ## v0.18.0 — Dream Team Builder (2026-11-21)
 
 - **New mode, Dream Team Builder:** choose a region, then draft 6 of its Pokémon (legendaries included): 6 options per roll, take one, 2 skips, at most 8 rolls, no repeated evolution lines

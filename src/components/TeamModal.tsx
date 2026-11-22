@@ -10,6 +10,7 @@ import { EvolveButtons } from './Evolution'
 import { learnableMoves } from '../lib/progression'
 import { move as moveData } from '../lib/dex'
 import { useUiStore } from '../store/uiStore'
+import { PokemonDetails } from './PokemonCard'
 
 /** One team member: HP, moves, held item, order, and bag items to use on it. */
 export function TeamModal({ uid, onClose }: { uid: string; onClose: () => void }) {
@@ -19,6 +20,7 @@ export function TeamModal({ uid, onClose }: { uid: string; onClose: () => void }
   const [selected, setSelected] = useState(uid)
   const [message, setMessage] = useState<string | null>(null)
   const [replacing, setReplacing] = useState<string | null>(null)
+  const [details, setDetails] = useState(false)
   const m = run.roster.find(x => x.uid === selected) ?? run.roster[0]
   if (!m) return null
   const s = species(m.species)
@@ -48,6 +50,7 @@ export function TeamModal({ uid, onClose }: { uid: string; onClose: () => void }
               {s.name} {index === 0 && <span className="ml-1 text-[10px] bg-gold-400 text-ink-900 rounded px-1 align-middle">LEAD</span>}
             </p>
             <div className="flex items-center gap-1.5 mt-1">{s.types.map(t => <TypeBadge key={t} type={t} small />)}<span className="text-sm text-white/70">Lv {m.level}</span></div>
+            <button onClick={() => setDetails(true)} className="mt-2 rounded-lg bg-white/10 hover:bg-white/15 border-2 border-black px-3 py-1 text-xs font-bold">ⓘ Details</button>
             <EvolveButtons mon={m} />
             <div className="w-full mt-2">
               <div className="flex justify-between text-[11px] text-white/60"><span>HP</span><span>{hp <= 0 ? 'FNT' : `${Math.round(hp * 100)}%`}</span></div>
@@ -136,6 +139,7 @@ export function TeamModal({ uid, onClose }: { uid: string; onClose: () => void }
           </div>
         </div>
       </div>
+      {details && <PokemonDetails mon={m} showMoves={false} onClose={() => setDetails(false)} />}
     </Modal>
   )
 }

@@ -4,7 +4,7 @@ A browser roguelike with two sides of the Pokémon League: **defend your own Gym
 
 **Play it: https://pulokg11.github.io/pokemon-gym-leader-game/**
 
-Works on desktop and mobile, and can be installed as an app (PWA) for offline play. Current release: **v0.18.0** ([changelog](CHANGELOG.md)).
+Works on desktop and mobile, and can be installed as an app (PWA) for offline play. Current release: **v0.18.1** ([changelog](CHANGELOG.md)).
 
 ---
 
@@ -140,11 +140,11 @@ Every push to `main` runs the type-check and tests, then builds and deploys to G
 
 ## Versioning and rollback
 
-Each release is a git tag (latest `v0.18.0`) with an entry in [CHANGELOG.md](CHANGELOG.md), including its rollback command. To roll back, e.g. to v0.17.1:
+Each release is a git tag (latest `v0.18.1`) with an entry in [CHANGELOG.md](CHANGELOG.md), including its rollback command. To roll back, e.g. to v0.18.0:
 
 ```bash
-git checkout v0.17.1 -- .
-git commit -m "rollback: to v0.17.1"
+git checkout v0.18.0 -- .
+git commit -m "rollback: to v0.18.0"
 git push origin main
 ```
 
